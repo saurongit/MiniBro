@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laravel — интерактивный гайд к собеседованию</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#1e293b; --card2:#16213a;
+    --text:#e2e8f0; --muted:#94a3b8;
+    --accent:#fda4af; --accent2:#f97316; --line:#334155;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:linear-gradient(180deg,#0b1222 0%,var(--bg) 100%);
+    color:var(--text);
+    font-family:Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size:15px; line-height:1.6;
+    padding-bottom:80px;
+  }
+  a{color:var(--accent);}
+
+  .banner{
+    max-width:960px; margin:0 auto; padding:34px 20px 10px; text-align:center;
+  }
+  .banner h1{
+    font-size:28px; letter-spacing:.3px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    margin-bottom:10px;
+  }
+  .banner p{color:var(--muted); font-size:14.5px;}
+  .badge{
+    display:inline-block; margin-top:14px; padding:6px 14px; border-radius:999px;
+    background:rgba(244,114,182,.12); border:1px solid rgba(244,114,182,.35);
+    color:var(--accent); font-size:12.5px; font-weight:600;
+  }
+
+  nav#toc{
+    position:sticky; top:0; z-index:500;
+    background:rgba(15,23,42,.92); backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+    padding:8px 10px; margin-top:18px;
+    display:flex; flex-wrap:wrap; gap:5px; justify-content:center;
+  }
+  nav#toc a{
+    color:var(--muted); text-decoration:none; font-size:11.5px;
+    padding:3px 7px; border-radius:6px; border:1px solid transparent;
+    transition:.15s;
+  }
+  nav#toc a:hover{color:var(--text); border-color:var(--line); background:var(--card);}
+
+  main{max-width:960px; margin:0 auto; padding:20px;}
+
+  section.card{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:22px 24px; margin-bottom:18px;
+    box-shadow:0 4px 18px rgba(0,0,0,.25);
+  }
+  section.card h2{
+    font-size:18px; margin-bottom:12px; color:var(--accent);
+    display:flex; align-items:center; gap:10px;
+  }
+  section.card h2 .num{
+    flex:0 0 auto; min-width:30px; height:30px; border-radius:8px;
+    background:rgba(244,114,182,.15); border:1px solid rgba(244,114,182,.4);
+    color:var(--accent); display:inline-flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:700;
+  }
+  ul{list-style:none;}
+  li{padding:4px 0 4px 22px; position:relative;}
+  li::before{
+    content:""; position:absolute; left:2px; top:15px;
+    width:7px; height:7px; border-radius:50%;
+    background:var(--accent2); opacity:.7;
+  }
+  code{
+    font-family:Consolas, "Cascadia Mono", monospace;
+    font-size:13px; background:#0b1222; border:1px solid var(--line);
+    padding:1px 5px; border-radius:5px; color:#fda4af;
+  }
+
+  .t{
+    color:var(--accent);
+    border-bottom:1px dashed rgba(244,114,182,.55);
+    cursor:help; padding:0 2px; border-radius:3px;
+    transition:background .12s;
+  }
+  .t:hover{background:rgba(244,114,182,.16);}
+  .t:focus{outline:2px solid var(--accent2); outline-offset:1px;}
+
+  #tt{
+    display:none; position:fixed; z-index:2000;
+    max-width:340px; min-width:200px;
+    background:#f8fafc; color:#0f172a;
+    border:1px solid #cbd5e1; border-radius:9px;
+    padding:10px 13px; font-size:13px; line-height:1.5;
+    box-shadow:0 10px 30px rgba(0,0,0,.45);
+    pointer-events:none;
+  }
+  #tt b{color:#f472b6;}
+  #tt code{
+    background:#e2e8f0; color:#f472b6; border-color:#cbd5e1; font-size:12px;
+  }
+
+  .ex{
+    margin:12px 0 4px; background:var(--card2);
+    border:1px solid var(--line); border-left:3px solid var(--accent2);
+    border-radius:8px; overflow:hidden;
+  }
+  .ex .ex-head{
+    padding:5px 12px; font-size:11px; letter-spacing:.6px; text-transform:uppercase;
+    color:var(--muted); background:rgba(249,115,22,.08);
+    border-bottom:1px solid var(--line);
+  }
+  .ex pre{
+    padding:12px; overflow-x:auto; font-size:12.5px;
+    font-family:Consolas, "Cascadia Mono", monospace; color:#fda4af;
+  }
+
+  .desc{
+    margin:-4px 0 14px; padding:11px 14px; border-radius:10px;
+    background:rgba(244,114,182,.07); border:1px solid rgba(244,114,182,.25);
+    color:#cbd5e1; font-size:13.5px; line-height:1.6;
+  }
+  .desc b{color:#fda4af; font-weight:600;}
+
+  .note{
+    margin-top:18px; padding:12px 16px; border-radius:10px;
+    background:rgba(249,115,22,.08); border:1px solid rgba(249,115,22,.3);
+    color:#fdba74; font-size:13.5px;
+  }
+  footer{
+    max-width:960px; margin:20px auto 0; padding:0 20px;
+    color:var(--muted); font-size:12.5px; text-align:center;
+  }
+  @media (max-width:600px){
+    .banner h1{font-size:22px;}
+    section.card{padding:16px;}
+    #tt{max-width:260px; font-size:12px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="banner">
+  <h1>Laravel — интерактивный гайд к собеседованию</h1>
+  <p>Наведи курсор на любой подчёркнутый термин — появится подсказка с объяснением.<br>
+     Все 30 тем чек-листа, каждая сущность с подсказкой. Счётчик: <span class="badge" id="termCount">терминов: …</span></p>
+</header>
+
+<nav id="toc">
+  <a href="#s1">1 Установка</a><a href="#s2">2 Artisan</a><a href="#s3">3 Конфигурация</a>
+  <a href="#s4">4 Маршруты</a><a href="#s5">5 Контроллеры</a><a href="#s6">6 Middleware</a>
+  <a href="#s7">7 Eloquent</a><a href="#s8">8 Миграции</a><a href="#s9">9 Сидеры</a>
+  <a href="#s10">10 Фабрики</a><a href="#s11">11 Валидация</a><a href="#s12">12 Blade</a>
+  <a href="#s13">13 Auth</a><a href="#s14">14 Авторизация</a><a href="#s15">15 Очереди</a>
+  <a href="#s16">16 События</a><a href="#s17">17 Кэш</a><a href="#s18">18 API</a>
+  <a href="#s19">19 Mail</a><a href="#s20">20 Уведомления</a><a href="#s21">21 Broadcasting</a>
+  <a href="#s22">22 Контейнер</a><a href="#s23">23 Providers</a><a href="#s24">24 Facades</a>
+  <a href="#s25">25 Коллекции</a><a href="#s26">26 Тесты</a><a href="#s27">27 Паттерны</a>
+  <a href="#s28">28 Оптимизация</a><a href="#s29">29 Деплой</a><a href="#s30">30 Советы</a>
+</nav>
+
+<main>
+
+<section class="card" id="s1">
+  <h2><span class="num">1</span> Установка и структура проекта</h2>
+  <p class="desc">Laravel — это готовая коробка для сайтов на PHP: поставил, и уже есть роуты, база, шаблоны и логин. Здесь — как его поставить и что где лежит.</p>
+  <ul>
+    <li>Установка через <span class="t" data-t="installer" tabindex="0">Laravel Installer</span>: <code>composer create-project laravel/laravel app</code> или <code>laravel new app</code>.</li>
+    <li>Требования: <span class="t" data-t="phpver" tabindex="0">PHP 8.2+</span>, <span class="t" data-t="composer" tabindex="0">Composer</span>, <span class="t" data-t="node" tabindex="0">Node/NPM</span> (для Vite).</li>
+    <li>Ключевые папки: <span class="t" data-t="appdir" tabindex="0">app/</span>, <span class="t" data-t="routedir" tabindex="0">routes/</span>, <span class="t" data-t="resources" tabindex="0">resources/</span>, <span class="t" data-t="publicdir" tabindex="0">public/</span>, <span class="t" data-t="configdir" tabindex="0">config/</span>, <span class="t" data-t="databasedir" tabindex="0">database/</span>.</li>
+    <li><span class="t" data-t="env" tabindex="0">.env</span> — переменные окружения; <code>.env.example</code> — шаблон для коммита.</li>
+    <li>Запуск: <code>php artisan serve</code> → <code>http://localhost:8000</code>.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Создание проекта</div>
+    <pre>composer create-project laravel/laravel myapp
+cd myapp
+copy .env.example .env      # Windows
+php artisan key:generate
+php artisan serve</pre>
+  </div>
+</section>
+
+<section class="card" id="s2">
+  <h2><span class="num">2</span> Artisan CLI</h2>
+  <p class="desc">Artisan — консоль-помощница. Одной командой создаёшь контроллер, модель, миграцию — не нужно руками плодить файлы и вспоминать пути.</p>
+  <ul>
+    <li><span class="t" data-t="artisan" tabindex="0">Artisan</span> — командная строка Laravel.</li>
+    <li><span class="t" data-t="make" tabindex="0">Генераторы</span>: <code>make:model</code>, <code>make:controller</code>, <code>make:migration</code>, <code>make:seeder</code>, <code>make:middleware</code>.</li>
+    <li><span class="t" data-t="migrate" tabindex="0">Миграции</span>: <code>php artisan migrate</code>, <code>migrate:fresh</code>, <code>migrate:rollback</code>.</li>
+    <li><span class="t" data-t="tinker" tabindex="0">Tinker</span> — REPL для отладки: <code>php artisan tinker</code>.</li>
+    <li>Справка: <code>php artisan list</code>, <code>php artisan help make:model</code>.</li>
+    <li>Просмотр маршрутов: <code>php artisan route:list</code>.</li>
+    <li>Очистка кэша: <code>php artisan optimize:clear</code>.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Генерация ресурса целиком</div>
+    <pre>php artisan make:model Post -mcr
+# -m  миграция, -c контроллер, -r resource-контроллер</pre>
+  </div>
+</section>
+
+<section class="card" id="s3">
+  <h2><span class="num">3</span> Конфигурация</h2>
+  <p class="desc">Конфиги — файлики настроек: имя сайта, база данных, почта, кэш. Лежат в папке config, а секретные данные — в .env, который в git не коммитят.</p>
+  <ul>
+    <li>Файлы настроек в <span class="t" data-t="configdir" tabindex="0">config/</span>: <code>app.php</code>, <code>database.php</code>, <code>cache.php</code>, <code>queue.php</code>, <code>mail.php</code>.</li>
+    <li>Доступ к настройкам: <span class="t" data-t="config" tabindex="0">config()</span> — <code>config('app.name')</code>.</li>
+    <li><span class="t" data-t="env" tabindex="0">env()</span> — чтение переменных окружения; не использовать в коде вне config-файлов.</li>
+    <li><span class="t" data-t="appkey" tabindex="0">APP_KEY</span> — ключ шифрования, генерируется <code>php artisan key:generate</code>.</li>
+    <li><span class="t" data-t="debug" tabindex="0">APP_DEBUG</span> — показывать ли ошибки; в проде <code>false</code>.</li>
+    <li><span class="t" data-t="dotenv" tabindex="0">Dotenv</span> — парсер .env; не хранить секреты в коде.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Чтение настроек</div>
+    <pre>config('app.name', 'Default');          // с дефолтом
+config(['app.timezone' => 'UTC']);       // на лету
+env('DB_DATABASE');                      // только в config-файлах</pre>
+  </div>
+</section>
+
+<section class="card" id="s4">
+  <h2><span class="num">4</span> Маршрутизация</h2>
+  <p class="desc">Маршрут — это правило «пользователь зашёл на /posts → открыть такой-то контроллер». Без них Laravel не поймёт, что показывать по какому URL.</p>
+  <ul>
+    <li>Файлы: <span class="t" data-t="web" tabindex="0">routes/web.php</span> (сессии+CSRF), <span class="t" data-t="api" tabindex="0">routes/api.php</span> (префикс <code>/api</code>), <span class="t" data-t="console" tabindex="0">routes/console.php</span>.</li>
+    <li>Методы: <code>Route::get</code>, <code>post</code>, <code>put</code>, <code>patch</code>, <code>delete</code>, <code>any</code>, <code>match</code>.</li>
+    <li><span class="t" data-t="param" tabindex="0">Параметры</span>: <code>{id}</code>, опциональные <code>{id?}</code>, <span class="t" data-t="regex" tabindex="0">где()</span> ограничения.</li>
+    <li><span class="t" data-t="name" tabindex="0">Именованные маршруты</span> — <code>->name('posts.show')</code>, генерация <code>route('posts.show', $id)</code>.</li>
+    <li><span class="t" data-t="group" tabindex="0">Группы</span>: <code>prefix</code>, <code>middleware</code>, <code>name</code>.</li>
+    <li><span class="t" data-t="resource" tabindex="0">Resource</span> — 7 REST-методов разом; <code>apiResource</code> — 5.</li>
+    <li><span class="t" data-t="binding" tabindex="0">Привязка модели</span> — <code>{post}</code> автоматически даёт модель.</li>
+    <li><span class="t" data-t="fallback" tabindex="0">Route::fallback()</span> — 404 для всего остального.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Маршруты</div>
+    <pre>Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+Route::get('/posts/{post}', [PostController::class, 'show'])->whereNumber('post');
+Route::resource('posts', PostController::class);
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show']);
+});</pre>
+  </div>
+</section>
+
+<section class="card" id="s5">
+  <h2><span class="num">5</span> Контроллеры</h2>
+  <p class="desc">Контроллер — обработчик запроса: забрал данные, что-то сделал, вернул страницу или JSON. Главное правило: тонкие контроллеры, толстые модели.</p>
+  <ul>
+    <li>Класс в <span class="t" data-t="appdir" tabindex="0">app/Http/Controllers</span>, методы = действия.</li>
+    <li><span class="t" data-t="resource" tabindex="0">Resource-контроллер</span> — готовые методы index/create/store/show/edit/update/destroy.</li>
+    <li><span class="t" data-t="invoke" tabindex="0">Single Action</span> — один метод <code>__invoke()</code>.</li>
+    <li><span class="t" data-t="di" tabindex="0">DI в методах</span> — Laravel сам подставляет зависимости в методы контроллера.</li>
+    <li>Возврат: <code>view()</code>, <code>redirect()</code>, <code>json()</code>, <span class="t" data-t="response" tabindex="0">response()</span>.</li>
+    <li>Ошибки: <code>abort(404)</code>, <code>abort_unless()</code>, <span class="t" data-t="notfound" tabindex="0">ModelNotFoundException</span>.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Контроллер</div>
+    <pre>class PostController extends Controller
+{
+    public function index()
+    {
+        return view('posts.index', [
+            'posts' => Post::latest()->paginate(10)
+        ]);
+    }
+    public function show(Post $post)
+    {
+        return view('posts.show', compact('post'));
+    }
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s6">
+  <h2><span class="num">6</span> Middleware</h2>
+  <p class="desc">Middleware — проверка на входе: вошёл ли пользователь, не спамит ли, не админ ли. Не прошёл — дальше не пускаем. Как охранник на проходной.</p>
+  <ul>
+    <li><span class="t" data-t="middleware" tabindex="0">Middleware</span> — фильтр HTTP-запросов до/после контроллера.</li>
+    <li>Встроенные: <code>auth</code>, <code>guest</code>, <code>throttle</code>, <span class="t" data-t="verified" tabindex="0">verified</span>, <code>signed</code>, <code>cache.headers</code>.</li>
+    <li>Создание: <code>php artisan make:middleware CheckRole</code>.</li>
+    <li>Регистрация: <span class="t" data-t="kernel" tabindex="0">bootstrap/app.php</span> → <code>->withMiddleware()</code>.</li>
+    <li>Применение: в маршруте, группе или <code>__construct</code> контроллера.</li>
+    <li>Порядок выполнения: глобальные → групповые → маршрутные.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Middleware</div>
+    <pre>class CheckRole
+{
+    public function handle(Request $request, Closure $next, string $role)
+    {
+        if (! $request->user()->hasRole($role)) {
+            abort(403);
+        }
+        return $next($request);
+    }
+}
+// Route::get('/admin', ...)->middleware('role:admin');</pre>
+  </div>
+</section>
+
+<section class="card" id="s7">
+  <h2><span class="num">7</span> Eloquent ORM</h2>
+  <p class="desc">Eloquent — работа с базой без голого SQL: модель = таблица, пишешь Post::where('active', 1)->get() — и готово. Самая главная тема Laravel, её спрашивают в первую очередь.</p>
+  <ul>
+    <li><span class="t" data-t="model" tabindex="0">Модель</span> = таблица БД. По умолчанию таблица — множественное число класса.</li>
+    <li><span class="t" data-t="fillable" tabindex="0">$fillable</span> / <span class="t" data-t="guarded" tabindex="0">$guarded</span> — защита от массового присваивания.</li>
+    <li>Запросы: <code>where()</code>, <code>orderBy()</code>, <code>limit()</code>, <code>find()</code>, <code>first()</code>, <code>get()</code>, <code>paginate()</code>.</li>
+    <li><span class="t" data-t="findorfail" tabindex="0">findOrFail()</span> / <span class="t" data-t="firstorfail" tabindex="0">firstOrFail()</span> → 404.</li>
+    <li><span class="t" data-t="relations" tabindex="0">Отношения</span>: hasOne, hasMany, belongsTo, belongsToMany, hasManyThrough, morphMany.</li>
+    <li><span class="t" data-t="eager" tabindex="0">Eager Loading</span> — <code>with('comments')</code> против N+1.</li>
+    <li><span class="t" data-t="scope" tabindex="0">Локальные скопы</span> — <code>scopePublished()</code>.</li>
+    <li><span class="t" data-t="mutator" tabindex="0">Accessors/Mutators</span> — <code>getFullNameAttribute()</code> / <code>setPasswordAttribute()</code>.</li>
+    <li><span class="t" data-t="softdeletes" tabindex="0">SoftDeletes</span> — мягкое удаление (deleted_at).</li>
+    <li><span class="t" data-t="casts" tabindex="0">Casts</span> — преобразование типов: <code>array</code>, <code>json</code>, <code>date</code>, <code>boolean</code>.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Модель и запрос</div>
+    <pre>class Post extends Model
+{
+    use SoftDeletes;
+    protected $fillable = ['title', 'body', 'user_id'];
+    protected $casts = ['is_published' => 'boolean'];
+    public function user() { return $this->belongsTo(User::class); }
+    public function comments() { return $this->hasMany(Comment::class); }
+}
+$posts = Post::with('user:id,name')
+    ->where('is_published', true)
+    ->latest()->paginate(15);</pre>
+  </div>
+</section>
+
+<section class="card" id="s8">
+  <h2><span class="num">8</span> Миграции</h2>
+  <p class="desc">Миграции — история изменений структуры базы. Команда migrate накатывает таблицы; откатил, поправил, накатил заново. Так база у всей команды одинаковая.</p>
+  <ul>
+    <li><span class="t" data-t="migration" tabindex="0">Миграция</span> — версионирование схемы БД.</li>
+    <li>Создание: <code>php artisan make:migration create_posts_table</code>.</li>
+    <li>Структура: <span class="t" data-t="up" tabindex="0">up()</span> (применение), <span class="t" data-t="down" tabindex="0">down()</span> (откат).</li>
+    <li><span class="t" data-t="schema" tabindex="0">Schema Builder</span> — <code>Schema::create()</code>, методы <code>string()</code>, <code>integer()</code>, <code>foreignId()</code>.</li>
+    <li><span class="t" data-t="foreign" tabindex="0">Внешние ключи</span> — <code>$table->foreignId('user_id')->constrained()</code>.</li>
+    <li><span class="t" data-t="index" tabindex="0">Индексы</span> — <code>->index()</code>, <code>->unique()</code>.</li>
+    <li>Откаты: <code>migrate:rollback</code> (последний батч), <code>migrate:fresh</code> (всё заново).</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Миграция</div>
+    <pre>Schema::create('posts', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+    $table->string('title')->unique();
+    $table->text('body');
+    $table->boolean('is_published')->default(false);
+    $table->timestamps();
+});</pre>
+  </div>
+</section>
+
+<section class="card" id="s9">
+  <h2><span class="num">9</span> Сидеры (Seeders)</h2>
+  <p class="desc">Сидеры — наполнители базы: кладут тестовых юзеров, посты, справочники, чтобы в разработке было с чем работать. Название от английского seed — «семена».</p>
+  <ul>
+    <li>Заполнение БД тестовыми данными: <code>php artisan make:seeder UserSeeder</code>.</li>
+    <li>Запуск: <code>php artisan db:seed</code>, с конкретным: <code>--class=UserSeeder</code>.</li>
+    <li><span class="t" data-t="dbseeder" tabindex="0">DatabaseSeeder</span> — вызывается по умолчанию, вызывает остальных.</li>
+    <li>В связке с миграциями: <code>migrate:fresh --seed</code>.</li>
+    <li>Данные через модели: <code>User::factory()->count(10)->create()</code>.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Seeder</div>
+    <pre>class DatabaseSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $user = User::factory()->create([
+            'name' => 'Admin',
+            'email' => 'admin@test.dev',
+        ]);
+        Post::factory()->count(50)->for($user)->create();
+    }
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s10">
+  <h2><span class="num">10</span> Фабрики (Factories)</h2>
+  <p class="desc">Фабрики — генераторы фейковых данных: 50 постов с рандомными заголовками за секунду. Вместе с сидерами мгновенно наполняют базу.</p>
+  <ul>
+    <li><span class="t" data-t="factory" tabindex="0">Фабрика</span> — генерация фейковых данных модели через <span class="t" data-t="faker" tabindex="0">Faker</span>.</li>
+    <li>Создание: <code>php artisan make:factory PostFactory</code>.</li>
+    <li><span class="t" data-t="fakedefine" tabindex="0">definition()</span> — массив атрибутов по умолчанию.</li>
+    <li>Состояния: <span class="t" data-t="state" tabindex="0">state()</span> — <code>->state(['x' => 1])</code>.</li>
+    <li>Использование: <code>Post::factory()->count(10)->create()</code>, <code>->make()</code> (без записи).</li>
+    <li>Связи в фабрике: <code>'user_id' => User::factory()</code> или <code>->for($user)</code>.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Фабрика</div>
+    <pre>class PostFactory extends Factory
+{
+    protected $model = Post::class;
+    public function definition(): array
+    {
+        return [
+            'user_id' => User::factory(),
+            'title'   => fake()->sentence(),
+            'body'    => fake()->paragraphs(3, true),
+        ];
+    }
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s11">
+  <h2><span class="num">11</span> Валидация запросов</h2>
+  <p class="desc">Валидация — проверка того, что прислал пользователь: не пустое ли поле, не длиннее ли 255 символов, не занят ли email. Сразу показываем ошибки.</p>
+  <ul>
+    <li>В контроллере: <span class="t" data-t="validate" tabindex="0">$request->validate()</span> — возвращает отфильтрованные данные.</li>
+    <li><span class="t" data-t="formrequest" tabindex="0">Form Request</span> — класс с <code>rules()</code> и <code>authorize()</code>.</li>
+    <li>Правила: <code>required</code>, <code>max:255</code>, <code>email</code>, <code>unique:users</code>, <code>exists:posts,id</code>.</li>
+    <li>Сложные: <span class="t" data-t="rule" tabindex="0">Rule::</span> классы, <code>sometimes</code>, <code>nullable</code>, <code>confirmed</code>.</li>
+    <li>Кастомные правила: <span class="t" data-t="ruleobject" tabindex="0">Rule-объект</span> или closure.</li>
+    <li>Ошибки → <span class="t" data-t="bag" tabindex="0">$errors</span> bag в сессии, редирект назад.</li>
+    <li>Для API: <code>422</code> + <span class="t" data-t="validationex" tabindex="0">ValidationException</span> с JSON.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Form Request</div>
+    <pre>class StorePostRequest extends FormRequest
+{
+    public function authorize(): bool { return true; }
+    public function rules(): array
+    {
+        return [
+            'title' => 'required|string|max:255',
+            'body'  => 'required|string|min:10',
+            'tags'  => 'array',
+        ];
+    }
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s12">
+  <h2><span class="num">12</span> Blade шаблоны</h2>
+  <p class="desc">Blade — шаблоны страниц: обычный HTML, а внутрь вставляешь переменные {{ $name }} и циклы @foreach. Чтобы не мешать PHP с HTML в одном файле.</p>
+  <ul>
+    <li><span class="t" data-t="blade" tabindex="0">Blade</span> — шаблонизатор Laravel; файлы <code>*.blade.php</code>.</li>
+    <li>Вывод: <code>{{ $var }}</code> (экранируется), <span class="t" data-t="raw" tabindex="0">{!! !!}</span> (без экранирования).</li>
+    <li>Директивы: <code>@if</code>, <code>@foreach</code>, <code>@forelse</code>, <code>@empty</code>, <code>@switch</code>.</li>
+    <li>Наследование: <span class="t" data-t="extends" tabindex="0">@extends/@section/@yield</span>.</li>
+    <li><span class="t" data-t="components" tabindex="0">Компоненты</span>: <code>&lt;x-alert /&gt;</code> и слоты <code>{{ $slot }}</code>.</li>
+    <li><span class="t" data-t="layouts" tabindex="0">layouts/app.blade.php</span> — общий макет.</li>
+    <li>Условные: <code>@auth</code>/<code>@guest</code>, <code>@can</code>.</li>
+    <li>CSRF: <span class="t" data-t="csrf" tabindex="0">@csrf</span>, метод-фейкер <span class="t" data-t="method" tabindex="0">@method('PUT')</span>.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Blade</div>
+    <pre>@extends('layouts.app')
+
+@section('content')
+  &lt;h1&gt;{{ $post->title }}&lt;/h1&gt;
+  &lt;p&gt;{!! $post->body !!}&lt;/p&gt;
+  @forelse ($post->comments as $comment)
+    &lt;div&gt;{{ $comment->body }}&lt;/div&gt;
+  @empty
+    &lt;p&gt;Комментариев нет&lt;/p&gt;
+  @endforelse
+@endsection</pre>
+  </div>
+</section>
+
+<section class="card" id="s13">
+  <h2><span class="num">13</span> Аутентификация (Auth)</h2>
+  <p class="desc">Auth — система логина: регистрация, вход, выход, сброс пароля. Пароли хешируются, сессия запоминается, и это всё уже есть из коробки.</p>
+  <ul>
+    <li>Стандартный скаффолдинг: <span class="t" data-t="authscaffold" tabindex="0">auth:breeze</span> или <span class="t" data-t="jetstream" tabindex="0">Jetstream/Fortify</span>.</li>
+    <li>Хелперы: <code>auth()</code>, <code>auth()->user()</code>, <code>auth()->check()</code>, <code>auth()->id()</code>.</li>
+    <li>Попытка входа: <code>Auth::attempt(['email' => ..., 'password' => ...])</code>.</li>
+    <li>Выход: <code>Auth::logout()</code> + инвалидация сессии.</li>
+    <li><span class="t" data-t="guard" tabindex="0">Guard</span> — способ проверки (web, api, sanctum).</li>
+    <li><span class="t" data-t="provider" tabindex="0">Provider</span> — источник пользователей (users, eloquent).</li>
+    <li>Защита паролей: <span class="t" data-t="hash" tabindex="0">Hash::make()</span> / <code>bcrypt()</code>.</li>
+    <li><span class="t" data-t="password" tabindex="0">Password Reset</span> — сброс пароля по email.</li>
+    <li>Remember me: <code>Auth::attempt($cred, true)</code> — remember_token.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Логин</div>
+    <pre>if (Auth::attempt([
+    'email' => $request->email,
+    'password' => $request->password,
+], $request->boolean('remember'))) {
+    $request->session()->regenerate();
+    return redirect()->intended('/dashboard');
+}
+return back()->withErrors(['email' => 'Неверный логин']);</pre>
+  </div>
+</section>
+
+<section class="card" id="s14">
+  <h2><span class="num">14</span> Авторизация</h2>
+  <p class="desc">Авторизация — про права: «может ли этот юзер редактировать этот пост?». Gates и Policies отвечают на такие вопросы. Не путай с логином.</p>
+  <ul>
+    <li><span class="t" data-t="gate" tabindex="0">Gate</span> — замыкания по способностям: <code>Gate::define('update-post', ...)</code>.</li>
+    <li><span class="t" data-t="policy" tabindex="0">Policy</span> — класс правил для модели: <code>PostPolicy</code>.</li>
+    <li>Проверка: <code>$this->authorize('update', $post)</code>, <code>Gate::allows()</code>, <code>@can</code>.</li>
+    <li><span class="t" data-t="superadmin" tabindex="0">before()</span> — правило для всех (например, админ).</li>
+    <li>Хелпер: <span class="t" data-t="can" tabindex="0">$user->can()</span> / <code>cannot()</code>.</li>
+    <li>Ошибки: <span class="t" data-t="denied" tabindex="0">403 / AuthorizationException</span>.</li>
+    <li>Создание: <code>php artisan make:policy PostPolicy --model=Post</code>.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Policy</div>
+    <pre>class PostPolicy
+{
+    public function update(User $user, Post $post)
+    {
+        return $user->id === $post->user_id;
+    }
+}
+// в контроллере:
+$this->authorize('update', $post);</pre>
+  </div>
+</section>
+
+<section class="card" id="s15">
+  <h2><span class="num">15</span> Очереди (Queues)</h2>
+  <p class="desc">Очереди — отложенные задачи: письма, отчёты, обработка картинок. Сайт не ждёт их и не тормозит: положил в очередь — и работаешь дальше.</p>
+  <ul>
+    <li><span class="t" data-t="queue" tabindex="0">Очередь</span> — отложенное выполнение тяжёлых задач.</li>
+    <li><span class="t" data-t="job" tabindex="0">Job</span> — класс задачи, <code>make:job SendEmail</code>.</li>
+    <li>Драйверы: <code>sync</code>, <code>database</code>, <code>redis</code>, <span class="t" data-t="sqs" tabindex="0">sqs</span>, <code>beanstalkd</code>.</li>
+    <li>Постановка: <code>dispatch(new SendEmail($user))</code>, <code>Job::dispatch()</code>.</li>
+    <li>Запуск воркера: <code>php artisan queue:work</code>.</li>
+    <li>Приоритет: <span class="t" data-t="priority" tabindex="0">->onQueue('high')</span>, задержка <code>->delay(now()->addMinute())</code>.</li>
+    <li>Ретраи: <code>tries</code>, <code>backoff</code>, <span class="t" data-t="failed" tabindex="0">failed-джобы</span> → таблица failed_jobs.</li>
+    <li><span class="t" data-t="rate" tabindex="0">Rate limiting</span> — <code>ShouldBeUnique</code> для исключения дублей.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Job</div>
+    <pre>class SendWelcomeEmail implements ShouldQueue
+{
+    public $tries = 3;
+    public $backoff = [2, 10, 60];
+
+    public function __construct(public User $user) {}
+
+    public function handle(): void
+    {
+        Mail::to($this->user)->send(new WelcomeMail($this->user));
+    }
+}
+dispatch(new SendWelcomeEmail($user))->delay(now()->addMinute());</pre>
+  </div>
+</section>
+
+<section class="card" id="s16">
+  <h2><span class="num">16</span> События и слушатели</h2>
+  <p class="desc">События — «что-то произошло» (пост создан), слушатели — «кто на это реагирует» (отправить уведомление). Развязывают куски кода между собой.</p>
+  <ul>
+    <li><span class="t" data-t="event" tabindex="0">Event</span> — класс-маркер о произошедшем действии.</li>
+    <li><span class="t" data-t="listener" tabindex="0">Listener</span> — реакция на событие (лог, почта, кэш).</li>
+    <li>Создание: <code>php artisan make:event PostCreated</code>, <code>make:listener NotifyUsers</code>.</li>
+    <li>Регистрация: <span class="t" data-t="eventmap" tabindex="0">EventServiceProvider</span> / <code>#[Listen]</code> атрибут.</li>
+    <li>Вызов: <code>event(new PostCreated($post))</code>.</li>
+    <li>Асинхронность: реализовать <span class="t" data-t="shouldqueue" tabindex="0">ShouldQueue</span> — слушатель уйдёт в очередь.</li>
+    <li><span class="t" data-t="broadcast" tabindex="0">Broadcast</span> — слушатели на фронте (WebSockets).</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Событие + слушатель</div>
+    <pre>class PostCreated
+{
+    public function __construct(public Post $post) {}
+}
+class SendNotification implements ShouldQueue
+{
+    public function handle(PostCreated $event): void
+    {
+        foreach ($event->post->followers as $follower) {
+            $follower->notify(new NewPost($event->post));
+        }
+    }
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s17">
+  <h2><span class="num">17</span> Кэширование</h2>
+  <p class="desc">Кэш — запоминание тяжёлых вычислений: посчитал один раз, сохранил в память, дальше отдаёшь всем мгновенно. База и сервер вздыхают с облегчением.</p>
+  <ul>
+    <li>Драйверы: <code>file</code>, <code>database</code>, <span class="t" data-t="redis" tabindex="0">redis</span>, <span class="t" data-t="memcached" tabindex="0">memcached</span>, <code>array</code>, <code>null</code>.</li>
+    <li>API: <code>Cache::put('key', $value, 60)</code>, <code>get</code>, <code>remember</code>, <code>forget</code>.</li>
+    <li>TTL: секунды или <span class="t" data-t="expiry" tabindex="0">Carbon</span>-время.</li>
+    <li><span class="t" data-t="cachelock" tabindex="0">Блокировки</span> — <code>Cache::lock('key', 10)</code> для конкурентных задач.</li>
+    <li>Атомарные: <code>increment/decrement</code> — счётчики.</li>
+    <li>Кэш запросов: <code>remember</code> на тяжёлых выборках; <span class="t" data-t="cachetags" tabindex="0">теги</span> для групп.</li>
+    <li>Кэш-фасад vs helpers: <code>cache()</code> хелпер.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Кэш запроса</div>
+    <pre>$stats = Cache::remember('stats', now()->addHour(), function () {
+    return DB::table('posts')
+        ->selectRaw('count(*) as total')
+        ->first();
+});</pre>
+  </div>
+</section>
+
+<section class="card" id="s18">
+  <h2><span class="num">18</span> REST API</h2>
+  <p class="desc">API — способ отдавать данные другим приложениям (фронту, мобилке) в формате JSON по правилам REST. Всё, что видит фронтенд, может прийти отсюда.</p>
+  <ul>
+    <li>Маршруты: <span class="t" data-t="api" tabindex="0">routes/api.php</span>, префикс <code>/api</code>.</li>
+    <li><span class="t" data-t="sanctum" tabindex="0">Sanctum</span> — токены API + SPA-аутентификация.</li>
+    <li><span class="t" data-t="passport" tabindex="0">Passport</span> — полный OAuth2.</li>
+    <li>Ответы: <code>response()->json()</code>, <span class="t" data-t="apiresource" tabindex="0">API Resource</span> — <code>PostResource</code>.</li>
+    <li>Формат ошибок: <span class="t" data-t="apiex" tabindex="0">API-исключения</span> → JSON.</li>
+    <li>Версионирование: префикс <code>/v1</code> или заголовок Accept.</li>
+    <li><span class="t" data-t="throttle" tabindex="0">Rate limit</span> — <code>throttle:api</code>.</li>
+    <li>Пагинация JSON: <code>paginate()</code> в ресурсе.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">API контроллер</div>
+    <pre>Route::apiResource('posts', PostController::class)
+    ->middleware('auth:sanctum');
+
+class PostController extends Controller
+{
+    public function index(): PostResource
+    {
+        return PostResource::collection(Post::paginate(15));
+    }
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s19">
+  <h2><span class="num">19</span> Почта (Mail)</h2>
+  <p class="desc">Mail — отправка писем: приветственные, сброс пароля, статус заказа. Пишешь класс письма с шаблоном — и отправляй куда нужно.</p>
+  <ul>
+    <li>Класс письма: <code>make:mail OrderShipped</code>, реализует <span class="t" data-t="shouldqueue" tabindex="0">ShouldQueue</span>.</li>
+    <li>Драйверы: <code>smtp</code>, <code>mailgun</code>, <code>ses</code>, <code>log</code> (в файл при разработке).</li>
+    <li>Отправка: <code>Mail::to($email)->send(new OrderShipped(...))</code>.</li>
+    <li><span class="t" data-t="mailable" tabindex="0">Mailables</span> — view, subject, attachements, headers.</li>
+    <li>Тест локально: <span class="t" data-t="mailtrap" tabindex="0">Mailtrap</span>, <code>MAIL_MAILER=log</code>.</li>
+    <li><span class="t" data-t="mailer" tabindex="0">Mailers</span> — несколько конфигов в <code>config/mail.php</code>.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Mailable</div>
+    <pre>class OrderShipped extends Mailable
+{
+    use Queueable, SerializesModels;
+
+    public function __construct(public Order $order) {}
+
+    public function envelope(): Envelope
+    {
+        return new Envelope(
+            subject: 'Заказ отправлен №' . $this->order->id,
+        );
+    }
+    public function content(): Content
+    {
+        return new Content(view: 'emails.order-shipped');
+    }
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s20">
+  <h2><span class="num">20</span> Уведомления (Notifications)</h2>
+  <p class="desc">Уведомления — «вас лайкнули». Одно уведомление, а доставить можно и на почту, и в базу, и в Telegram/Слак. Всё в одном классе.</p>
+  <ul>
+    <li>Уведомления можно слать по нескольким каналам: <span class="t" data-t="notifychannels" tabindex="0">mail, database, broadcast, sms, slack</span>.</li>
+    <li>Класс: <code>make:notification NewFollower</code>.</li>
+    <li>Отправка: <code>$user->notify(new NewFollower())</code> или <code>Notification::send($users, $n)</code>.</li>
+    <li>Хранение: таблица <span class="t" data-t="notifstable" tabindex="0">notifications</span>, <code>viaDatabase()</code>.</li>
+    <li><span class="t" data-t="on-demand" tabindex="0">On-demand</span> — <code>Notification::route('mail', 'email@x')</code>.</li>
+    <li>Отложенные: реализовать <code>ShouldQueue</code>.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Уведомление</div>
+    <pre>class NewFollower extends Notification
+{
+    public function via($notifiable): array
+    {
+        return ['mail', 'database'];
+    }
+    public function toMail($notifiable): MailMessage
+    {
+        return (new MailMessage)
+            ->line('У вас новый подписчик!')
+            ->action('Открыть профиль', url('/profile'));
+    }
+    public function toDatabase($notifiable): array
+    {
+        return ['follower_id' => $this->follower->id];
+    }
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s21">
+  <h2><span class="num">21</span> Broadcasting (WebSockets)</h2>
+  <p class="desc">Broadcasting — живое обновление: сообщение прилетает на страницу без перезагрузки через WebSocket. Чаты, лайки, уведомления в реальном времени.</p>
+  <ul>
+    <li><span class="t" data-t="broadcast" tabindex="0">Broadcast</span> — пуш событий клиенту в реальном времени.</li>
+    <li>Каналы: <span class="t" data-t="channel" tabindex="0">public/private/presence</span>.</li>
+    <li>Сервер: <span class="t" data-t="reverb" tabindex="0">Reverb</span> (новый), <code>pusher</code>, <code>ably</code>, soketi.</li>
+    <li>Фронт: <span class="t" data-t="echo" tabindex="0">Laravel Echo</span> (JS-клиент).</li>
+    <li>Событие с <span class="t" data-t="broadcastson" tabindex="0">ShouldBroadcast</span> + <code>broadcastOn()</code>.</li>
+    <li>Авторизация каналов: <code>routes/channels.php</code>.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Broadcast-событие</div>
+    <pre>class CommentCreated implements ShouldBroadcast
+{
+    use Dispatchable, InteractsWithSockets, SerializesModels;
+
+    public function __construct(public Comment $comment) {}
+
+    public function broadcastOn(): Channel
+    {
+        return new Channel('post.' . $this->comment->post_id);
+    }
+}
+// JS: Echo.channel('post.1').listen('CommentCreated', cb);</pre>
+  </div>
+</section>
+
+<section class="card" id="s22">
+  <h2><span class="num">22</span> Контейнер (DI Container)</h2>
+  <p class="desc">Контейнер — умная фабрика объектов: попросил класс — он сам создал его вместе со всеми зависимостями. Основа всей магии DI в Laravel.</p>
+  <ul>
+    <li><span class="t" data-t="container" tabindex="0">Контейнер</span> — автоматическое разрешение зависимостей.</li>
+    <li><span class="t" data-t="bind" tabindex="0">bind()</span> — регистрация класса/интерфейса.</li>
+    <li><span class="t" data-t="singleton" tabindex="0">singleton()</span> — один экземпляр на приложение.</li>
+    <li>Авторазрешение: типы в конструкторе подставляются автоматически.</li>
+    <li><span class="t" data-t="contextual" tabindex="0">Контекстные привязки</span> — разный класс для разных потребителей.</li>
+    <li>Псевдонимы: <span class="t" data-t="alias" tabindex="0">alias()</span>.</li>
+    <li>Резолв: <code>app(MyService::class)</code> или <span class="t" data-t="apphelper" tabindex="0">app()</span>.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Привязки</div>
+    <pre>app()->bind(PaymentGateway::class, StripeGateway::class);
+app()->singleton(CartService::class);
+app()->alias(CartService::class, 'cart');
+
+class CheckoutController
+{
+    public function __construct(
+        private PaymentGateway $gateway,   // авторазрешение
+    ) {}
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s23">
+  <h2><span class="num">23</span> Service Providers</h2>
+  <p class="desc">Провайдеры — точки старта приложения: место, где подключаются свои сервисы, слушатели и привязки. Почти всё в Laravel работает через них.</p>
+  <ul>
+    <li><span class="t" data-t="provider" tabindex="0">Service Provider</span> — точка инициализации сервисов.</li>
+    <li>Жизненный цикл: <span class="t" data-t="register" tabindex="0">register()</span> (только привязки) → <span class="t" data-t="boot" tabindex="0">boot()</span> (после регистрации всех).</li>
+    <li>Деферред: <span class="t" data-t="deferred" tabindex="0">deferred</span> — грузится по требованию.</li>
+    <li>Регистрация в <span class="t" data-t="bootstrap" tabindex="0">bootstrap/providers.php</span>.</li>
+    <li>Через провайдеры Laravel регистрирует почти всё: Events, RouteServiceProvider и т.д.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Provider</div>
+    <pre>class AppServiceProvider extends ServiceProvider
+{
+    public function register(): void
+    {
+        $this->app->singleton(Logger::class, fn () => new Logger());
+    }
+    public function boot(): void
+    {
+        Model::preventLazyLoading(! app()->isProduction());
+    }
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s24">
+  <h2><span class="num">24</span> Facades и макросы</h2>
+  <p class="desc">Фасады — статические обёртки: пишешь Cache::put() вместо того, чтобы тянуть объект из контейнера. Коротко и удобно.</p>
+  <ul>
+    <li><span class="t" data-t="facade" tabindex="0">Facade</span> — статичный прокси к сервису из контейнера.</li>
+    <li>Примеры: <code>Cache</code>, <code>Mail</code>, <code>DB</code>, <code>Route</code>, <code>Auth</code>.</li>
+    <li>Реальный класс: <code>Cache::put(...)</code> → <code>app('cache.store')</code>.</li>
+    <li><span class="t" data-t="realtime-facade" tabindex="0">Real-time facade</span> — <code>Facades\MyClass</code>.</li>
+    <li><span class="t" data-t="macro" tabindex="0">Макросы</span> — расширение классов через <code>Macroable</code>: <code>Str::macro()</code>, <code>Collection::macro()</code>.</li>
+    <li>Псевдонимы фасадов в <span class="t" data-t="aliases" tabindex="0">config/app.php</span>.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Макрос</div>
+    <pre>use Illuminate\Support\Str;
+
+Str::macro('slugWithId', function (string $title, int $id) {
+    return Str::slug($title) . '-' . $id;
+});
+
+Str::slugWithId('Hello World', 7); // hello-world-7</pre>
+  </div>
+</section>
+
+<section class="card" id="s25">
+  <h2><span class="num">25</span> Коллекции</h2>
+  <p class="desc">Коллекции — прокачанные массивы: filter, map, reduce цепочками в одну строку. Вернулись из БД данные — работаешь с ними как с коллекцией.</p>
+  <ul>
+    <li><span class="t" data-t="collection" tabindex="0">Collection</span> — обёртка над массивом с цепочками методов.</li>
+    <li>Популярные: <code>map()</code>, <code>filter()</code>, <code>reduce()</code>, <code>sortBy()</code>, <code>groupBy()</code>, <code>pluck()</code>.</li>
+    <li><span class="t" data-t="lazy-collection" tabindex="0">LazyCollection</span> — ленивая генерация для больших данных.</li>
+    <li><span class="t" data-t="higher-order" tabindex="0">Higher-order</span> сообщения: <code>$users->each->notify(...)</code>.</li>
+    <li>Преобразование: <code>collect($array)</code>, <code>->toArray()</code>, <code>->toJson()</code>.</li>
+    <li>Макро: <code>Collection::macro()</code>.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Коллекции</div>
+    <pre>$names = collect([
+    ['name' => 'Анна', 'age' => 30],
+    ['name' => 'Борис', 'age' => 25],
+])
+    ->filter(fn ($u) => $u['age'] >= 18)
+    ->pluck('name')
+    ->implode(', ');
+// Анна, Борис</pre>
+  </div>
+</section>
+
+<section class="card" id="s26">
+  <h2><span class="num">26</span> Тестирование</h2>
+  <p class="desc">Тесты — автопроверки: написал один раз, потом запускаешь и знаешь, что ничего не сломалось. В Laravel это почти обязательная часть работы.</p>
+  <ul>
+    <li>Фреймворк: <span class="t" data-t="phpunit" tabindex="0">PHPUnit</span> (или <span class="t" data-t="pest" tabindex="0">Pest</span>), по умолчанию <code>phpunit.xml</code>.</li>
+    <li><span class="t" data-t="feature" tabindex="0">Feature</span> тесты — весь стек (HTTP, БД), <span class="t" data-t="unit" tabindex="0">Unit</span> — изолированно.</li>
+    <li>HTTP: <code>$this->get('/posts')</code>, <code>->assertOk()</code>, <code>->assertSee()</code>.</li>
+    <li>БД: <code>RefreshDatabase</code>, <code>DatabaseTransactions</code>, фабрики.</li>
+    <li>Запуск: <code>php artisan test</code>.</li>
+    <li>Моки: <code>Mail::fake()</code>, <code>Event::fake()</code>, <code>Queue::fake()</code>.</li>
+    <li>Покрытие: <code>Xdebug</code> + <code>--coverage</code>.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Feature-тест</div>
+    <pre>class PostTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_guest_cannot_create_post(): void
+    {
+        $response = $this->post('/posts', [
+            'title' => 'Спам', 'body' => 'x',
+        ]);
+        $response->assertRedirect('/login');
+    }
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s27">
+  <h2><span class="num">27</span> Архитектура и паттерны</h2>
+  <p class="desc">Про то, как раскладывать код: не всё в контроллер, а сервисы, репозитории, DTO, action-классы. Чтобы проект рос и не превращался в кашу.</p>
+  <ul>
+    <li>Базовая структура: <span class="t" data-t="mvc" tabindex="0">MVC</span>-подобная (Model-View-Controller).</li>
+    <li><span class="t" data-t="repository" tabindex="0">Repository</span> — слой доступа к данным.</li>
+    <li><span class="t" data-t="service" tabindex="0">Service</span> — бизнес-логика вне контроллеров.</li>
+    <li><span class="t" data-t="dto" tabindex="0">DTO</span> — передача данных между слоями.</li>
+    <li><span class="t" data-t="action" tabindex="0">Action-классы</span> — единая ответственность (один класс = одно действие).</li>
+    <li>Компромиссы: не перегружать тонким слоем, следить за размером контроллера.</li>
+    <li>Интерфейсы для тестируемости (mock-реализации).</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Action</div>
+    <pre>class CreateOrder
+{
+    public function __construct(
+        private OrderRepository $orders,
+        private Inventory $inventory,
+    ) {}
+
+    public function handle(array $data): Order
+    {
+        $this->inventory->reserve($data['items']);
+        return $this->orders->create($data);
+    }
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s28">
+  <h2><span class="num">28</span> Оптимизация</h2>
+  <p class="desc">Ускорение сайта: убить N+1 запросы, закэшировать тяжёлое, поставить индексы. Страницы грузятся быстрее, сервер тратит меньше ресурсов.</p>
+  <ul>
+    <li>Главная проблема: <span class="t" data-t="nplus1" tabindex="0">N+1 запросов</span> — решается eager loading.</li>
+    <li>Профилирование: <span class="t" data-t="debugbar" tabindex="0">Debugbar</span> / <span class="t" data-t="telescope" tabindex="0">Telescope</span> / query log.</li>
+    <li><span class="t" data-t="index" tabindex="0">Индексы</span> БД для where/join.</li>
+    <li>Кэширование тяжёлых запросов: <code>Cache::remember()</code>.</li>
+    <li>Отложенная загрузка запрещена: <code>Model::preventLazyLoading()</code> в dev.</li>
+    <li><code>select()</code> только нужные колонки, <code>chunk()</code> для массовой обработки.</li>
+    <li><span class="t" data-t="opcache" tabindex="0">OPcache</span> + <code>php artisan optimize</code> на проде.</li>
+    <li><span class="t" data-t="octane" tabindex="0">Octane</span> — высокопроизводительный сервер (Swoole/RoadRunner).</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Anti N+1</div>
+    <pre>// плохо: N запросов
+$posts = Post::all();
+foreach ($posts as $post) { $post->user->name; }
+
+// хорошо: 2 запроса
+$posts = Post::with('user:id,name')->get();
+foreach ($posts as $post) { $post->user->name; }</pre>
+  </div>
+</section>
+
+<section class="card" id="s29">
+  <h2><span class="num">29</span> Деплой</h2>
+  <p class="desc">Выкладка на боевой сервер: собрал зависимости, закэшировал конфиги, прогнал миграции, поднял воркеры очередей. Прод работает как часы.</p>
+  <ul>
+    <li><span class="t" data-t="forge" tabindex="0">Forge / Vapor / Valet</span> — окружения.</li>
+    <li>Перед деплоем: <code>composer install --no-dev --optimize-autoloader</code>.</li>
+    <li>На проде: <code>php artisan config:cache</code>, <code>route:cache</code>, <code>view:cache</code>.</li>
+    <li><code>php artisan migrate --force</code> в проде.</li>
+    <li>Оптимизация: <span class="t" data-t="opcache" tabindex="0">OPcache</span>, <code>php artisan optimize</code>.</li>
+    <li><span class="t" data-t="maintenance" tabindex="0">Режим техобслуживания</span>: <code>php artisan down/up</code>.</li>
+    <li>Secret-ы только в .env, не коммитить .env.</li>
+    <li>Очереди на проде: супервизор для <code>queue:work</code>.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Настройка после деплоя</div>
+    <pre>composer install --no-dev --optimize-autoloader
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan migrate --force
+php artisan optimize</pre>
+  </div>
+</section>
+
+<section class="card" id="s30">
+  <h2><span class="num">30</span> Best Practices</h2>
+  <p class="desc">Правила хорошего тона в Laravel: тонкие контроллеры, валидация в отдельном классе, всё медленное — в очередь. Именно это спрашивают на собесах.</p>
+  <ul>
+    <li>Тонкие контроллеры, толстые модели/сервисы.</li>
+    <li>Бизнес-правила не в маршрутах и не в Blade.</li>
+    <li>Использовать <span class="t" data-t="env" tabindex="0">env()</span> только в config, остальное через <code>config()</code>.</li>
+    <li>Валидация в Form Request, а не в контроллере.</li>
+    <li>Очереди для всего медленного (почта, отчёты).</li>
+    <li>Eager loading и проверка N+1.</li>
+    <li>Автотесты на ключевые сценарии.</li>
+    <li>Следить за версиями PHP/Laravel и обновляться безопасно.</li>
+    <li>Пользоваться <span class="t" data-t="pint" tabindex="0">Pint</span> (форматтер) и <span class="t" data-t="phpstan" tabindex="0">PHPStan</span>/Larastan (статический анализ).</li>
+  </ul>
+  <div class="note">Читай официальную документацию и Laravel News — фреймворк быстро меняется (Laravel 11/12: скелет без Kernel, меньше конфигов, атрибуты вместо магии).</div>
+</section>
+
+</main>
+<footer>Laravel — интерактивный гайд к собеседованию. Подсказки: наведи/кликни на термин.</footer>
+
+<div id="tt"></div>
+<script>
+const DEFS = {
+  "installer": "<b>Laravel Installer</b> — официальный установщик: <code>composer global require laravel/installer</code>, затем <code>laravel new app</code>. Проще и быстрее, чем create-project.",
+  "phpver": "<b>PHP 8.2+</b> — минимальная версия PHP для актуальных веток Laravel (11/12). Проверяй требования в документации перед обновлением.",
+  "composer": "<b>Composer</b> — менеджер зависимостей PHP. Управляет пакетами через <code>composer.json</code> и <code>composer.lock</code>.",
+  "node": "<b>Node/NPM</b> — нужен для сборки фронтенда через Vite (CSS/JS ресурсы).",
+  "appdir": "<b>app/</b> — каталог приложения: <code>Http/Controllers</code>, <code>Models</code>, <code>Http/Middleware</code>, <code>Http/Requests</code> и т.д.",
+  "routedir": "<b>routes/</b> — файлы маршрутов: <code>web.php</code>, <code>api.php</code>, <code>console.php</code>, <code>channels.php</code>.",
+  "resources": "<b>resources/</b> — view (Blade), CSS/JS (до сборки), локализации.",
+  "publicdir": "<b>public/</b> — корень веб-сервера: index.php, скомпилированные asset-ы, uploads.",
+  "configdir": "<b>config/</b> — файлы конфигурации всех сервисов (app, database, cache, queue, mail).",
+  "databasedir": "<b>database/</b> — миграции, сидеры, фабрики и SQLite-база.",
+  "env": "<b>.env</b> — файл переменных окружения. Никогда не коммитится. Значения читаются через <code>env()</code> (внутри config-файлов).",
+  "artisan": "<b>Artisan</b> — CLI-интерфейс Laravel. Сотни команд: генераторы, миграции, очереди, тесты, tinker.",
+  "make": "<b>make:command</b> — генераторы кода. Примеры: <code>make:model</code>, <code>make:controller</code>, <code>make:migration</code>. Ставят классы в правильные папки.",
+  "migrate": "<b>migrate</b> — применяет миграции. <code>migrate:fresh</code> — сброс+пересоздание всех таблиц, <code>migrate:rollback</code> — откат последнего батча.",
+  "tinker": "<b>Tinker</b> — REPL (php artisan tinker). Позволяет интерактивно выполнять код, обращаться к моделям, фасадам.",
+  "config": "<b>config()</b> — помощник доступа к конфигу: <code>config('app.name')</code>. Принимает значение по умолчанию вторым аргументом.",
+  "appkey": "<b>APP_KEY</b> — ключ шифрования (AES-256). Используется для сессий, кук, encrypt(). Генерируется <code>php artisan key:generate</code>. Никогда не менять после продакшена.",
+  "debug": "<b>APP_DEBUG</b> — флаг показа ошибок. В проде должен быть <code>false</code>, иначе утечка трасс и путей в стеке.",
+  "dotenv": "<b>Dotenv</b> — библиотека парсинга .env. Не поддерживает PHP-код, значения — строки.",
+  "web": "<b>routes/web.php</b> — маршруты браузерного приложения. Подключаются с middleware web: сессии, CSRF, куки.",
+  "api": "<b>routes/api.php</b> — API-маршруты. Автоматически получают префикс <code>/api</code> и stateful-ограничения.",
+  "console": "<b>routes/console.php</b> — artisan-команды и планировщик задач (schedule).",
+  "param": "<b>Параметры маршрута</b> — <code>{id}</code> захватывает сегмент URL. Опциональный — <code>{id?}</code>.",
+  "regex": "<b>->where()</b> — ограничения параметров: <code>->where('id', '[0-9]+')</code> или <code>whereNumber()</code>, <code>whereAlpha()</code>.",
+  "name": "<b>->name()</b> — именованные маршруты. Генерация URL: <code>route('posts.show', $post)</code>. Не ломается при смене пути.",
+  "group": "<b>Route::group()</b> — общие атрибуты: <code>prefix</code>, <code>middleware</code>, <code>name</code>, <code>where</code>.",
+  "resource": "<b>Route::resource()</b> — 7 REST-маршрутов (index, create, store, show, edit, update, destroy). <code>apiResource</code> — только 5 (без create/edit).",
+  "binding": "<b>Route Model Binding</b> — тип модели в сигнатуре: <code>show(Post $post)</code> сам загрузит модель по <code>{post}</code> или вернёт 404.",
+  "fallback": "<b>Route::fallback()</b> — маршрут для всех неотловленных URL (страница 404).",
+  "invoke": "<b>Single Action Controller</b> — контроллер с одним методом <code>__invoke()</code>. Для одного действия не создаётся лишних методов.",
+  "di": "<b>Dependency Injection</b> — Laravel разрешает зависимости методов и конструкторов автоматически из контейнера.",
+  "response": "<b>response()</b> — помощник для ответов: <code>response()->json()</code>, <code>response()->download()</code>, <code>response()->file()</code>.",
+  "notfound": "<b>ModelNotFoundException</b> — выбрасывается findOrFail()/Route Model Binding; Laravel превращает в 404.",
+  "middleware": "<b>Middleware</b> — слои обработки запроса до/после контроллера: auth, csrf, throttle, кастомные проверки.",
+  "verified": "<b>verified</b> — middleware для подтверждённых email (after:register).",
+  "kernel": "<b>bootstrap/app.php</b> — в новых версиях Laravel регистрирует middleware через <code>->withMiddleware()</code> (раньше был Http/Kernel.php).",
+  "model": "<b>Eloquent Model</b> — класс, представляющий таблицу БД. Конвенции: имя класса → имя таблицы (мн. число), primary key <code>id</code>, timestamps включены.",
+  "fillable": "<b>$fillable</b> — список разрешённых для массового присваивания полей. Безопасность от массового заполнения через <code>create()</code>.",
+  "guarded": "<b>$guarded</b> — обратный подход: всё разрешено, кроме перечисленного. <code>$guarded = ['*']</code> — запрещено всё.",
+  "findorfail": "<b>findOrFail()</b> — ищет по id, иначе выбрасывает ModelNotFoundException (→404).",
+  "firstorfail": "<b>firstOrFail()</b> — возвращает первую запись по условию или бросает 404.",
+  "relations": "<b>Отношения</b> — связи моделей: hasOne (1:1), hasMany (1:N), belongsTo (N:1), belongsToMany (N:N через pivot), morphMany (полиморф).",
+  "eager": "<b>Eager Loading</b> — предзагрузка связей одним запросом: <code>with('comments')</code>. Решает проблему N+1.",
+  "scope": "<b>Локальные скопы</b> — методы <code>scopeXxx($query)</code>, вызываются как <code>Post::published()</code>. Инкапсулируют условия where.",
+  "mutator": "<b>Accessors/Mutators</b> — трансформация атрибутов: <code>getFullNameAttribute()</code> (чтение), <code>setPasswordAttribute()</code> (запись). В новых версиях — атрибуты cast.",
+  "softdeletes": "<b>SoftDeletes</b> — trait. Запись не удаляется, ставится <code>deleted_at</code>. Методы: <code>forceDelete()</code>, <code>withTrashed()</code>.",
+  "casts": "<b>$casts</b> — преобразование типов при чтении/записи: <code>date</code>, <code>boolean</code>, <code>array</code>, <code>json</code>, <code>encrypted</code>.",
+  "migration": "<b>Миграция</b> — файл версионирования схемы БД. Папка database/migrations, время создания в имени.",
+  "up": "<b>up()</b> — метод применения изменений (create/alter таблиц).",
+  "down": "<b>down()</b> — метод отката (reverse up). Должен корректно откатывать.",
+  "schema": "<b>Schema Builder</b> — построитель таблиц: <code>Schema::create()</code>, <code>Schema::table()</code>, методы колонок string/integer/text/boolean.",
+  "foreign": "<b>foreignId()->constrained()</b> — создаёт внешний ключ с соглашением об именах. <code>cascadeOnDelete()</code> — каскадное удаление.",
+  "index": "<b>Индексы</b> — <code>->index()</code> ускоряет выборки, <code>->unique()</code> — уникальность (уникальный индекс).",
+  "dbseeder": "<b>DatabaseSeeder</b> — главный сидер, вызывается <code>db:seed</code>. Может вызывать другие сидеры.",
+  "factory": "<b>Фабрика</b> — генератор тестовых записей модели. <code>Post::factory()->count(10)->create()</code>.",
+  "faker": "<b>Faker</b> — генератор фейковых данных: <code>fake()->name()</code>, <code>fake()->sentence()</code>, <code>fake()->paragraphs()</code>.",
+  "fakedefine": "<b>definition()</b> — метод фабрики, возвращает массив атрибутов по умолчанию.",
+  "state": "<b>state()</b> — вариации фабрики: <code>Post::factory()->published()->create()</code>. Реализуется через public method в фабрике.",
+  "validate": "<b>validate()</b> — <code>$request->validate($rules)</code> проверяет и возвращает отфильтрованные данные; при ошибке редиректит назад с ошибками.",
+  "formrequest": "<b>Form Request</b> — класс валидации: <code>rules()</code>, <code>authorize()</code>, <code>messages()</code>. Автоинжектится в метод контроллера.",
+  "rule": "<b>Rule::</b> — классы правил: <code>Rule::unique('users')->ignore($id)</code>, <code>Rule::exists()</code>, <code>Rule::password()</code>.",
+  "ruleobject": "<b>Rule-объект</b> — кастомное правило: класс реализует <code>ValidationRule</code> (метод validate).",
+  "bag": "<b>$errors</b> — объект MessageBag с ошибками валидации. В Blade: <code>@error('title')</code> или <code>$errors->first('title')</code>.",
+  "validationex": "<b>ValidationException</b> — выбрасывается при провале валидации. Для API возвращает 422 с errors JSON.",
+  "blade": "<b>Blade</b> — шаблонизатор Laravel. Файлы <code>*.blade.php</code> компилируются в PHP. Поддержка директив и компонентов.",
+  "raw": "<b>{!! !!}</b> — вывод без экранирования (danger: XSS). Использовать только для доверенного HTML.",
+  "extends": "<b>@extends/@section/@yield</b> — наследование шаблонов: дочерний расширяет layout и наполняет секции.",
+  "components": "<b>Компоненты Blade</b> — <code>&lt;x-alert type=\"danger\"&gt;...&lt;/x-alert&gt;</code>. Класс-компонент + view, слоты через <code>{{ $slot }}</code>, атрибуты через <code>$attributes</code>.",
+  "layouts": "<b>layouts/app.blade.php</b> — общий каркас: head, header, content-секция, footer.",
+  "csrf": "<b>@csrf</b> — скрытое поле с CSRF-токеном для форм. Обязательно для POST/PUT/DELETE, иначе 419.",
+  "method": "<b>@method('PUT')</b> — эмуляция метода формы. HTML формы поддерживают только GET/POST.",
+  "authscaffold": "<b>auth:breeze</b> — starter kit Breeze: готовые логин/регистрация/профиль с Blade или React/Vue/JS.",
+  "jetstream": "<b>Jetstream/Fortify</b> — стартеркиты с 2FA, командами, teams. Fortify — только backend-логика auth.",
+  "guard": "<b>Guard</b> — механизм проверки: web (сессии), api (токены), sanctum (SPA+токены). Настраивается в config/auth.php.",
+  "provider": "<b>Provider</b> — источник пользователей: eloquent (по умолчанию), database.",
+  "hash": "<b>Hash::make()</b> — хеширование пароля (bcrypt/argon). Проверка: <code>Hash::check($pass, $hash)</code>. Никогда не хранить пароли в открытом виде.",
+  "password": "<b>Password Reset</b> — сброс пароля: отправка ссылки, валидация токена, смена пароля. Кастом через PasswordBroker.",
+  "gate": "<b>Gate</b> — проверка способностей: <code>Gate::define('update-post', fn ($user, $post) => $user->id === $post->user_id)</code>. Ключ + замыкание.",
+  "policy": "<b>Policy</b> — класс авторизации для модели: методы viewAny, view, create, update, delete, restore, forceDelete.",
+  "superadmin": "<b>before()</b> — метод policy, выполняется до всех остальных; обычно для админа возвращает true.",
+  "can": "<b>$user->can()</b> — проверка способности на модели: <code>$user->can('update', $post)</code>. В Blade: <code>@can('update', $post)</code>.",
+  "denied": "<b>AuthorizationException</b> — бросается authorize(). Laravel превращает в 403 (или redirect с политикой).",
+  "queue": "<b>Очередь</b> — механизм отложенной обработки задач. Драйверы: sync (синхронно, по умолчанию), database, redis, sqs, beanstalkd.",
+  "job": "<b>Job</b> — класс задачи: <code>handle()</code> — логика, <code>ShouldQueue</code> — уходит в очередь. <code>php artisan make:job</code>.",
+  "sqs": "<b>SQS</b> — Amazon Simple Queue Service. Облачная очередь для прод-проектов на AWS.",
+  "priority": "<b>->onQueue('high')</b> — очередь с приоритетом. Воркеры: <code>queue:work --queue=high,default</code>.",
+  "failed": "<b>failed_jobs</b> — таблица упавших джоб. Просмотр: <code>queue:failed</code>, повторить: <code>queue:retry</code>.",
+  "rate": "<b>ShouldBeUnique</b> — джоба не поставится в очередь, пока предыдущая с таким ключом не завершится. Защита от дублей.",
+  "event": "<b>Event</b> — класс-событие с данными. Вызов: <code>event(new PostCreated($post))</code>.",
+  "listener": "<b>Listener</b> — обработчик события. Может реализовать ShouldQueue для асинхронности.",
+  "eventmap": "<b>EventServiceProvider</b> — карта событий → слушателей. В новых версиях можно через атрибут <code>#[Listen(...)]</code> прямо на классе слушателя.",
+  "shouldqueue": "<b>ShouldQueue</b> — интерфейс-маркер: класс (слушатель/mailable/notification) уходит в очередь.",
+  "broadcast": "<b>Broadcast</b> — публикация события во внешний сервер (Reverb/Pusher), чтобы фронт получил его по WebSocket.",
+  "redis": "<b>Redis</b> — in-memory хранилище (кэш, очереди, сессии, рейтинги). Требует установки phpredis/predis.",
+  "memcached": "<b>Memcached</b> — распределённый кэш в памяти. Проще Redis, но без очередей и структур данных.",
+  "expiry": "<b>Carbon</b> — библиотека дат. <code>now()->addMinutes(30)</code>, <code>now()->addHour()</code> для TTL кэша.",
+  "cachelock": "<b>Cache::lock()</b> — атомарные блокировки: <code>Cache::lock('key', 10)->get()</code>. Для задач, которые не должны выполняться параллельно.",
+  "cachetags": "<b>Теги кэша</b> — <code>Cache::tags(['posts', 'users'])->put(...)</code>. Позволяют массово сбрасывать группы (только file/database/redis).",
+  "sanctum": "<b>Sanctum</b> — лёгкая аутентификация API: токены для мобильных + SPA через cookie. <code>make:model -a</code> не нужен, используется HasApiTokens.",
+  "passport": "<b>Passport</b> — полный OAuth2-сервер: клиенты, access/refresh токены, scopes. Для серьёзных сторонних приложений.",
+  "apiresource": "<b>API Resource</b> — трансформация модели в JSON: <code>PostResource::make($post)</code> или <code>PostResource::collection($posts)</code>.",
+  "apiex": "<b>API-исключения</b> — настраивается рендер исключений в JSON вместо HTML через bootstrap/app.php или render-метод.",
+  "throttle": "<b>throttle</b> — middleware лимита запросов: <code>throttle:60,1</code> (60 в минуту) или <code>throttle:api</code>. Возвращает 429.",
+  "mailable": "<b>Mailable</b> — класс письма: envelope(), content(), attachments(). Методы: <code>->subject()</code>, <code>->attach()</code>.",
+  "mailtrap": "<b>Mailtrap</b> — сервис тестовой почты (ловушка). Письма не уходят наружу. Альтернатива: <code>MAIL_MAILER=log</code>.",
+  "mailer": "<b>Mailers</b> — конфиги почтовых драйверов в config/mail.php: smtp, mailgun, ses, log, array.",
+  "notifychannels": "<b>Каналы уведомлений</b> — mail, database, broadcast, nexmo/sms, slack. Метод via() возвращает список.",
+  "notifstable": "<b>Таблица notifications</b> — хранит database-уведомления. Просмотр в админке: <code>$user->notifications</code>.",
+  "on-demand": "<b>On-demand уведомления</b> — <code>Notification::route('mail', 'user@ex.com')->notify(new X)</code>. Без сохранения пользователя.",
+  "channel": "<b>Каналы</b> — public (все), private (авторизация), presence (кто онлайн). Ограничение прав в routes/channels.php.",
+  "reverb": "<b>Reverb</b> — официальный WebSocket-сервер Laravel (заменил soketi по умолчанию). Порт 8080 по умолчанию.",
+  "echo": "<b>Laravel Echo</b> — JS-библиотека для прослушивания каналов: <code>Echo.private('chat.1').listen('MessageSent', cb)</code>.",
+  "broadcastson": "<b>ShouldBroadcast</b> — событие становится broadcast-событием; broadcastOn() возвращает каналы.",
+  "container": "<b>Контейнер (IoC)</b> — сердце Laravel. Резолвит зависимости, создаёт объекты, хранит привязки.",
+  "bind": "<b>bind()</b> — регистрация: <code>app()->bind(Interface::class, Impl::class)</code>. Новый экземпляр при каждом резолве.",
+  "singleton": "<b>singleton()</b> — один экземпляр на всё приложение (например, сервис с конфигом).",
+  "contextual": "<b>Контекстные привязки</b> — разный класс для разных потребителей: <code>->when(Controller::class)->needs(Foo::class)->give(Bar::class)</code>.",
+  "alias": "<b>alias()</b> — псевдоним класса в контейнере: <code>app()->alias(CartService::class, 'cart')</code>.",
+  "apphelper": "<b>app()</b> — глобальный помощник: <code>app(MyClass::class)</code> или <code>app()</code> (сам контейнер).",
+  "provider": "<b>Service Provider</b> — центральная точка инициализации: регистрирует привязки, слушатели, команды, view-composers.",
+  "register": "<b>register()</b> — первый этап: только привязки в контейнер. Не использовать сервисы.",
+  "boot": "<b>boot()</b> — второй этап: всё готово, можно использовать сервисы. Вызывается после регистрации всех провайдеров.",
+  "deferred": "<b>Deferred</b> — провайдер грузится только когда запрошен его сервис (для скорости).",
+  "bootstrap": "<b>bootstrap/providers.php</b> — файл-реестр провайдеров в новых версиях Laravel.",
+  "facade": "<b>Facade</b> — статический прокси: <code>Cache::put()</code> на самом деле вызывает сервис из контейнера. Удобство + тестируемость через fakes.",
+  "realtime-facade": "<b>Real-time facade</b> — <code>Facades\MyClass</code> превращает любой класс во facade без регистрации.",
+  "macro": "<b>Макросы</b> — добавление методов классам с трейтом Macroable: <code>Str::macro()</code>, <code>Collection::macro()</code>, <code>Arr::macro()</code>.",
+  "aliases": "<b>Алиасы</b> — <code>'aliases' => ['Cache' => ...]</code> в config/app.php. Краткие имена фасадов.",
+  "collection": "<b>Collection</b> — обёртка над массивом с цепочкой методов. Возвращается из ->get(), ->pluck() и т.д.",
+  "lazy-collection": "<b>LazyCollection</b> — ленивое выполнение: элементы генерятся по мере перебора. Для больших данных и потоков.",
+  "higher-order": "<b>Higher-order</b> — короткая запись: <code>$users->each->markAsPaid()</code> вместо <code>$users->each(fn ($u) => $u->markAsPaid())</code>.",
+  "phpunit": "<b>PHPUnit</b> — классический тест-фреймворк. Классы с методами test_* или атрибутами #[Test].",
+  "pest": "<b>Pest</b> — более читаемый синтаксис на базе PHPUnit: <code>test('guest is redirected', fn () => ...)</code>.",
+  "feature": "<b>Feature-тест</b> — полный HTTP-цикл: роутинг, middleware, БД, view. <code>use RefreshDatabase</code>.",
+  "unit": "<b>Unit-тест</b> — изолированный метод/класс без сервисов Laravel (по умолчанию без фреймворка).",
+  "mvc": "<b>MVC</b> — Model-View-Controller. В Laravel: Eloquent (Model), Blade (View), Controller + routes.",
+  "repository": "<b>Repository</b> — паттерн слоя данных: инкапсулирует запросы, интерфейс для тестируемости.",
+  "service": "<b>Service</b> — слой бизнес-логики. Контроллер тонкий, сервис толстый.",
+  "dto": "<b>DTO</b> — Data Transfer Object: неизменяемый контейнер данных между слоями.",
+  "action": "<b>Action-класс</b> — один класс = одно бизнес-действие (метод handle). Альтернатива сервисам.",
+  "nplus1": "<b>N+1 проблема</b> — 1 запрос на список + N запросов на каждую связь. Решение: eager loading (<code>with()</code>).",
+  "debugbar": "<b>Debugbar</b> — пакет barryvdh/laravel-debugbar: запросы, время, кэш, шаблоны в dev-панели.",
+  "telescope": "<b>Telescope</b> — дебаггер-панель: запросы, исключения, кэш, очереди, почта. Для dev.",
+  "opcache": "<b>OPcache</b> — кэш опкода PHP. Значительно ускоряет выполнение; обязателен на проде.",
+  "octane": "<b>Octane</b> — высокопроизводительный HTTP-сервер (Swoole/RoadRunner). Держит приложение в памяти.",
+  "forge": "<b>Forge</b> — управление серверами для деплоя Laravel. Vapor — serverless (AWS Lambda).",
+  "maintenance": "<b>Режим техобслуживания</b> — <code>php artisan down</code> / <code>up</code>. Секретный ключ для доступа: <code>down --secret=xxx</code>.",
+  "pint": "<b>Pint</b> — официальный форматтер кода (на базе PHP-CS-Fixer): <code>./vendor/bin/pint</code>.",
+  "phpstan": "<b>PHPStan (Larastan)</b> — статический анализ типов. Ловит ошибки до запуска: <code>composer require larastan/larastan --dev</code>."
+};
+
+const tt = document.getElementById('tt');
+let timer = null;
+let current = null;
+
+function position(el) {
+  const r = el.getBoundingClientRect();
+  const tw = tt.offsetWidth;
+  const th = tt.offsetHeight;
+  let x = r.left + r.width / 2 - tw / 2;
+  if (x < 8) x = 8;
+  if (x + tw > window.innerWidth - 8) x = window.innerWidth - tw - 8;
+  let y = r.top - th - 8;
+  if (y < 8) y = r.bottom + 8;
+  if (y + th > window.innerHeight - 8) y = window.innerHeight - th - 8;
+  tt.style.left = x + 'px';
+  tt.style.top = y + 'px';
+}
+
+function show(el, key) {
+  const html = DEFS[key] || '';
+  if (!html) return;
+  tt.innerHTML = html;
+  tt.dataset.key = key;
+  tt.style.display = 'block';
+  position(el);
+}
+
+function hide() {
+  clearTimeout(timer);
+  tt.style.display = 'none';
+}
+
+document.addEventListener('mouseover', function (e) {
+  const el = e.target.closest('.t');
+  if (!el) {
+    hide();
+    current = null;
+    return;
+  }
+  const key = el.dataset.t;
+  if (!DEFS[key]) { current = el; return; }
+  if (current === el) return;
+  current = el;
+  clearTimeout(timer);
+  timer = setTimeout(function () { show(el, key); }, 160);
+});
+
+document.addEventListener('click', function (e) {
+  const el = e.target.closest('.t');
+  if (!el) { hide(); return; }
+  e.preventDefault();
+  if (tt.style.display === 'block' && tt.dataset.key === el.dataset.t) { hide(); return; }
+  show(el, el.dataset.t);
+});
+
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') { hide(); return; }
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const el = document.activeElement;
+  if (el && el.classList && el.classList.contains('t')) {
+    e.preventDefault();
+    if (tt.style.display === 'block' && tt.dataset.key === el.dataset.t) { hide(); return; }
+    show(el, el.dataset.t);
+  }
+});
+
+document.addEventListener('scroll', hide, true);
+window.addEventListener('resize', hide);
+
+document.getElementById('termCount').textContent = 'Терминов: ' + document.querySelectorAll('.t').length;
+</script>
+</body>
+</html>

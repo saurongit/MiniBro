@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>React — интерактивный гайд к собеседованию</title>
+<style>
+  :root{
+    --bg:#0b1120; --card:#16233b; --card2:#101a2e;
+    --text:#e2e8f0; --muted:#94a3b8;
+    --accent:#61dafb; --accent2:#a5b4fc; --line:#2c3d58;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:linear-gradient(180deg,#0a0f1c 0%,var(--bg) 100%);
+    color:var(--text);
+    font-family:Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size:15px; line-height:1.6;
+    padding-bottom:80px;
+  }
+  a{color:var(--accent);}
+
+  .banner{
+    max-width:960px; margin:0 auto; padding:34px 20px 10px; text-align:center;
+  }
+  .banner h1{
+    font-size:28px; letter-spacing:.3px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    margin-bottom:10px;
+  }
+  .banner p{color:var(--muted); font-size:14.5px;}
+  .badge{
+    display:inline-block; margin-top:14px; padding:6px 14px; border-radius:999px;
+    background:rgba(97,218,251,.12); border:1px solid rgba(97,218,251,.35);
+    color:var(--accent); font-size:12.5px; font-weight:600;
+  }
+
+  nav#toc{
+    position:sticky; top:0; z-index:500;
+    background:rgba(11,17,32,.92); backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+    padding:8px 10px; margin-top:18px;
+    display:flex; flex-wrap:wrap; gap:5px; justify-content:center;
+  }
+  nav#toc a{
+    color:var(--muted); text-decoration:none; font-size:11.5px;
+    padding:3px 7px; border-radius:6px; border:1px solid transparent;
+    transition:.15s;
+  }
+  nav#toc a:hover{color:var(--text); border-color:var(--line); background:var(--card);}
+
+  main{max-width:960px; margin:0 auto; padding:20px;}
+
+  section.card{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:22px 24px; margin-bottom:18px;
+    box-shadow:0 4px 18px rgba(0,0,0,.25);
+  }
+  section.card h2{
+    font-size:18px; margin-bottom:12px; color:var(--accent);
+    display:flex; align-items:center; gap:10px;
+  }
+  section.card h2 .num{
+    flex:0 0 auto; min-width:30px; height:30px; border-radius:8px;
+    background:rgba(97,218,251,.15); border:1px solid rgba(97,218,251,.4);
+    color:var(--accent); display:inline-flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:700;
+  }
+  ul{list-style:none;}
+  li{padding:4px 0 4px 22px; position:relative;}
+  li::before{
+    content:""; position:absolute; left:2px; top:15px;
+    width:7px; height:7px; border-radius:50%;
+    background:var(--accent2); opacity:.7;
+  }
+  code{
+    font-family:Consolas, "Cascadia Mono", monospace;
+    font-size:13px; background:#0b1220; border:1px solid var(--line);
+    padding:1px 5px; border-radius:5px; color:#a5f3fc;
+  }
+
+  .t{
+    color:var(--accent);
+    border-bottom:1px dashed rgba(97,218,251,.55);
+    cursor:help; padding:0 2px; border-radius:3px;
+    transition:background .12s;
+  }
+  .t:hover{background:rgba(97,218,251,.16);}
+  .t:focus{outline:2px solid var(--accent2); outline-offset:1px;}
+
+  #tt{
+    display:none; position:fixed; z-index:2000;
+    max-width:360px; min-width:200px;
+    background:#f8fafc; color:#0f172a;
+    border:1px solid #cbd5e1; border-radius:9px;
+    padding:10px 13px; font-size:13px; line-height:1.5;
+    box-shadow:0 10px 30px rgba(0,0,0,.45);
+    pointer-events:none;
+  }
+  #tt b{color:#0369a1;}
+  #tt code{
+    background:#e2e8f0; color:#7c3aed; border-color:#cbd5e1; font-size:12px;
+  }
+
+  .ex{
+    margin:12px 0 4px; background:var(--card2);
+    border:1px solid var(--line); border-left:3px solid var(--accent2);
+    border-radius:8px; overflow:hidden;
+  }
+  .ex .ex-head{
+    padding:5px 12px; font-size:11px; letter-spacing:.6px; text-transform:uppercase;
+    color:var(--muted); background:rgba(165,180,252,.08);
+    border-bottom:1px solid var(--line);
+  }
+  .ex pre{
+    padding:12px; overflow-x:auto; font-size:12.5px;
+    font-family:Consolas, "Cascadia Mono", monospace; color:#a5f3fc;
+  }
+
+  .desc{
+    margin:-4px 0 14px; padding:11px 14px; border-radius:10px;
+    background:rgba(129,140,248,.08); border:1px solid rgba(129,140,248,.3);
+    color:#cbd5e1; font-size:13.5px; line-height:1.6;
+  }
+  .desc b{color:var(--accent2); font-weight:600;}
+  .note{
+    margin-top:18px; padding:12px 16px; border-radius:10px;
+    background:rgba(251,191,36,.08); border:1px solid rgba(251,191,36,.3);
+    color:#fde68a; font-size:13.5px;
+  }
+  footer{
+    max-width:960px; margin:20px auto 0; padding:0 20px;
+    color:var(--muted); font-size:12.5px; text-align:center;
+  }
+  @media (max-width:600px){
+    .banner h1{font-size:22px;}
+    section.card{padding:16px;}
+    #tt{max-width:260px; font-size:12px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="banner">
+  <h1>React — интерактивный гайд к собеседованию</h1>
+  <p>Наведи курсор на любой подчёркнутый термин — появится подсказка с объяснением.<br>
+     Все 30 тем, от основ до продвинутых: каждая сущность с подсказкой. Счётчик: <span class="badge" id="termCount">терминов: …</span></p>
+</header>
+
+<nav id="toc">
+  <a href="#s1">1 Основа</a><a href="#s2">2 Сборка</a><a href="#s3">3 JSX</a>
+  <a href="#s4">4 Компоненты</a><a href="#s5">5 Props</a><a href="#s6">6 State</a>
+  <a href="#s7">7 События/формы</a><a href="#s8">8 Рендер</a><a href="#s9">9 Хуки</a>
+  <a href="#s10">10 useEffect</a><a href="#s11">11 useRef</a><a href="#s12">12 Мемоизация</a>
+  <a href="#s13">13 useReducer</a><a href="#s14">14 Context</a><a href="#s15">15 Классы</a>
+  <a href="#s16">16 Роутер</a><a href="#s17">17 Стейт-менеджмент</a><a href="#s18">18 Оптимизация</a>
+  <a href="#s19">19 SSR/Next</a><a href="#s20">20 React 19</a><a href="#s21">21 TS</a>
+  <a href="#s22">22 Тесты</a><a href="#s23">23 Паттерны</a><a href="#s24">24 Error Boundaries</a>
+  <a href="#s25">25 Стили</a><a href="#s26">26 Данные</a><a href="#s27">27 Экосистема</a>
+  <a href="#s28">28 Отладка</a><a href="#s29">29 Вопросы</a><a href="#s30">30 Советы</a>
+</nav>
+
+<main>
+
+<section class="card" id="s1">
+  <h2><span class="num">1</span> Что такое React: основы</h2>
+  <p class="desc">React — библиотека для интерфейсов: страница собирается из компонентов. Изменил данные — интерфейс перерисовался сам. Используется в большинстве современных фронтендов.</p>
+  <ul>
+    <li><span class="t" data-t="react" tabindex="0">React</span> — JavaScript-<span class="t" data-t="library" tabindex="0">библиотека</span> (не фреймворк!) для построения пользовательских интерфейсов. Разработана Facebook/Meta, открыта в 2013.</li>
+    <li><span class="t" data-t="declarative" tabindex="0">Декларативность</span>: описываешь «какой должен быть UI» (не «как»), React сам обновляет DOM.</li>
+    <li><span class="t" data-t="component" tabindex="0">Компоненты</span> — строительные блоки: функции/классы, возвращающие разметку. UI = дерево компонентов.</li>
+    <li><span class="t" data-t="vdom" tabindex="0">Виртуальный DOM</span> — лёгкая JS-копия настоящего DOM; React сравнивает и применяет только изменения.</li>
+    <li><span class="t" data-t="one-way" tabindex="0">Односторонний поток данных</span> (вниз по дереву): родитель передаёт дочернему через <span class="t" data-t="props" tabindex="0">props</span>, данные не «гуляют» вверх сами.</li>
+    <li>Используется в <span class="t" data-t="spa" tabindex="0">SPA</span> (одностраничные приложения), мобильных (<span class="t" data-t="rn" tabindex="0">React Native</span>), десктопе (Electron), серверном рендеринге.</li>
+    <li>React <span class="t" data-t="unopinionated" tabindex="0">не навязывает</span> роутер, стейт-менеджмент, стили — это берётся из экосистемы. <span class="t" data-t="next" tabindex="0">Next.js</span> и др. добавляют «фреймворковые» удобства.</li>
+  </ul>
+  <div class="note">Ключевое отличие от фреймворков (Angular/Vue): React — это view-слой. Ответ «это библиотека, а не фреймворк» на собесе ценится.</div>
+</section>
+
+<section class="card" id="s2">
+  <h2><span class="num">2</span> Инструменты и сборка проекта</h2>
+  <p class="desc">Инструменты: Vite или Create React App, npm, Babel, Webpack. Быстрый старт — create vite с шаблоном react, дальше npm run dev / build.</p>
+  <ul>
+    <li><span class="t" data-t="vite" tabindex="0">Vite</span> — современный сборщик с dev-сервером (быстрый HMR). <span class="t" data-t="cra" tabindex="0">CRA</span> (Create React App) — устаревший, но встречается в легаси.</li>
+    <li><span class="t" data-t="npm" tabindex="0">npm</span>/<span class="t" data-t="yarn" tabindex="0">yarn</span>/<span class="t" data-t="pnpm" tabindex="0">pnpm</span> — менеджеры пакетов; <span class="t" data-t="packagejson" tabindex="0">package.json</span> описывает зависимости и скрипты.</li>
+    <li>Код пишется на JSX/TS и компилируется: <span class="t" data-t="babel" tabindex="0">Babel</span> или esbuild/oxc превращают JSX в <code>React.createElement(...)</code>.</li>
+    <li>Точка входа: <code>createRoot(document.getElementById('root')).render(&lt;App/&gt;)</code> — рут-рендер с React 18+.</li>
+    <li><span class="t" data-t="strictmode" tabindex="0">StrictMode</span> — дев-режим, который нарочно дважды вызывает рендер и эффекты, чтобы отловить побочные эффекты.</li>
+    <li><span class="t" data-t="hmr" tabindex="0">HMR</span> (hot module replacement) — обновление модуля без перезагрузки страницы, сохраняя состояние.</li>
+    <li><span class="t" data-t="eslint" tabindex="0">ESLint</span> + <span class="t" data-t="prettier" tabindex="0">Prettier</span> — линт и форматирование; плагин <code>eslint-plugin-react-hooks</code> проверяет правила хуков.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Минимальный React 18+ bootstrap</div>
+    <pre>import { createRoot } from 'react-dom/client';
+import App from './App';
+
+const root = createRoot(document.getElementById('root'));
+root.render(&lt;App /&gt;);</pre>
+  </div>
+</section>
+
+<section class="card" id="s3">
+  <h2><span class="num">3</span> JSX — синтаксис разметки</h2>
+  <p class="desc">JSX — HTML-подобный синтаксис внутри JS: const el = <h1>Привет</h1>. Внутри фигурных скобок { } — любые JS-выражения.</p>
+  <ul>
+    <li><span class="t" data-t="jsx" tabindex="0">JSX</span> — синтаксический сахар для <code>createElement</code>: «HTML-подобная» разметка прямо в JS.</li>
+    <li>Внутри <code>{ }</code> можно вставлять любые <span class="t" data-t="jsxexpr" tabindex="0">JS-выражения</span>: переменные, вызовы функций, тернарники, шаблонные строки.</li>
+    <li>Атрибуты в camelCase: <code>className</code> (не class), <code>htmlFor</code> (не for), <code>onClick</code>, <code>tabIndex</code>.</li>
+    <li>Условный рендер: <code>{cond &amp;&amp; &lt;X/&gt;}</code>, тернарник, <code>{cond ? &lt;A/&gt; : &lt;B/&gt;}</code>, ранний <code>return null</code>.</li>
+    <li>Списки: <code>.map()</code> с обязательным атрибутом <span class="t" data-t="key" tabindex="0">key</span> (уникальный и стабильный — не индекс по умолчанию).</li>
+    <li>Строковые children, множественные children, <span class="t" data-t="fragment" tabindex="0">Fragment</span> <code>&lt;&gt;...&lt;/&gt;</code> для возврата нескольких элементов без обёртки.</li>
+    <li>Комментарии в JSX: <code>{/* ... */}</code>. Имена тегов: строчные — DOM-элементы, с большой буквы — компоненты.</li>
+    <li>JSX — не шаблонный язык (не «строка»): это выражение, его можно присваивать, передавать, возвращать.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">JSX: выражения и списки</div>
+    <pre>const items = ['JSX', 'Props', 'State'];
+
+function App({ isLogged }) {
+  return (
+    &lt;div className="app"&gt;
+      {isLogged ? 'Привет!' : 'Войдите'}
+      &lt;ul&gt;
+        {items.map((it, i) =&gt; (
+          &lt;li key={it}&gt;{i + 1}. {it.toUpperCase()}&lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s4">
+  <h2><span class="num">4</span> Компоненты</h2>
+  <p class="desc">Компонент — кусок интерфейса: функция, которая возвращает JSX. Используется как тег: &lt;Button /&gt;. Интерфейс собирается как конструктор.</p>
+  <ul>
+    <li><span class="t" data-t="funccomponent" tabindex="0">Функциональный компонент</span> — обычная функция, принимающая <span class="t" data-t="props" tabindex="0">props</span> и возвращающая JSX. Современный стандарт.</li>
+    <li><span class="t" data-t="classcomponent" tabindex="0">Классовый компонент</span> — <code>class extends Component</code> с <code>render()</code>, <code>this.state</code>, lifecycle-методами. Легаси, но важно понимать.</li>
+    <li>Имя компонента — с большой буквы; вложенные компоненты не объявляй внутри других (будет ремоунт при каждом рендере).</li>
+    <li><span class="t" data-t="purecomponent" tabindex="0">Чистые компоненты</span>: при одинаковых props/state отдавать одинаковый результат, без сайд-эффектов — залог предсказуемости.</li>
+    <li><span class="t" data-t="composition" tabindex="0">Композиция</span> — основной способ переиспользования: компоненты собираются из других, логика наследования почти не нужна.</li>
+    <li><span class="t" data-t="children-prop" tabindex="0">children</span> — специальный prop: то, что лежит между тегами. Позволяет делать «обёртки» и layout-компоненты.</li>
+    <li>Компоненты управляемые (<span class="t" data-t="controlled" tabindex="0">controlled</span>) — данные в state; неуправляемые — данные в DOM (через <span class="t" data-t="ref" tabindex="0">ref</span>).</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Функциональный компонент + композиция</div>
+    <pre>function Card({ title, children }) {
+  return (
+    &lt;div className="card"&gt;
+      &lt;h3&gt;{title}&lt;/h3&gt;
+      {children}
+    &lt;/div&gt;
+  );
+}
+
+function App() {
+  return &lt;Card title="Заголовок"&gt;&lt;p&gt;Любой JSX внутри&lt;/p&gt;&lt;/Card&gt;;
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s5">
+  <h2><span class="num">5</span> Props — данные сверху вниз</h2>
+  <p class="desc">Props — параметры компонента, данные передаются сверху вниз: &lt;User name="Аня" /&gt;. Родитель → ребёнок, один поток данных.</p>
+  <ul>
+    <li><span class="t" data-t="props" tabindex="0">Props</span> (properties) — входные данные компонента: объект, который нельзя мутировать (<span class="t" data-t="immutable" tabindex="0">immutable</span>).</li>
+    <li>Типы значений: примитивы, объекты, массивы, функции-колбэки, JSX (render props / children), компоненты.</li>
+    <li>Деструктуризация: <code>function Card({ title, onClick }) {...}</code> — читабельно и с дефолтами: <code>{ title = 'Нет' }</code>.</li>
+    <li>Колбэки вниз + события вверх — стандарт: <code>&lt;Button onClick={handler}/&gt;</code>, обработчик определён в родителе.</li>
+    <li><span class="t" data-t="defaultprops" tabindex="0">defaultProps</span> (классы) и значения по умолчанию при деструктуризации (функции) — значение по умолчанию для отсутствующего prop.</li>
+    <li><span class="t" data-t="propdrilling" tabindex="0">Prop drilling</span> — передача prop через много уровней. Лечится <span class="t" data-t="context" tabindex="0">Context</span> или стейт-менеджментом (но без фанатизма).</li>
+    <li><span class="t" data-t="rest" tabindex="0">Rest props</span> (<code>...rest</code>) — «проброс» лишних атрибутов в DOM-элемент, например для a11y-атрибутов.</li>
+    <li>Валидация: <span class="t" data-t="proptypes" tabindex="0">PropTypes</span> (устаревает) или <span class="t" data-t="ts" tabindex="0">TypeScript</span> — интерфейсы для props.</li>
+  </ul>
+  <div class="note">Запомни: «поток данных один — вниз», «события вверх». Если видишь мутацию props — это баг.</div>
+</section>
+
+<section class="card" id="s6">
+  <h2><span class="num">6</span> State — состояние компонента</h2>
+  <p class="desc">State — данные компонента, которые могут меняться: useState. Изменил state — компонент перерисовался с новыми данными.</p>
+  <ul>
+    <li><span class="t" data-t="state" tabindex="0">State</span> — данные, которые меняются со временем; локальны для компонента и хранятся между рендерами.</li>
+    <li><span class="t" data-t="usestate" tabindex="0">useState</span> — хук состояния: <code>const [count, setCount] = useState(0)</code>. Возвращает [значение, сеттер].</li>
+    <li>Обновление — всегда через сеттер (<code>setCount</code>), никогда не мутируй state напрямую.</li>
+    <li>Сеттер можно вызывать с новым значением или с функцией: <code>setCount(c =&gt; c + 1)</code> — функциональная форма безопасна при нескольких обновлениях подряд.</li>
+    <li>Обновления <span class="t" data-t="batching" tabindex="0">батчатся</span>: несколько <code>setState</code> в одном обработчике = один ререндер (React 18 — авто-батчинг даже в промисах).</li>
+    <li>State не обновляется мгновенно (асинхронно, до рендера) — не читай его сразу после setState; читай через эффекты или вычисли при рендере.</li>
+    <li>Объекты и массивы в state обновляй через копии: <code>setUser({...user, name})</code>, <code>setItems([...items, item])</code> (иммутабельность).</li>
+    <li><span class="t" data-t="lifting" tabindex="0">Подъём состояния</span> (lifting state up) — вынести state в общего родителя, чтобы несколько детей им делились.</li>
+    <li>Деривированное состояние — вычисляется из props/state при рендере, в отдельный state не дублируем (лишний state = источник багов).</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">useState + функциональное обновление</div>
+    <pre>function Counter() {
+  const [count, setCount] = useState(0);
+
+  const inc3 = () =&gt; {
+    setCount(c =&gt; c + 1);
+    setCount(c =&gt; c + 1);
+    setCount(c =&gt; c + 1); // результат: +3 за один клик
+  };
+
+  return &lt;button onClick={inc3}&gt;{count}&lt;/button&gt;;
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s7">
+  <h2><span class="num">7</span> События и формы</h2>
+  <p class="desc">События: onClick, onChange, onSubmit. Формы — управляемые компоненты: value связан с state, изменения через onChange.</p>
+  <ul>
+    <li><span class="t" data-t="synth-event" tabindex="0">Синтетические события</span> — React оборачивает нативные события в кросс-браузерную обёртку <code>SyntheticEvent</code>.</li>
+    <li>Обработчики: <code>onClick</code>, <code>onChange</code>, <code>onSubmit</code>, <code>onKeyDown</code> и т.д.; событие передаётся первым аргументом: <code>onClick={(e) =&gt; ...}</code>.</li>
+    <li>Контекст: в функциональных компонентах <code>this</code> не нужен (замыкание); в классах — биндинг <code>onClick={this.handle.bind(this)}</code> или стрелочные поля.</li>
+    <li>Формы: <span class="t" data-t="controlled" tabindex="0">controlled</span> — <code>value</code> из state + <code>onChange</code>; <span class="t" data-t="uncontrolled" tabindex="0">uncontrolled</span> — значение живёт в DOM (читаем через ref).</li>
+    <li>Остановка дефолта: <code>e.preventDefault()</code> (submit формы), <code>e.stopPropagation()</code>.</li>
+    <li>Радио/чекбоксы/select — тоже controlled; <code>textarea</code> использует <code>value</code>, не содержимое.</li>
+    <li>Паттерн «single source of truth»: state — единственный источник для формы; лёгкая валидация и «reset». <span class="t" data-t="formlib" tabindex="0">react-hook-form</span>/<span class="t" data-t="formik" tabindex="0">Formik</span> — для сложных форм.</li>
+    <li>React 19: <span class="t" data-t="form-action" tabindex="0">Form Actions</span> — <code>&lt;form action={fn}&gt;</code> вызывает функцию с <code>FormData</code>, поддержка <code>&lt;button formAction&gt;</code>.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Controlled input</div>
+    <pre>function Login() {
+  const [email, setEmail] = useState('');
+
+  return (
+    &lt;form onSubmit={(e) =&gt; { e.preventDefault(); console.log(email); }}&gt;
+      &lt;input value={email} onChange={(e) =&gt; setEmail(e.target.value)} /&gt;
+      &lt;button type="submit"&gt;Войти&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s8">
+  <h2><span class="num">8</span> Рендеринг и реконсиляция</h2>
+  <p class="desc">Рендеринг — отрисовка интерфейса. Реконсиляция — React сравнивает старое и новое дерево и обновляет только изменившиеся части DOM.</p>
+  <ul>
+    <li>Каждый рендер — «снимок» UI: компонент вызывается заново, JSX строится, React сравнивает с прошлым деревом.</li>
+    <li><span class="t" data-t="reconcil" tabindex="0">Реконсиляция</span> (diffing) — алгоритм сравнения виртуальных деревьев; изменения применяются в DOM минимально.</li>
+    <li>Рендер вызывается: при изменении state, при новых props, при рендере родителя (по умолчанию — даже если props не менялись).</li>
+    <li><span class="t" data-t="fiber" tabindex="0">Fiber</span> — внутренняя структура React 16+: работа разбита на единицы, поддержка паузы/приоритетов (<span class="t" data-t="concurrent" tabindex="0">concurrent rendering</span>).</li>
+    <li>Фазы: render (построение VDOM) и commit (применение в DOM + запуск эффектов). Render-фаза не должна иметь сайд-эффектов.</li>
+    <li><span class="t" data-t="key" tabindex="0">key</span> помогает React сопоставлять элементы списка при переупорядочивании — неправильный key = пересоздание элементов/потеря state.</li>
+    <li><span class="t" data-t="suspense" tabindex="0">Suspense</span> — «приостановка» рендера до готовности данных/кода, отображает fallback.</li>
+    <li><span class="t" data-t="reconciliation-pitfall" tabindex="0">Почему повторяющийся рендер родителя перерисовывает детей</span>: по умолчанию дети рендерятся вместе с родителем; мемоизация оптимизирует это.</li>
+  </ul>
+  <div class="note">На собесе: «почему React перерисовывает компонент?» → 1) изменился state 2) изменились props 3) ререндер родителя. Плюс Context.</div>
+</section>
+
+<section class="card" id="s9">
+  <h2><span class="num">9</span> Хуки: правила и обзор</h2>
+  <p class="desc">Хуки — функции для state и эффектов: useState, useEffect, useRef, useMemo. Правила: только на верхнем уровне, только внутри функциональных компонентов.</p>
+  <ul>
+    <li><span class="t" data-t="hooks" tabindex="0">Хуки</span> (React 16.8, 2019) — функции для состояния и lifecycle-логики в функциональных компонентах.</li>
+    <li>Правила хуков: 1) только на верхнем уровне (не в циклах/условиях/вложенных функциях); 2) только из React-функций (компонент или другой хук).</li>
+    <li>Порядок хуков стабилен от рендера к рендеру — так React сопоставляет состояние с вызовами; условный вызов ломает порядок (eslint это ловит).</li>
+    <li>Кастомные хуки начинаются с <code>use</code>: <code>function useWindowWidth() {...}</code> — композиция логики.</li>
+    <li>Основные: <span class="t" data-t="usestate" tabindex="0">useState</span>, <span class="t" data-t="useeffect" tabindex="0">useEffect</span>, <span class="t" data-t="useref" tabindex="0">useRef</span>, <span class="t" data-t="usememo" tabindex="0">useMemo</span>, <span class="t" data-t="usecallback" tabindex="0">useCallback</span>, <span class="t" data-t="usereducer" tabindex="0">useReducer</span>, <span class="t" data-t="usecontext" tabindex="0">useContext</span>.</li>
+    <li>Реже: <span class="t" data-t="uselayout" tabindex="0">useLayoutEffect</span> (синхронно после DOM-мутаций), <span class="t" data-t="usedidmount" tabindex="0">useInsertionEffect</span> (для стилей), <span class="t" data-t="useimperative" tabindex="0">useImperativeHandle</span>.</li>
+    <li>React 19: <span class="t" data-t="use" tabindex="0">use()</span> (читает Promise/Context вне эффектов), <span class="t" data-t="useactionstate" tabindex="0">useActionState</span>, <span class="t" data-t="useoptimistic" tabindex="0">useOptimistic</span>, <span class="t" data-t="usetransition" tabindex="0">useTransition</span>.</li>
+    <li>Библиотека <span class="t" data-t="hook-lib" tabindex="0">@tanstack/react-query</span> и другие — построены на кастомных хуках.</li>
+  </ul>
+  <div class="note">Правило №1 на собесе: «не вызывай хуки в условиях» — из-за порядка вызова, а не «потому что так нельзя».</div>
+</section>
+
+<section class="card" id="s10">
+  <h2><span class="num">10</span> useEffect — эффекты и жизненный цикл</h2>
+  <p class="desc">useEffect — побочные эффекты: запросы к API, подписки, таймеры. Второй аргумент — массив зависимостей, от него зависит, когда эффект перезапустится.</p>
+  <ul>
+    <li><span class="t" data-t="useeffect" tabindex="0">useEffect(cb, deps)</span> — побочные эффекты: подписки, таймеры, fetch, манипуляции вне React.</li>
+    <li>Выполняется после коммита в DOM (асинхронно, после отрисовки). Аналог <code>componentDidMount</code> + <code>componentDidUpdate</code> + <code>componentWillUnmount</code>.</li>
+    <li>Массив зависимостей <span class="t" data-t="deps" tabindex="0">deps</span>: <code>[]</code> — один раз (mount); <code>[a, b]</code> — при изменении; без массива — после каждого рендера.</li>
+    <li>Cleanup-функция: <code>return () =&gt; ...</code> — отписка/очистка перед следующим эффектом и при размонтировании.</li>
+    <li>Опасности: лишние зависимости вызывают повторные эффекты; «пустые» зависимости + используемые переменные → устаревшие значения (stale closure).</li>
+    <li>В <span class="t" data-t="strictmode" tabindex="0">StrictMode</span> (dev) эффекты запускаются дважды — это не баг, а проверка корректности cleanup.</li>
+    <li>Если что-то вычисляется из state/props — не эффект, а вычисление при рендере; эффект для синхронизации с «внешним миром».</li>
+    <li>Объекты/функции в deps создают новый ref каждый рендер → эффект срабатывает каждый раз; лечится <span class="t" data-t="usememo" tabindex="0">useMemo</span>/<span class="t" data-t="usecallback" tabindex="0">useCallback</span>.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">useEffect + cleanup (подписка/таймер)</div>
+    <pre>useEffect(() =&gt; {
+  const id = setInterval(() =&gt; setTick(t =&gt; t + 1), 1000);
+  return () =&gt; clearInterval(id); // cleanup
+}, []);</pre>
+  </div>
+</section>
+
+<section class="card" id="s11">
+  <h2><span class="num">11</span> useRef — ссылки без ререндера</h2>
+  <p class="desc">useRef — ссылка на DOM-элемент или любые данные. Главное отличие от state: изменение ref не вызывает перерисовку.</p>
+  <ul>
+    <li><span class="t" data-t="useref" tabindex="0">useRef(init)</span> — «ящик» с mutable-значением: <code>const ref = useRef(null)</code>; доступ через <code>ref.current</code>.</li>
+    <li>Изменение <code>ref.current</code> НЕ вызывает ререндер (в отличие от state). Один объект живёт всю жизнь компонента.</li>
+    <li>Для DOM: <code>&lt;input ref={ref} /&gt;</code> → <code>ref.current</code> = DOM-узел (после mount). Полезно для фокуса, замера, интеграции со старыми библиотеками.</li>
+    <li>Для «мутабельных значений»: id таймера, счётчик кликов, последнее значение (для сравнения), stash для анимаций.</li>
+    <li>Чтение ref.current в эффекте — типичная работа: не вызывай сайд-эффекты напрямую в рендере.</li>
+    <li><span class="t" data-t="useimperative" tabindex="0">useImperativeHandle</span> — выставить методы наружу через ref (вместе с <code>forwardRef</code>).</li>
+    <li><span class="t" data-t="forwardref" tabindex="0">forwardRef</span> — проброс ref через функциональный компонент (React 19: ref — обычный prop, forwardRef не обязателен).</li>
+    <li>Отличие от state: ref — «память без ререндера», state — «память с ререндером». Выбор: что рендерится → state, что «служебное» → ref.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">ref: фокус + хранение значения без ререндера</div>
+    <pre>function NameForm() {
+  const inputRef = useRef(null);
+  const renderCount = useRef(0);
+
+  useEffect(() =&gt; { inputRef.current?.focus(); }, []);
+
+  const onClick = () =&gt; {
+    renderCount.current += 1; // не вызывает ререндер
+    console.log(inputRef.current.value, renderCount.current);
+  };
+
+  return &lt;&gt;&lt;input ref={inputRef} /&gt;&lt;button onClick={onClick}&gt;Ok&lt;/button&gt;&lt;/&gt;;
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s12">
+  <h2><span class="num">12</span> Мемоизация: useMemo, useCallback, memo</h2>
+  <p class="desc">Мемоизация — кэширование вычислений против лишних перерисовок: useMemo — результат, useCallback — функция, memo — сам компонент.</p>
+  <ul>
+    <li><span class="t" data-t="usememo" tabindex="0">useMemo(fn, deps)</span> — кеширует вычисляемое значение; пересчитывается только при изменении deps.</li>
+    <li><span class="t" data-t="usecallback" tabindex="0">useCallback(fn, deps)</span> — кеширует саму функцию (стабильная ссылка между рендерами).</li>
+    <li><span class="t" data-t="memo" tabindex="0">React.memo(Component)</span> — мемоизированный компонент: пропускает ререндер, если props не изменились (поверхностное сравнение).</li>
+    <li>Связка: <code>React.memo</code> + <code>useCallback</code> — колбэки со стабильной ссылкой не ломают мемоизацию детей.</li>
+    <li>Используй, когда вычисление дорогое (сортировки, фильтрации, обработка больших данных) или передаёшь колбэки в мемоизированные дети.</li>
+    <li>Антипаттерн: оборачивать всё подряд в useMemo/useCallback «на всякий случай» — сам сравнение deps тоже стоит времени. Измеряй.</li>
+    <li><span class="t" data-t="reactcompiler" tabindex="0">React Compiler</span> (в React 19+) автоматически мемоизирует код — ручные memo/useMemo постепенно становятся необязательными.</li>
+    <li>Не мемоизируй то, что и так дёшево: примитивы, простые JSX; мемоизация полезна для объектов/функций, передаваемых в мемоизированных детях.</li>
+  </ul>
+  <div class="note">Классический вопрос собеса: «useMemo vs useCallback» → useMemo возвращает результат, useCallback возвращает функцию. Оба — про стабильную ссылку.</div>
+</section>
+
+<section class="card" id="s13">
+  <h2><span class="num">13</span> useReducer — сложный state</h2>
+  <p class="desc">useReducer — управление сложным состоянием через reducer (как в Redux): событие → новый state. Для форм, корзин, машин состояний.</p>
+  <ul>
+    <li><span class="t" data-t="usereducer" tabindex="0">useReducer(reducer, initialState)</span> — альтернатива useState для сложной логики переходов состояния.</li>
+    <li>Паттерн: <code>const [state, dispatch] = useReducer(reducer, init)</code>; <span class="t" data-t="dispatch" tabindex="0">dispatch(action)</span> — отправка «действия».</li>
+    <li><span class="t" data-t="reducer" tabindex="0">reducer(state, action) =&gt; newState</span> — чистая функция: из старого state и action получает новый state, без мутаций и сайд-эффектов.</li>
+    <li>Action — объект: <code>{ type: 'INCREMENT', payload: 1 }</code>. Имена через константы/типы — меньше опечаток.</li>
+    <li>Полезен, когда несколько полей state меняются вместе, есть сложные переходы, или логика обновления переиспользуется.</li>
+    <li>Ленивая инициализация: третий аргумент <code>init(initialArg)</code> — тяжёлые вычисления только при первом рендере.</li>
+    <li>Рекомендация: редьюсеры удобно юнит-тестировать как чистые функции — отдели их от компонента.</li>
+    <li>Вместо «setState+if» с кучей обработчиков: один dispatch с type — состояние переходит предсказуемо. Основа Redux-идеологии.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">useReducer: счётчик с переходом</div>
+    <pre>function reducer(state, action) {
+  switch (action.type) {
+    case 'INCREMENT': return { count: state.count + 1 };
+    case 'RESET': return { count: 0 };
+    default: return state;
+  }
+}
+
+function Counter() {
+  const [state, dispatch] = useReducer(reducer, { count: 0 });
+  return (
+    &lt;&gt;
+      &lt;b&gt;{state.count}&lt;/b&gt;
+      &lt;button onClick={() =&gt; dispatch({ type: 'INCREMENT' })}&gt;+&lt;/button&gt;
+      &lt;button onClick={() =&gt; dispatch({ type: 'RESET' })}&gt;0&lt;/button&gt;
+    &lt;/&gt;
+  );
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s14">
+  <h2><span class="num">14</span> Context — глобальные данные</h2>
+  <p class="desc">Context — глобальные данные без прокидывания props через все уровни: тема, юзер, язык. createContext + Provider, доступ через useContext.</p>
+  <ul>
+    <li><span class="t" data-t="context" tabindex="0">Context</span> — способ передавать данные в глубоко вложенные компоненты без проброса через каждый уровень (тема, язык, пользователь).</li>
+    <li>Создание: <code>const Theme = createContext('light')</code>; использование: <code>useContext(Theme)</code>.</li>
+    <li>Провайдер: <code>&lt;Theme.Provider value="dark"&gt;...&lt;/Theme.Provider&gt;</code> — все потребители внутри получают value.</li>
+    <li>Любой компонент, использующий <code>useContext</code>, ререндерится при изменении value (даже с React.memo) — это и плюс, и минус.</li>
+    <li>Разделяй контексты по смыслу (Theme, User, Locale) — единый «большой контекст» вызывает лишние ререндеры.</li>
+    <li>Значение мемоизируй: <code>value={useMemo(() =&gt; ({user, setUser}), [user])}</code> — чтобы не менять ссылку каждый рендер.</li>
+    <li>Контекст — не замена стейт-менеджменту для сложных данных: для частых обновлений многих потребителей лучше Redux/Zustand (+ селекторы).</li>
+    <li>Реактивные паттерны: <span class="t" data-t="reducercontext" tabindex="0">reducer + context</span> — мини-Redux без зависимостей.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Context: тема</div>
+    <pre>const Theme = createContext('light');
+
+function App() {
+  return (
+    &lt;Theme.Provider value="dark"&gt;
+      &lt;Toolbar /&gt;
+    &lt;/Theme.Provider&gt;
+  );
+}
+
+function Toolbar() {
+  const theme = useContext(Theme);
+  return &lt;div className={theme}&gt;Toolbar&lt;/div&gt;;
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s15">
+  <h2><span class="num">15</span> Классовые компоненты и жизненный цикл</h2>
+  <p class="desc">Классовые компоненты — старый способ: class, render(), state = {}, componentDidMount. Сейчас в основном пишут на хуках, но спрашивают и это.</p>
+  <ul>
+    <li><code>class X extends React.Component</code>: <code>state</code> в конструкторе, <code>this.setState()</code>, <code>render()</code> обязателен.</li>
+    <li>Mount: <span class="t" data-t="cdm" tabindex="0">componentDidMount</span> — после вставки в DOM (подписки, fetch).</li>
+    <li>Update: <span class="t" data-t="cdu" tabindex="0">componentDidUpdate(prevProps, prevState)</span> — после обновления (сравнение, ответ на изменения).</li>
+    <li>Unmount: <span class="t" data-t="cwum" tabindex="0">componentWillUnmount</span> — очистка (отписки, таймеры).</li>
+    <li>Отмена/оптимизация: <span class="t" data-t="scu" tabindex="0">shouldComponentUpdate</span> — вернуть false, чтобы пропустить ререндер; <code>PureComponent</code> — автоматическое поверхностное сравнение.</li>
+    <li><span class="t" data-t="cwm" tabindex="0">componentWillMount</span>/<span class="t" data-t="cwrp" tabindex="0">componentWillReceiveProps</span>/<span class="t" data-t="cwup" tabindex="0">componentWillUpdate</span> — легаси-методы (UNSAFE_), избыточны с современным подходом.</li>
+    <li><span class="t" data-t="getsnapshot" tabindex="0">getSnapshotBeforeUpdate</span> — чтение DOM до применения изменений (редко).</li>
+    <li>Привязка <code>this</code> в классах: стрелочные поля или bind в конструкторе — иначе потеря контекста в обработчиках.</li>
+    <li>Сегодня: функциональные компоненты + хуки — мейнстрим; классы — легаси, но на собесе спрашивают понимание.</li>
+  </ul>
+  <div class="note">Сопоставление: didMount ≈ useEffect(cb, []), didUpdate ≈ useEffect(cb, [deps]), willUnmount ≈ cleanup в useEffect.</div>
+</section>
+
+<section class="card" id="s16">
+  <h2><span class="num">16</span> React Router — маршрутизация</h2>
+  <p class="desc">React Router — переходы между страницами без перезагрузки: BrowserRouter, Routes, Route, useNavigate, useParams, Link.</p>
+  <ul>
+    <li><span class="t" data-t="react-router" tabindex="0">React Router</span> — стандартный роутер для SPA: навигация без перезагрузки страницы (роутинг на клиенте).</li>
+    <li>Версии: v6/v7 (декларативные <code>&lt;Routes&gt;</code>), v5 (устаревшие <code>&lt;Switch&gt;</code>). <span class="t" data-t="react-router" tabindex="0">react-router-dom</span> — для веба.</li>
+    <li>Обёртка: <code>&lt;BrowserRouter&gt;</code> (history API) или <code>&lt;HashRouter&gt;</code> (#/path).</li>
+    <li>Маршруты: <code>&lt;Routes&gt;&lt;Route path="/" element={&lt;Home/&gt;} /&gt;&lt;Route path="/users/:id" ... /&gt;&lt;/Routes&gt;</code>.</li>
+    <li>Навигация: <code>&lt;Link to="/users/1"&gt;</code> (анкор), <code>&lt;NavLink&gt;</code> (+ active), программно — <span class="t" data-t="usenavigate" tabindex="0">useNavigate()</span>.</li>
+    <li>Параметры: <span class="t" data-t="useparams" tabindex="0">useParams()</span> → <code>{ id }</code>, query — <span class="t" data-t="usesearchparams" tabindex="0">useSearchParams()</span>.</li>
+    <li>Вложенные маршруты и <span class="t" data-t="outlet" tabindex="0">&lt;Outlet&gt;</span> — layout-обёртки с общим меню; индексный роут <code>index</code>.</li>
+    <li>Защита маршрутов: компонент-обёртка <code>RequireAuth</code> — проверяет авторизацию и редиректит (<code>&lt;Navigate to="/login" replace /&gt;</code>).</li>
+    <li>Ленивые роуты: <code>element={&lt;Suspense fallback={...}&gt;&lt;LazyHome/&gt;&lt;/Suspense&gt;}</code> — код сплитится по страницам.</li>
+    <li>Настройки: <code>&lt;Navigate to="/" /&gt;</code> — редирект по умолчанию; <code>*</code> — 404-страница.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">React Router v6</div>
+    <pre>function Layout() {
+  return (&lt;&gt;&lt;nav&gt;&lt;Link to="/"&gt;Home&lt;/Link&gt;&lt;/nav&gt;&lt;Outlet /&gt;&lt;/&gt;);
+}
+
+function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;Routes&gt;
+        &lt;Route element={&lt;Layout /&gt;}&gt;
+          &lt;Route index element={&lt;Home /&gt;} /&gt;
+          &lt;Route path="users/:id" element={&lt;User /&gt;} /&gt;
+        &lt;/Route&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s17">
+  <h2><span class="num">17</span> Управление состоянием (state management)</h2>
+  <p class="desc">State management — глобальное состояние приложения: Redux, Zustand, Context. Нужно, когда state растекается по всему приложению.</p>
+  <ul>
+    <li>Локальный state (useState) + Context — достаточно для большинства задач; библиотеки — для масштаба и сложных обновлений.</li>
+    <li><span class="t" data-t="redux" tabindex="0">Redux</span> — предсказуемый контейнер состояния: единое хранилище, редьюсеры, подписка.</li>
+    <li>Redux-принципы: single source of truth (один store), state read-only (меняется только action-ами), изменения — чистыми редьюсерами.</li>
+    <li><span class="t" data-t="redux-toolkit" tabindex="0">Redux Toolkit</span> (RTK) — современный стандарт: <code>createSlice</code>, автоматический Redux DevTools, <code>createAsyncThunk</code>.</li>
+    <li><span class="t" data-t="zustand" tabindex="0">Zustand</span> — лёгкий store на хуках без Provider-ов и бойлерплейта; популярен в новых проектах.</li>
+    <li>Селекторы: <span class="t" data-t="useselector" tabindex="0">useSelector</span>((state) =&gt; state.user) — подписка на часть стора; некорректные селекторы = лишние ререндеры.</li>
+    <li>Middleware: <span class="t" data-t="redux-thunk" tabindex="0">redux-thunk</span>, <span class="t" data-t="redux-saga" tabindex="0">redux-saga</span> — асинхронная логика и сайд-эффекты в экшенах.</li>
+    <li>Серверный state (данные с API) — отдельно: <span class="t" data-t="tanstack-query" tabindex="0">TanStack Query</span>/SWR, а не в Redux-стор (кэш, рефетчи, invalidation).</li>
+    <li>«Когда нужен Redux?» — сложное общее состояние (корзина, авторизация), команды, отладка через DevTools; для малого — перебор.</li>
+  </ul>
+  <div class="note">Собеседование: «Context vs Redux?» → Context для статичных/редко меняющихся данных; Redux/Zustand для частых обновлений с селекторами и девтулзами.</div>
+</section>
+
+<section class="card" id="s18">
+  <h2><span class="num">18</span> Оптимизация производительности</h2>
+  <p class="desc">Оптимизация: мемоизация, code splitting (lazy/Suspense), виртуализация списков, меньше лишних ререндеров. Инструмент — React DevTools Profiler.</p>
+  <ul>
+    <li>Измеряй до оптимизации: <span class="t" data-t="profiler" tabindex="0">React Profiler</span> (DevTools) показывает длительность рендеров и причины.</li>
+    <li><span class="t" data-t="memo" tabindex="0">React.memo</span> — пропуск ререндера при тех же props (поверхностное сравнение).</li>
+    <li>Стабильные ссылки: <span class="t" data-t="usecallback" tabindex="0">useCallback</span>/<span class="t" data-t="usememo" tabindex="0">useMemo</span> — для функций/объектов, передаваемых в мемоизированных детях.</li>
+    <li>Корректные <span class="t" data-t="key" tabindex="0">key</span> — меньше пересозданий элементов списка.</li>
+    <li>Code splitting: <span class="t" data-t="lazy" tabindex="0">lazy</span>(() =&gt; import('./Widget')) + <span class="t" data-t="suspense" tabindex="0">Suspense</span> — загрузка кода по требованию, «куплеты» бандла.</li>
+    <li>Выноси тяжёлые поддеревья и фильтрации; деривированные значения — в useMemo при дорогих вычислениях.</li>
+    <li><span class="t" data-t="virtualization" tabindex="0">Virtualization</span> (react-window, react-virtualized) — рендер только видимых строк огромных списков.</li>
+    <li>Избегай создания новых объектов/функций в JSX-пропах на каждый рендер, если это ломает memo-детей.</li>
+    <li><span class="t" data-t="reactcompiler" tabindex="0">React Compiler</span> (React 19) автоматически мемоизирует — ручная оптимизация отходит на второй план.</li>
+  </ul>
+  <div class="note">Золотое правило: сначала чини причины ререндеров (структура), потом мемоизация. Не оптимизируй вслепую.</div>
+</section>
+
+<section class="card" id="s19">
+  <h2><span class="num">19</span> SSR, Next.js и Server Components</h2>
+  <p class="desc">SSR — рендер на сервере для скорости и SEO. Next.js — фреймворк поверх React. Server Components — часть логики и рендера на сервере.</p>
+  <ul>
+    <li><span class="t" data-t="ssr" tabindex="0">SSR</span> — рендер HTML на сервере: быстрый первый отклик, SEO, нет «пустой» страницы.</li>
+    <li><span class="t" data-t="hydrate" tabindex="0">Hydration</span> — «оживление» серверного HTML на клиенте: навешивание обработчиков без перерисовки.</li>
+    <li><span class="t" data-t="next" tabindex="0">Next.js</span> — React-фреймворк: файловый роутинг, SSR/SSG/ISR, API-роуты, деплой на Vercel.</li>
+    <li><span class="t" data-t="ssg" tabindex="0">SSG</span> (static generation) — HTML собирается на сборке; <span class="t" data-t="isr" tabindex="0">ISR</span> — ревалидация статики по расписанию.</li>
+    <li><span class="t" data-t="rsc" tabindex="0">React Server Components</span> — компоненты, выполняющиеся только на сервере: без клиентского JS, доступ к БД напрямую.</li>
+    <li>Модель использования: <code>use client</code> (клиентский компонент) / <code>use server</code> (серверные actions) — маркировка границы.</li>
+    <li>Серверные данные + <span class="t" data-t="streaming" tabindex="0">Streaming</span>: HTML отдаётся по частям (Suspense-секции).</li>
+    <li>«Метафреймворки»: Next.js, Remix, Gatsby (SSG), Astro — выбор зависит от задачи (SSG-блог vs SSR-приложение).</li>
+  </ul>
+  <div class="note">Вопрос собеса: «SSR vs SPA?» → SSR: SEO, быстрый FCP, хуже для сильной интерактивности; SPA: плавность, нагрузка на клиента.</div>
+</section>
+
+<section class="card" id="s20">
+  <h2><span class="num">20</span> React 19 — что нового</h2>
+  <p class="desc">React 19: Actions, useOptimistic, useActionState, Server Components стабильны, ref можно передавать как prop, улучшенный Hydration.</p>
+  <ul>
+    <li><span class="t" data-t="form-action" tabindex="0">Form Actions</span>: <code>&lt;form action={serverFn}&gt;</code>, <code>action={fn}</code> в компонентах, <code>useActionState</code>.</li>
+    <li><span class="t" data-t="useactionstate" tabindex="0">useActionState(fn, init)</span> — асинхронный action + состояние и pending; <code>action={fn}</code> в `<form>`.</li>
+    <li><span class="t" data-t="useoptimistic" tabindex="0">useOptimistic</span> — оптимистичные обновления UI до ответа сервера (откат при ошибке).</li>
+    <li><span class="t" data-t="use" tabindex="0">use()</span> — читает Promise/Context внутри компонента без хука-обёртки; работает в условных ветках.</li>
+    <li><span class="t" data-t="usetransition" tabindex="0">useTransition</span> — «неблокирующие» обновления с приоритетом (раньше было в 18).</li>
+    <li>ref как обычный prop (без forwardRef); <span class="t" data-t="useid" tabindex="0">useId</span> для уникальных id; <span class="t" data-t="usedeferred" tabindex="0">useDeferredValue</span>.</li>
+    <li><span class="t" data-t="reactcompiler" tabindex="0">React Compiler</span> — автоматическая мемоизация, релиз 1.0 (октябрь 2025); babel-плагин в сборке.</li>
+    <li>RSC (Server Components) — встроенная поддержка; метаданные <code>&lt;title&gt;</code>, стили, prerendering, спец. ресурсы (<code>preload</code>, <code>prefetch</code>).</li>
+    <li>Совместимость: React 19 требует обновления библиотек (роутер, стейт-менеджмент, styled-components).</li>
+  </ul>
+  <div class="note">Вопрос собеса 2026: «Что нового в React 19?» → actions, useActionState, useOptimistic, use(), React Compiler, RSC, ref-as-prop.</div>
+</section>
+
+<section class="card" id="s21">
+  <h2><span class="num">21</span> TypeScript + React</h2>
+  <p class="desc">TypeScript — JS с типами: interface, type, типизированные props, useRef<HTMLInputElement>. Меньше багов и лучше автодополнение в IDE.</p>
+  <ul>
+    <li><span class="t" data-t="ts" tabindex="0">TypeScript</span> — статическая типизация поверх JS; в React — безопасные props, стейт, события.</li>
+    <li>Props: <code>type Props = { name: string; count?: number; onClick: (id: string) =&gt; void }</code>.</li>
+    <li><span class="t" data-t="reactnode" tabindex="0">ReactNode</span> — тип children (строка, элемент, массив, null); <code>ReactElement</code> — именно элемент.</li>
+    <li>События: <code>ChangeEvent&lt;HTMLInputElement&gt;</code>, <code>MouseEvent&lt;HTMLButtonElement&gt;</code>, <code>FormEvent&lt;HTMLFormElement&gt;</code>.</li>
+    <li>useState: <code>useState&lt;string | null&gt;(null)</code> или вывод типа автоматически; для объектов — <code>useState&lt;User&gt;({...})</code>.</li>
+    <li>useRef: <code>useRef&lt;HTMLInputElement&gt;(null)</code> → <code>ref.current?.focus()</code>; mutable — <code>useRef&lt;number&gt;(0)</code>.</li>
+    <li>useReducer с типизированными action-ами: <code>{ type: 'INC' } | { type: 'SET'; value: number }</code> — исчерпывающие ветки.</li>
+    <li>Generic-компоненты: <code>function List&lt;T&gt;({ items }: { items: T[] })</code> — переиспользуемые списки.</li>
+    <li><code>FC</code>/<code>FunctionComponent</code> — необязательно; типизация props без обёртки читается лучше.</li>
+    <li>Строгие настройки: <code>strict: true</code> (noUncheckedIndexedAccess, exactOptionalPropertyTypes) — защита от `undefined`.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Типизированные props и события</div>
+    <pre>type Props = {
+  label: string;
+  onSave: (value: string) =&gt; void;
+};
+
+function Input({ label, onSave }: Props) {
+  return (
+    &lt;input
+      placeholder={label}
+      onChange={(e: ChangeEvent&lt;HTMLInputElement&gt;) =&gt; onSave(e.target.value)}
+    /&gt;
+  );
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s22">
+  <h2><span class="num">22</span> Тестирование React</h2>
+  <p class="desc">Тесты: Jest + React Testing Library (тесты поведения), Vitest, Playwright для e2e. render, fireEvent/userEvent, screen.getByRole.</p>
+  <ul>
+    <li>Пирамида: юнит (логика/компоненты) → интеграционные → e2e (Playwright/Cypress).</li>
+    <li><span class="t" data-t="rtl" tabindex="0">React Testing Library</span> (RTL) — тест «как пользователь»: рендер, поиск по ролям/тексту, взаимодействия.</li>
+    <li><span class="t" data-t="vitest" tabindex="0">Vitest</span> (быстрый, Vite-совместимый) или <span class="t" data-t="jest" tabindex="0">Jest</span> — runner + asserts + mocks.</li>
+    <li>Рендер: <code>render(&lt;Component /&gt;)</code>, запросы: <code>getByRole</code>, <code>getByText</code>, <code>getByLabelText</code> (a11y-friendly).</li>
+    <li>Действия: <code>fireEvent</code>/<span class="t" data-t="user-event" tabindex="0">userEvent</span> (реалистичнее); асинхронные — <code>findBy*</code>, <code>waitFor</code>.</li>
+    <li><span class="t" data-t="act" tabindex="0">act()</span> — обёртка React для уведомления о ререндерах в тестах; RTL делает это за тебя.</li>
+    <li>Снапшоты: <span class="t" data-t="snapshot" tabindex="0">toMatchSnapshot</span> — для регрессии разметки (не злоупотребляй).</li>
+    <li>Мок-зависимости: fetch-модули, таймеры (<code>vi.useFakeTimers()</code>), resizeObserver, matchMedia — замакь то, что тестируемому компоненту не нужно.</li>
+    <li>Совет: тестируй поведение (что видит/делает пользователь), а не внутренности (не рендери реализацию через shallow).</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Пример RTL + Vitest</div>
+    <pre>import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+test('инкремент по клику', async () =&gt; {
+  render(&lt;Counter /&gt;);
+  await userEvent.click(screen.getByRole('button'));
+  expect(screen.getByText('1')).toBeInTheDocument();
+});</pre>
+  </div>
+</section>
+
+<section class="card" id="s23">
+  <h2><span class="num">23</span> Паттерны React</h2>
+  <p class="desc">Паттерны: custom hooks, render props, compound components, HOC, порталы. Способы переиспользования логики и разделения ответственности.</p>
+  <ul>
+    <li><span class="t" data-t="composition" tabindex="0">Композиция</span> вместо наследования: props, children, передача JSX.</li>
+    <li><span class="t" data-t="hoc" tabindex="0">HOC</span> (Higher-Order Component) — функция, возвращающая обёрнутый компонент (<code>withAuth(Wrapped)</code>); классика, но часто заменяется хуками.</li>
+    <li><span class="t" data-t="renderprops" tabindex="0">Render props</span> — проп-функция, возвращающая JSX: <code>&lt;Data fetcher={(data) =&gt; ...} /&gt;</code>.</li>
+    <li><span class="t" data-t="compound" tabindex="0">Compound Components</span> — группа компонентов, работающих с общим контекстом: <code>&lt;Tabs&gt;&lt;Tabs.List&gt;...&lt;Tabs.Panel&gt;...</code>.</li>
+    <li><span class="t" data-t="controlledpattern" tabindex="0">Controlled / Uncontrolled</span> — управление данными через props или через внутренний ref.</li>
+    <li><span class="t" data-t="custom-hook" tabindex="0">Кастомные хуки</span> — вынос логики (fetch, resize, debounce, localStorage).</li>
+    <li><span class="t" data-t="portal" tabindex="0">Порталы</span> — рендер в другой DOM-узел (модалки, тултипы) без потери контекста событий.</li>
+    <li>Границы: <span class="t" data-t="errorboundary" tabindex="0">Error Boundary</span> — ловля ошибок рендера; Suspense — fallback для отложенного контента.</li>
+  </ul>
+  <div class="note">Собеседование: «HOC vs render props vs hooks» → все про переиспользование логики; хуки — современный, читаемый способ.</div>
+</section>
+
+<section class="card" id="s24">
+  <h2><span class="num">24</span> Error Boundaries и обработка ошибок</h2>
+  <p class="desc">Error Boundaries — ловят ошибки при рендере и показывают запасной UI вместо падения всего приложения. Классовые компоненты с componentDidCatch.</p>
+  <ul>
+    <li><span class="t" data-t="errorboundary" tabindex="0">Error Boundary</span> — классовый компонент (<code>componentDidCatch</code> / <code>static getDerivedStateFromError</code>), ловящий ошибки в дочернем дереве.</li>
+    <li>Ловит ошибки рендера, жизненного цикла, конструкторов; НЕ ловит: обработчики событий, async-код, SSR, сами ошибки Error Boundary.</li>
+    <li>Ошибки в обработчиках событий: try/catch вручную или отправка в Sentry/мониторинг.</li>
+    <li>React 19: Error Boundaries могут быть функциональными компонентами? — пока классовые, но с новым хуком <span class="t" data-t="useerrorboundary" tabindex="0">useErrorBoundary</span> (в разработке); в 19 поддержка error-boundary-функциональных через новое API расширяется.</li>
+    <li>Fallback-UI: <code>getDerivedStateFromError</code> → рендерим запасную страницу/кнопку «перезагрузить».</li>
+    <li>Reset состояния границы: по клику «Попробовать снова» сбрасываем ключ (<code>key</code>) — пересоздание дерева.</li>
+    <li><span class="t" data-t="sentry" tabindex="0">Sentry</span>/ErrorBoundary от библиотек — готовые решения с логированием и ретраями.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Error Boundary (класс)</div>
+    <pre>class ErrorBoundary extends React.Component {
+  state = { error: null };
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+  componentDidCatch(error, info) {
+    console.error(error, info);
+  }
+  render() {
+    if (this.state.error) {
+      return &lt;h1&gt;Что-то пошло не так&lt;/h1&gt;;
+    }
+    return this.props.children;
+  }
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s25">
+  <h2><span class="num">25</span> Стилизация в React</h2>
+  <p class="desc">Стилизация: CSS-модули, Tailwind, styled-components, инлайн-стили, CSS-in-JS. classNames — для условных классов.</p>
+  <ul>
+    <li>Inline styles: <code>style={{ color: 'red' }}</code> — объект, camelCase-ключи; для динамики.</li>
+    <li><span class="t" data-t="cssmodules" tabindex="0">CSS Modules</span> — <code>import styles from './Card.module.css'</code>, изолированные имена классов.</li>
+    <li><span class="t" data-t="tailwind" tabindex="0">Tailwind CSS</span> — utility-классы, популярный выбор 2025+: быстрый старт, нет конфликтов.</li>
+    <li><span class="t" data-t="styledcomponents" tabindex="0">styled-components</span>/Emotion — CSS-in-JS: стили в JS, динамика через props, темизация.</li>
+    <li><span class="t" data-t="cssinjs" tabindex="0">CSS-in-JS</span>: плюсы — scoped, динамические; минусы — RSC-совместимость (в React 19 нужны адаптеры), рантайм.</li>
+    <li>Темизация: Context + CSS-переменные (современный подход) или ThemeProvider от styled-систем.</li>
+    <li>Порядок/специфичность: не полагайся на порядок импортов; для CSS Modules/utility — по умолчанию ок.</li>
+    <li>Набор: <span class="t" data-t="mantine" tabindex="0">Mantine</span>, <span class="t" data-t="mui" tabindex="0">MUI</span>, Chakra, Ant Design — готовые компоненты + темы.</li>
+  </ul>
+  <div class="note">На собесе: «CSS-in-JS или CSS Modules?» → зависит от проекта; тренд 2025+: utility-first (Tailwind) + CSS-переменные, осторожно с CSS-in-JS в RSC.</div>
+</section>
+
+<section class="card" id="s26">
+  <h2><span class="num">26</span> Работа с данными: fetch и кэш</h2>
+  <p class="desc">Данные: fetch/axios в useEffect, TanStack Query (кэш запросов), Suspense. Загрузка, ошибки, лоадеры — три состояния любого запроса.</p>
+  <ul>
+    <li>Базово: <code>fetch(url)</code> + <code>useEffect</code> + состояние загрузки/ошибки — самописный хук <code>useFetch</code>.</li>
+    <li>Гонки/отмены: ignore-флаг или <code>AbortController</code> в cleanup — избежать setState после размонтирования.</li>
+    <li><span class="t" data-t="tanstack-query" tabindex="0">TanStack Query</span> (react-query) — серверный state: кэш, рефетчи, инвалидация, ретраи, devtools.</li>
+    <li><span class="t" data-t="swr" tabindex="0">SWR</span> (Next.js) — лёгкий альтернативный кэшер данных; «stale-while-revalidate».</li>
+    <li>Мутации: <span class="t" data-t="usemutation" tabindex="0">useMutation</span> + оптимистичные обновления (или <span class="t" data-t="useoptimistic" tabindex="0">useOptimistic</span> в React 19).</li>
+    <li>Запросы: <span class="t" data-t="usequery" tabindex="0">useQuery</span> — данные + кэш + refetch; серверные мутации — через useMutation.</li>
+    <li>Библиотеки не нужны, если данных мало и они редки — решай по задаче, не «по моде».</li>
+    <li>Кэширование — это не про Redux: серверные данные кешируются query-клиентом, глобальное UI-состояние — store.</li>
+    <li>SSR/SSG-варианты: <code>fetch</code> в серверных компонентах (Next.js) — без waterfall-цепочки клиентских запросов.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Самописный useFetch с отменой</div>
+    <pre>function useFetch(url) {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() =&gt; {
+    const ctrl = new AbortController();
+    fetch(url, { signal: ctrl.signal })
+      .then(r =&gt; r.json())
+      .then(setData)
+      .catch(setError);
+    return () =&gt; ctrl.abort(); // отмена при размонтировании
+  }, [url]);
+
+  return { data, error };
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s27">
+  <h2><span class="num">27</span> Экосистема и сравнение с другими</h2>
+  <p class="desc">Экосистема: React vs Vue vs Angular. React — библиотека с большой экосистемой, Vue — проще для входа, Angular — полный фреймворк из коробки.</p>
+  <ul>
+    <li>React vs <span class="t" data-t="vue" tabindex="0">Vue</span>: Vue — фреймворк с шаблонами и реактивностью; React — библиотека с JSX и VDOM. Субъективный выбор, оба популярны.</li>
+    <li>React vs <span class="t" data-t="angular" tabindex="0">Angular</span>: Angular — полный фреймворк (DI, TypeScript обязателен, формы, роутер); React — гибкость, свои решения.</li>
+    <li><span class="t" data-t="svelte" tabindex="0">Svelte</span> — компилятор без VDOM, малый рантайм; <span class="t" data-t="solid" tabindex="0">Solid</span> — сигналы, реактивность без VDOM.</li>
+    <li>Мета-фреймворки: Next.js (React), Nuxt (Vue), SvelteKit, Remix — SSR/SSG из коробки.</li>
+    <li>Мобильные: <span class="t" data-t="rn" tabindex="0">React Native</span>, Expo; десктоп: Electron, Tauri (webview).</li>
+    <li>Тестирование/качество: Vitest, RTL, ESLint, CI (GitHub Actions) — стандартный стек.</li>
+    <li>Государство: Zustand, Redux Toolkit, Jotai, Recoil — «выбирай по размеру проекта и команде».</li>
+    <li>Тренды 2026: React Compiler, RSC, AI-инструменты (Codium/Copilot) в разработке, Perf-фокус на хуках.</li>
+  </ul>
+  <div class="note">Собеседование: «Почему React, а не Vue/Angular?» → экосистема, гибкость, RSC/SSR-экосистема Next.js, сообщество, типы.</div>
+</section>
+
+<section class="card" id="s28">
+  <h2><span class="num">28</span> Отладка и DevTools</h2>
+  <p class="desc">Отладка: React DevTools (Components + Profiler), console.log, breakpoints в браузере, Redux DevTools для состояния. Начни с DevTools.</p>
+  <ul>
+    <li><span class="t" data-t="devtools" tabindex="0">React DevTools</span> — вкладка Components: props, state, дерево; Profiler — длительность рендеров.</li>
+    <li>Профилирование: включи Profiler, запиши взаимодействие, найди «красные» компоненты с частыми/дорогими рендерами.</li>
+    <li>Почему компонент ререндерится: фильтр в DevTools (Highlight updates) — подсветка обновляемых узлов.</li>
+    <li><span class="t" data-t="whyrender" tabindex="0">why-did-you-render</span> — библиотека-помощник для выявления лишних ререндеров.</li>
+    <li>Логика состояния: Redux DevTools — time-travel, action history; Zustand — своя вкладка.</li>
+    <li>Типовые ошибки: «нет key», «мутация state», «эффект каждый рендер», «StrictMode-дубли», «утечка подписки».</li>
+    <li>Ошибки в консоли — читать до конца, sourcemap-ы ведут в исходники (не в бандл).</li>
+  </ul>
+  <div class="note">Рабочий навык: включить Profiler → записать → найти причину лишнего ререндера → починить мемоизацией/структурой.</div>
+</section>
+
+<section class="card" id="s29">
+  <h2><span class="num">29</span> Частые вопросы собеседования</h2>
+  <p class="desc">Частые вопросы: зачем key в списках, разница state и props, жизненный цикл, controlled vs uncontrolled, event delegation, чистые компоненты.</p>
+  <ul>
+    <li>«Почему <code>useState</code> не обновляет значение сразу?» — батчинг, значение обновится к следующему рендеру.</li>
+    <li>«Зачем <code>key</code> и что будет без него?» — консервирование элемента; без key — пересоздание/ошибки.</li>
+    <li>«Virtual DOM vs реальный DOM?» — сравнение лёгких деревьев, минимальные изменения в DOM.</li>
+    <li>«useEffect vs useLayoutEffect?» — useEffect после отрисовки (async), useLayoutEffect — до отрисовки (sync, замеры).</li>
+    <li>«Что вернёт <code>render()</code>, если вернуть <code>null</code>?» — ничего не рендерится, но компонент жив.</li>
+    <li>«Можно ли вызвать хук в условном операторе?» — нет, нарушение порядка вызова.</li>
+    <li>«Как передать данные из ребенка в родителя?» — колбэк в props, событие вверх.</li>
+    <li>«Что такое React.memo и когда использовать?» — пропуск ререндера при тех же props.</li>
+    <li>«Suspense для чего?» — fallback для отложенного (lazy/данные) в RSC-мире.</li>
+    <li>«Отличия компонента от элемента?» — элемент = дескриптор <code>{ type, props }</code>, компонент = функция/класс.</li>
+    <li>«Как дебажить бесконечный ререндер?» — состояние меняется на каждом рендере (setState в эффекте/теле), чини причину.</li>
+  </ul>
+  <div class="note">Лучшая стратегия: отвечай коротко и по сути, затем пример. «Я бы сделал так...» — уверенность важна.</div>
+</section>
+
+<section class="card" id="s30">
+  <h2><span class="num">30</span> Советы и план подготовки</h2>
+  <p class="desc">Советы: делай мини-проекты, читай код чужих компонентов, разберись в хуках глубже поверхностного, решай задачи на собесы вслух.</p>
+  <ul>
+    <li>Выучи термины, а не «заученные ответы»: объясняй своими словами («декларативность», «VDOM», «композиция»).</li>
+    <li>Напиши мини-проект сам: список задач (CRUD), фильтр, форма, модалка, роуты — закрывает 80% вопросов.</li>
+    <li>Разбери жизненный цикл: mount → update → unmount в хуках и классах.</li>
+    <li>Потренируй «что выведет код»: порядок эффектов, батчинг, замыкания в обработчиках.</li>
+    <li>Темы для «продвинутого»: React Compiler, RSC, оптимизация, типизация, тесты, perf-профилирование.</li>
+    <li>Читай официальную документацию react.dev (актуально) и русскоязычные материалы — но проверяй версии.</li>
+    <li>Следи за версиями: React 19.2 (2026), React Compiler 1.0 — «новое в React 19» — стабильный вопрос собеса.</li>
+    <li>Покажи проекты: портфолио/код — весомее слов; ссылки на GitHub — приветствуются.</li>
+    <li>Не говори «не знаю» сразу: рассуждай вслух («насколько я помню...», «здесь можно так...»).</li>
+  </ul>
+  <div class="note">Готовность — это не «выучить 30 тем», а «смогу объяснить устройство своего кода». Успехов на собесе! 💪</div>
+</section>
+
+</main>
+
+<footer>Интерактивный гайд по React собран к собеседованию · Наведи курсор на любой термин — увидишь подсказку</footer>
+
+<div id="tt" role="tooltip"></div>
+
+<script>
+const DEFS_A = {
+  "react": "<b>React</b> — JavaScript-библиотека для построения UI от Meta (2013). Компонентный подход, виртуальный DOM, декларативность. Не фреймворк.",
+  "library": "<b>Библиотека</b> — набор функций, которые вы сами подключаете. Фреймворк, наоборот, диктует структуру приложения (Angular, Vue-экосистема).",
+  "declarative": "<b>Декларативность</b> — описываем итог («что показать»), а не шаги («как добраться»). React сам вычисляет изменения DOM.",
+  "component": "<b>Компонент</b> — изолированная часть UI (функция/класс), принимающая props и возвращающая JSX. Дерево компонентов = приложение.",
+  "vdom": "<b>Virtual DOM</b> — JS-представление реального DOM. React перестраивает его и через реконсиляцию применяет минимальный набор изменений в реальный DOM.",
+  "one-way": "<b>Односторонний поток данных</b> — данные идут сверху вниз (родитель → ребенок через props). Вверх — только через колбэки.",
+  "props": "<b>Props</b> — входные данные компонента, неизменяемые (immutable). Передаются от родителя.",
+  "spa": "<b>SPA</b> (Single Page Application) — одностраничное приложение: одна HTML-страница, навигация без перезагрузки, JS отрисовывает UI.",
+  "rn": "<b>React Native</b> — фреймворк для нативных мобильных приложений на React (iOS/Android), компоненты транслируются в нативные.",
+  "unopinionated": "<b>Не навязывает архитектуру</b> — React сам по себе не включает роутер/стейт-менеджмент/стили; их выбираешь из экосистемы.",
+  "next": "<b>Next.js</b> — React-фреймворк для продакшена: файловый роутинг, SSR/SSG/ISR, Server Components, API-роуты, деплой на Vercel.",
+  "vite": "<b>Vite</b> — быстрый сборщик/дев-сервер: мгновенный старт и HMR на основе ES-модулей. Рекомендуемый для новых React-проектов.",
+  "cra": "<b>CRA</b> (Create React App) — устаревший стартовый тулкит от Meta. Новые проекты создают через Vite/Next.js.",
+  "npm": "<b>npm</b> — менеджер пакетов Node.js; команды: <code>npm install</code>, <code>npm run dev</code>, <code>npm run build</code>.",
+  "yarn": "<b>Yarn</b> — альтернативный менеджер пакетов (быстрый кэш, workspaces).",
+  "pnpm": "<b>pnpm</b> — менеджер пакетов с жёсткими ссылками (экономия места, изоляция зависимостей).",
+  "packagejson": "<b>package.json</b> — манифест проекта: зависимости, скрипты, версии, метаданные.",
+  "babel": "<b>Babel</b> — транспилятор JS: превращает JSX/TS в обычный JS и современный код в совместимый со старыми браузерами.",
+  "strictmode": "<b>StrictMode</b> — дев-обёртка, дважды вызывающая рендер и эффекты для поиска сайд-эффектов. В проде не влияет.",
+  "hmr": "<b>HMR</b> (Hot Module Replacement) — обновление изменённого модуля в рантайме без перезагрузки страницы, сохраняя state.",
+  "eslint": "<b>ESLint</b> — линтер: статический анализ JS на ошибки и стиль. Плагин react-hooks ловит нарушение правил хуков.",
+  "prettier": "<b>Prettier</b> — форматтер кода (единый стиль, без «споров о запятых»).",
+  "jsx": "<b>JSX</b> — JS-расширение синтаксиса: HTML-подобная разметка в JS. Компилируется в <code>React.createElement()</code>.",
+  "jsxexpr": "<b>JSX-выражения</b> — в <code>{ }</code> можно вставить любое JS-выражение: переменную, вызов, тернарник.",
+  "key": "<b>key</b> — специальный атрибут списка: уникальная и стабильная метка элемента для реконсиляции. Не индекс по умолчанию.",
+  "fragment": "<b>Fragment</b> (<code>&lt;&gt;&lt;/&gt;</code>) — группировка нескольких элементов без лишнего DOM-узла.",
+  "funccomponent": "<b>Функциональный компонент</b> — функция(props) =&gt; JSX. Современный стандарт с хуками.",
+  "classcomponent": "<b>Классовый компонент</b> — <code>class extends React.Component</code> с <code>render()</code>, state и lifecycle. Легаси-стиль.",
+  "purecomponent": "<b>Чистые функции</b> — при одинаковых аргументах одинаковый результат и без побочных эффектов. База предсказуемого рендера.",
+  "composition": "<b>Композиция</b> — сборка UI из мелких компонентов (вместо глубокого наследования). Ключевой принцип React.",
+  "children-prop": "<b>children</b> — специальный prop с JSX между открывающим/закрывающим тегом; позволяет делать обёртки и layout.",
+  "controlled": "<b>Controlled компонент</b> — значение управляется React (state + onChange). Единственный источник правды — state.",
+  "uncontrolled": "<b>Uncontrolled компонент</b> — значение хранится в самом DOM, React лишь читает его через ref.",
+  "ref": "<b>ref</b> — ссылка на DOM-узел или значение (useRef). Не вызывает ререндер при изменении .current.",
+  "immutable": "<b>Immutable</b> — неизменяемый. Props и state не мутируют: создаётся новая копия при изменении.",
+  "defaultprops": "<b>defaultProps</b> — дефолтные props для классовых компонентов; в функциях — значения при деструктуризации.",
+  "propdrilling": "<b>Prop drilling</b> — прокидывание данных через много промежуточных компонентов; решается Context/стейт-менеджментом.",
+  "context": "<b>Context</b> — способ передавать данные через дерево без props-проброса (createContext + Provider + useContext).",
+  "rest": "<b>Rest-пропсы</b> <code>...rest</code> — сбор «лишних» props и проброс в DOM/подкомпонент.",
+  "proptypes": "<b>PropTypes</b> — рантайм-валидация props (устаревает, заменяется TypeScript).",
+  "ts": "<b>TypeScript</b> — типизированный JS; в React — типы props, state, событий, ссылок.",
+  "state": "<b>State</b> — изменяемые данные компонента, хранятся между рендерами; обновляется только через сеттер.",
+  "usestate": "<b>useState</b> — хук: <code>const [v, setV] = useState(initial)</code>. Возвращает пару [значение, сеттер].",
+  "batching": "<b>Батчинг</b> — группировка нескольких обновлений state в один ререндер (React 18 — автоматически, включая промисы).",
+  "lifting": "<b>Lifting state up</b> — подъём state в общего родителя, чтобы несколько компонентов могли его разделять.",
+  "synth-event": "<b>SyntheticEvent</b> — кросс-браузерная обёртка нативного события в React; для всех слушателей.",
+  "formlib": "<b>react-hook-form</b> — библиотека форм с производительностью и валидацией (zod/resolver).",
+  "formik": "<b>Formik</b> — библиотека форм: управление полями, валидация, submit. Старше react-hook-form.",
+  "form-action": "<b>Form Actions</b> (React 19) — <code>&lt;form action={fn}&gt;</code>: функция получает FormData, работает с pending-состоянием и без ручного state.",
+  "reconcil": "<b>Реконсиляция</b> — сравнение виртуальных деревьев и вычисление минимальных DOM-изменений.",
+  "fiber": "<b>Fiber</b> — внутренний движок React 16+: дерево единиц работы, позволяющий прерывать/приоритезировать рендер (concurrent).",
+  "concurrent": "<b>Concurrent rendering</b> — возможность рендерить части UI приоритетно и прерываться (база Transition, Suspense).",
+  "suspense": "<b>Suspense</b> — «приостановка» рендера до готовности (lazy-код, данные), показывая fallback.",
+  "reconciliation-pitfall": "<b>Почему дети ререндерятся</b> — по умолчанию при рендере родителя пересоздаются и дети (даже если props те же). memo оптимизирует.",
+  "hooks": "<b>Хуки</b> — функции React 16.8+, дающие state и lifecycle в функциональных компонентах (useState, useEffect...).",
+  "useeffect": "<b>useEffect(cb, deps)</b> — побочные эффекты после коммита: подписки, таймеры, fetch. Cleanup через return.",
+  "useref": "<b>useRef</b> — mutable-«ящик» без ререндера; для DOM-узлов и служебных значений.",
+  "usememo": "<b>useMemo(fn, deps)</b> — кеширует результат вычисления; пересчёт при изменении deps.",
+  "usecallback": "<b>useCallback(fn, deps)</b> — кеширует ссылку на функцию между рендерами.",
+  "usereducer": "<b>useReducer(reducer, init)</b> — управление сложным state через чистые редьюсеры и dispatch(action).",
+  "usecontext": "<b>useContext</b> — чтение значения Context в компоненте; ререндер при изменении value.",
+  "uselayout": "<b>useLayoutEffect</b> — эффект синхронно после DOM-мутаций, до отрисовки (для замеров/стилей).",
+  "usedidmount": "<b>useInsertionEffect</b> — срабатывает до DOM-мутаций (для CSS-in-JS-вставки стилей).",
+  "useimperative": "<b>useImperativeHandle</b> — управление тем, что видит родитель через ref (выбор методов наружу).",
+  "use": "<b>use()</b> (React 19) — чтение Promise или Context внутри компонента; работает в условиях и циклах, без обёрток.",
+  "useactionstate": "<b>useActionState(action, init)</b> — состояние асинхронного действия: возвращает [state, formAction, isPending].",
+  "useoptimistic": "<b>useOptimistic</b> — мгновенный «оптимистичный» state до ответа сервера с откатом при ошибке.",
+  "usetransition": "<b>useTransition</b> — неблокирующее обновление: возвращает [isPending, startTransition].",
+  "hook-lib": "<b>Библиотеки на хуках</b> — TanStack Query, Zustand, react-hook-form и др. построены на кастомных хуках.",
+  "deps": "<b>Массив зависимостей</b> — deps: <code>[]</code> — один раз; <code>[a]</code> — при изменении; отсутствие — каждый рендер.",
+  "memo": "<b>React.memo(Comp)</b> — мемоизация компонента: пропуск ререндера при неизменных props (поверхностно).",
+  "reactcompiler": "<b>React Compiler</b> — компилятор автоматической мемоизации (React 19+); уменьшает ручные useMemo/useCallback.",
+  "dispatch": "<b>dispatch(action)</b> — отправка действия в редьюсер; единственный способ изменить state.",
+  "reducer": "<b>Reducer</b> — чистая функция (state, action) =&gt; newState: без мутаций и сайд-эффектов.",
+  "reducercontext": "<b>Reducer + Context</b> — связка как мини-Redux: dispatch в контексте, редьюсер отдельно.",
+  "cdm": "<b>componentDidMount</b> — lifecycle-метод: вызывается один раз после вставки в DOM (подписки, запросы).",
+  "cdu": "<b>componentDidUpdate</b> — после обновления; сравнение prevProps/prevState.",
+  "cwum": "<b>componentWillUnmount</b> — перед удалением из DOM: очистка подписок/таймеров.",
+  "scu": "<b>shouldComponentUpdate</b> — возвращает false для пропуска ререндера (аналог memo в классах).",
+  "cwm": "<b>componentWillMount</b> — легаси (UNSAFE_): вызывался до mount. Не использовать.",
+  "cwrp": "<b>componentWillReceiveProps</b> — легаси (UNSAFE_): до получения новых props. Заменяется didUpdate.",
+  "cwup": "<b>componentWillUpdate</b> — легаси (UNSAFE_): до обновления. Заменяется didUpdate/getSnapshotBeforeUpdate.",
+  "getsnapshot": "<b>getSnapshotBeforeUpdate</b> — чтение DOM-состояния до применения обновления.",
+  "react-router": "<b>React Router</b> — стандартный роутер SPA на React; v6/v7: Routes/Route, декларативная навигация.",
+  "usenavigate": "<b>useNavigate()</b> — программная навигация: <code>navigate('/path')</code>.",
+  "useparams": "<b>useParams()</b> — объект параметров URL: <code>useParams().id</code> для маршрута <code>path/:id</code>.",
+  "usesearchparams": "<b>useSearchParams()</b> — чтение/запись query-параметров URL (аналог useSearchParams из RR).",
+  "redux": "<b>Redux</b> — библиотека управления состоянием: единый store, редьюсеры, чистые функции, предсказуемость.",
+  "redux-toolkit": "<b>Redux Toolkit</b> (RTK) — официальный набор инструментов Redux: createSlice, thunk, devtools из коробки.",
+  "zustand": "<b>Zustand</b> — лёгкий стейт-менеджер на хуках: без Provider, минимум бойлерплейта.",
+  "redux-thunk": "<b>redux-thunk</b> — middleware для асинхронных действий (промисы/диспатч внутри).",
+  "redux-saga": "<b>redux-saga</b> — middleware на генераторах для сайд-эффектов и сложной асинхронной логики.",
+  "tanstack-query": "<b>TanStack Query</b> — библиотека серверного состояния: кэш, рефетчи, инвалидация, ретраи, devtools.",
+  "profiler": "<b>React Profiler</b> — инструмент DevTools: длительность рендеров и причины.",
+  "virtualization": "<b>Virtualization</b> — рендер только видимых элементов огромного списка (react-window).",
+  "ssr": "<b>SSR</b> — Server-Side Rendering: HTML собирается на сервере — быстрый первый отклик, SEO.",
+  "hydrate": "<b>Hydration</b> — «оживление» серверного HTML: React подключает обработчики без повторной отрисовки.",
+  "ssg": "<b>SSG</b> — Static Site Generation: HTML генерируется на этапе сборки (Next.js).",
+  "isr": "<b>ISR</b> — Incremental Static Regeneration: пересборка статических страниц по таймеру.",
+  "rsc": "<b>React Server Components</b> — компоненты, выполняемые только на сервере: без клиентского JS, прямой доступ к БД.",
+  "streaming": "<b>Streaming SSR</b> — передача HTML частями по мере готовности (Suspense-секции).",
+  "reactnode": "<b>ReactNode</b> — тип «всё, что может быть отрисовано»: элемент, строка, число, массив, null.",
+  "rtl": "<b>React Testing Library</b> — тесты «глазами пользователя»: рендер, роли, события.",
+  "vitest": "<b>Vitest</b> — быстрый тест-раннер для Vite-проектов (asserts + mocks + snapshots).",
+  "jest": "<b>Jest</b> — классический тест-раннер (CRA по умолчанию).",
+  "user-event": "<b>userEvent</b> — библиотека реалистичных пользовательских действий (клики, ввод) поверх fireEvent.",
+  "act": "<b>act()</b> — обёртка для уведомления React о ререндерах в тестах; RTL применяет автоматически.",
+  "snapshot": "<b>Snapshots</b> — слепок разметки для регрессии (toMatchSnapshot); не злоупотреблять.",
+  "hoc": "<b>HOC</b> (Higher-Order Component) — функция, возвращающая обёрнутый компонент: <code>withAuth(W)</code>.",
+  "renderprops": "<b>Render props</b> — проп-функция, возвращающая JSX для рендера: <code>&lt;Data render={d =&gt; ...} /&gt;</code>.",
+  "compound": "<b>Compound Components</b> — семейство компонентов, работающих через общий Context (Tabs, Accordion).",
+  "controlledpattern": "<b>Controlled/Uncontrolled</b> — паттерн: управление данными извне (controlled) или внутри (uncontrolled).",
+  "custom-hook": "<b>Кастомный хук</b> — функция с префиксом <code>use</code>, переиспользующая другие хуки (useFetch, useDebounce).",
+  "errorboundary": "<b>Error Boundary</b> — классовый компонент, ловящий ошибки в дочернем дереве и показывающий fallback.",
+  "useerrorboundary": "<b>useErrorBoundary</b> — хук для границ ошибок (React 19+, в разработке/экспериментальный).",
+  "sentry": "<b>Sentry</b> — сервис мониторинга ошибок (клиент/сервер) с уведомлениями и sourcemap-ами.",
+  "cssmodules": "<b>CSS Modules</b> — изолированные CSS-классы: <code>import styles from './X.module.css'</code>.",
+  "tailwind": "<b>Tailwind CSS</b> — utility-first CSS-фреймворк: классы-утилиты прямо в JSX.",
+  "styledcomponents": "<b>styled-components</b> — CSS-in-JS: стили в JS через тегированные шаблоны, темизация.",
+  "cssinjs": "<b>CSS-in-JS</b> — стили в JS: динамика и изоляция, но рантайм и вопросы совместимости с RSC.",
+  "mantine": "<b>Mantine</b> — современная UI-библиотека React (компоненты, хуки, темы).",
+  "mui": "<b>MUI</b> (Material UI) — популярная библиотека Material Design для React.",
+  "swr": "<b>SWR</b> — хук-кэшер данных (Next.js): stale-while-revalidate, дедупликация.",
+  "vue": "<b>Vue</b> — прогрессивный JS-фреймворк: шаблоны, реактивность, SFC. Мягкий порог входа.",
+  "angular": "<b>Angular</b> — полный фреймворк (TypeScript, DI, формы, роутер) для крупных enterprise-приложений.",
+  "svelte": "<b>Svelte</b> — компилируемый фреймворк без виртуального DOM: код превращается в эффективный JS.",
+  "solid": "<b>Solid</b> — реактивный UI на сигналах без VDOM, высокая производительность.",
+  "devtools": "<b>React DevTools</b> — расширение браузера: инспекция компонентов, props/state, Profiler.",
+  "whyrender": "<b>why-did-you-render</b> — библиотека для отслеживания лишних ререндеров."
+};
+const DEFS_B = {
+  "forwardref": "<b>forwardRef</b> — проброс ref через функциональный компонент (React &lt;19). В React 19 ref — обычный prop, forwardRef можно не использовать.",
+  "outlet": "<b>&lt;Outlet/&gt;</b> — в React Router место рендера вложенного маршрута внутри layout-компонента.",
+  "useselector": "<b>useSelector(fn)</b> — подписка на часть Redux-стора; пересборка при изменении выбранного значения.",
+  "usequery": "<b>useQuery</b> (TanStack Query) — получение данных с кэшем: <code>{ data, isLoading, refetch }</code>.",
+  "usemutation": "<b>useMutation</b> — выполнение мутации (POST/PUT) с состоянием и оптимистичными обновлениями.",
+  "lazy": "<b>React.lazy</b> — отложенная загрузка компонента: <code>lazy(() =&gt; import('./X'))</code> + Suspense.",
+  "portal": "<b>createPortal(child, node)</b> — рендер в другой DOM-узел (модалки, тултипы) с сохранением React-контекста.",
+  "usedeferred": "<b>useDeferredValue</b> — «отложенное» значение для тяжёлого UI при быстром вводе.",
+  "useid": "<b>useId</b> — генерация стабильного уникального id (для label/input), корректно в SSR."
+};
+
+const DEFS = Object.assign({}, DEFS_A, DEFS_B);
+
+const tt = document.getElementById('tt');
+let timer = null;
+let current = null;
+
+function position(el) {
+  const r = el.getBoundingClientRect();
+  const tw = tt.offsetWidth;
+  const th = tt.offsetHeight;
+  let x = r.left + r.width / 2 - tw / 2;
+  if (x < 8) x = 8;
+  if (x + tw > window.innerWidth - 8) x = window.innerWidth - tw - 8;
+  let y = r.top - th - 8;
+  if (y < 8) y = r.bottom + 8;
+  if (y + th > window.innerHeight - 8) y = window.innerHeight - th - 8;
+  tt.style.left = x + 'px';
+  tt.style.top = y + 'px';
+}
+
+function show(el, key) {
+  const html = DEFS[key] || '';
+  if (!html) return;
+  tt.innerHTML = html;
+  tt.dataset.key = key;
+  tt.style.display = 'block';
+  position(el);
+}
+
+function hide() {
+  clearTimeout(timer);
+  tt.style.display = 'none';
+}
+
+document.addEventListener('mouseover', function (e) {
+  const el = e.target.closest('.t');
+  if (!el) {
+    hide();
+    current = null;
+    return;
+  }
+  const key = el.dataset.t;
+  if (!DEFS[key]) { current = el; return; }
+  if (current === el) return;
+  current = el;
+  clearTimeout(timer);
+  timer = setTimeout(function () { show(el, key); }, 160);
+});
+
+document.addEventListener('click', function (e) {
+  const el = e.target.closest('.t');
+  if (!el) { hide(); return; }
+  e.preventDefault();
+  if (tt.style.display === 'block' && tt.dataset.key === el.dataset.t) { hide(); return; }
+  show(el, el.dataset.t);
+});
+
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') { hide(); return; }
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const el = document.activeElement;
+  if (el && el.classList && el.classList.contains('t')) {
+    e.preventDefault();
+    if (tt.style.display === 'block' && tt.dataset.key === el.dataset.t) { hide(); return; }
+    show(el, el.dataset.t);
+  }
+});
+
+document.addEventListener('scroll', hide, true);
+window.addEventListener('resize', hide);
+
+document.getElementById('termCount').textContent = 'терминов: ' + document.querySelectorAll('.t').length;
+</script>
+</body>
+</html>

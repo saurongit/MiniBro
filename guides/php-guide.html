@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PHP — интерактивный гайд к собеседованию</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#1e293b; --card2:#16213a;
+    --text:#e2e8f0; --muted:#94a3b8;
+    --accent:#38bdf8; --accent2:#818cf8; --line:#334155;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:linear-gradient(180deg,#0b1222 0%,var(--bg) 100%);
+    color:var(--text);
+    font-family:Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size:15px; line-height:1.6;
+    padding-bottom:80px;
+  }
+  a{color:var(--accent);}
+
+  .banner{
+    max-width:960px; margin:0 auto; padding:34px 20px 10px; text-align:center;
+  }
+  .banner h1{
+    font-size:28px; letter-spacing:.3px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    margin-bottom:10px;
+  }
+  .banner p{color:var(--muted); font-size:14.5px;}
+  .badge{
+    display:inline-block; margin-top:14px; padding:6px 14px; border-radius:999px;
+    background:rgba(56,189,248,.12); border:1px solid rgba(56,189,248,.35);
+    color:var(--accent); font-size:12.5px; font-weight:600;
+  }
+
+  nav#toc{
+    position:sticky; top:0; z-index:500;
+    background:rgba(15,23,42,.92); backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+    padding:8px 10px; margin-top:18px;
+    display:flex; flex-wrap:wrap; gap:5px; justify-content:center;
+  }
+  nav#toc a{
+    color:var(--muted); text-decoration:none; font-size:11.5px;
+    padding:3px 7px; border-radius:6px; border:1px solid transparent;
+    transition:.15s;
+  }
+  nav#toc a:hover{color:var(--text); border-color:var(--line); background:var(--card);}
+
+  main{max-width:960px; margin:0 auto; padding:20px;}
+
+  section.card{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:22px 24px; margin-bottom:18px;
+    box-shadow:0 4px 18px rgba(0,0,0,.25);
+  }
+  section.card h2{
+    font-size:18px; margin-bottom:12px; color:var(--accent);
+    display:flex; align-items:center; gap:10px;
+  }
+  section.card h2 .num{
+    flex:0 0 auto; min-width:30px; height:30px; border-radius:8px;
+    background:rgba(56,189,248,.15); border:1px solid rgba(56,189,248,.4);
+    color:var(--accent); display:inline-flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:700;
+  }
+  ul{list-style:none;}
+  li{padding:4px 0 4px 22px; position:relative;}
+  li::before{
+    content:""; position:absolute; left:2px; top:15px;
+    width:7px; height:7px; border-radius:50%;
+    background:var(--accent2); opacity:.7;
+  }
+  code{
+    font-family:Consolas, "Cascadia Mono", monospace;
+    font-size:13px; background:#0b1222; border:1px solid var(--line);
+    padding:1px 5px; border-radius:5px; color:#c4b5fd;
+  }
+
+  .t{
+    color:var(--accent);
+    border-bottom:1px dashed rgba(56,189,248,.55);
+    cursor:help; padding:0 2px; border-radius:3px;
+    transition:background .12s;
+  }
+  .t:hover{background:rgba(56,189,248,.16);}
+  .t:focus{outline:2px solid var(--accent2); outline-offset:1px;}
+
+  #tt{
+    display:none; position:fixed; z-index:2000;
+    max-width:340px; min-width:200px;
+    background:#f8fafc; color:#0f172a;
+    border:1px solid #cbd5e1; border-radius:9px;
+    padding:10px 13px; font-size:13px; line-height:1.5;
+    box-shadow:0 10px 30px rgba(0,0,0,.45);
+    pointer-events:none;
+  }
+  #tt b{color:#0369a1;}
+  #tt code{
+    background:#e2e8f0; color:#7c3aed; border-color:#cbd5e1; font-size:12px;
+  }
+
+  .ex{
+    margin:12px 0 4px; background:var(--card2);
+    border:1px solid var(--line); border-left:3px solid var(--accent2);
+    border-radius:8px; overflow:hidden;
+  }
+  .ex .ex-head{
+    padding:5px 12px; font-size:11px; letter-spacing:.6px; text-transform:uppercase;
+    color:var(--muted); background:rgba(129,140,248,.08);
+    border-bottom:1px solid var(--line);
+  }
+  .ex pre{
+    padding:12px; overflow-x:auto; font-size:12.5px;
+    font-family:Consolas, "Cascadia Mono", monospace; color:#a5f3fc;
+  }
+
+  .desc{
+    margin:-4px 0 14px; padding:11px 14px; border-radius:10px;
+    background:rgba(129,140,248,.08); border:1px solid rgba(129,140,248,.3);
+    color:#cbd5e1; font-size:13.5px; line-height:1.6;
+  }
+  .desc b{color:var(--accent2); font-weight:600;}
+  .note{
+    margin-top:18px; padding:12px 16px; border-radius:10px;
+    background:rgba(251,191,36,.08); border:1px solid rgba(251,191,36,.3);
+    color:#fde68a; font-size:13.5px;
+  }
+  footer{
+    max-width:960px; margin:20px auto 0; padding:0 20px;
+    color:var(--muted); font-size:12.5px; text-align:center;
+  }
+  @media (max-width:600px){
+    .banner h1{font-size:22px;}
+    section.card{padding:16px;}
+    #tt{max-width:260px; font-size:12px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="banner">
+  <h1>PHP — интерактивный гайд к собеседованию</h1>
+  <p>Наведи курсор на любой подчёркнутый термин — появится подсказка с объяснением.<br>
+     Все 30 тем чек-листа, каждая сущность с подсказкой. Счётчик: <span class="badge" id="termCount">терминов: …</span></p>
+</header>
+
+<nav id="toc">
+  <a href="#s1">1 Синтаксис</a><a href="#s2">2 Переменные</a><a href="#s3">3 Операторы</a>
+  <a href="#s4">4 Массивы</a><a href="#s5">5 Строки</a><a href="#s6">6 Условия/циклы</a>
+  <a href="#s7">7 Функции</a><a href="#s8">8 ООП</a><a href="#s9">9 Namespace</a>
+  <a href="#s10">10 Суперглобальные</a><a href="#s11">11 Формы/файлы</a><a href="#s12">12 Сессии/куки</a>
+  <a href="#s13">13 БД</a><a href="#s14">14 Ошибки</a><a href="#s15">15 Include</a>
+  <a href="#s16">16 PHP 7/8</a><a href="#s17">17 Безопасность</a><a href="#s18">18 Дата/время</a>
+  <a href="#s19">19 JSON</a><a href="#s20">20 Регулярки</a><a href="#s21">21 Файловая система</a>
+  <a href="#s22">22 Отладка</a><a href="#s23">23 Composer</a><a href="#s24">24 Паттерны</a>
+  <a href="#s25">25 Фреймворки</a><a href="#s26">26 REST API</a><a href="#s27">27 Кэш/очереди</a>
+  <a href="#s28">28 Почта</a><a href="#s29">29 Изображения</a><a href="#s30">30 Советы</a>
+</nav>
+
+<main>
+
+<section class="card" id="s1">
+  <h2><span class="num">1</span> Базовый синтаксис и типы данных</h2>
+  <p class="desc">PHP — язык для серверной части сайта. Всё начинается с <?php, инструкции заканчиваются точкой с запятой. Типы: int, float, string, bool, array. С этого начинается любой разговор про PHP.</p>
+  <ul>
+    <li>Теги <span class="t" data-t="php-tag" tabindex="0">&lt;?php ... ?&gt;</span>, инструкции заканчиваются <span class="t" data-t="semicolon" tabindex="0">;</span>.</li>
+    <li>Комментарии: <span class="t" data-t="comment-line" tabindex="0">//</span>, <span class="t" data-t="comment-sharp" tabindex="0">#</span>, <span class="t" data-t="comment-block" tabindex="0">/* */</span>.</li>
+    <li>Скалярные типы: <span class="t" data-t="int" tabindex="0">int</span>, <span class="t" data-t="float" tabindex="0">float</span>, <span class="t" data-t="string" tabindex="0">string</span>, <span class="t" data-t="bool" tabindex="0">bool</span>.</li>
+    <li>Сложные: <span class="t" data-t="array" tabindex="0">array</span>, <span class="t" data-t="object" tabindex="0">object</span>, <span class="t" data-t="callable" tabindex="0">callable</span>, <span class="t" data-t="iterable" tabindex="0">iterable</span>.</li>
+    <li>Специальные: <span class="t" data-t="null" tabindex="0">null</span>, <span class="t" data-t="resource" tabindex="0">resource</span>.</li>
+    <li>Строгость типов: <span class="t" data-t="strict" tabindex="0">declare(strict_types=1)</span>.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Пример strict_types</div>
+    <pre>&lt;?php
+declare(strict_types=1);
+function add(int $a, int $b): int { return $a + $b; }
+add("5", 3); // TypeError: передана строка вместо int</pre>
+  </div>
+</section>
+
+<section class="card" id="s2">
+  <h2><span class="num">2</span> Переменные и константы</h2>
+  <p class="desc">Переменные начинаются с $ (например $name), константы задаются через define() или const. Область видимости — где объявил, там и живёт.</p>
+  <ul>
+    <li>Переменные начинаются с <span class="t" data-t="dollar" tabindex="0">$</span>, чувствительны к регистру.</li>
+    <li>Константы: <span class="t" data-t="define" tabindex="0">define()</span> или <span class="t" data-t="const" tabindex="0">const</span> (для классов).</li>
+    <li>Предопределённые константы: <span class="t" data-t="phpversion" tabindex="0">PHP_VERSION</span>, <span class="t" data-t="dir" tabindex="0">__DIR__</span>, <span class="t" data-t="file" tabindex="0">__FILE__</span>, <span class="t" data-t="line" tabindex="0">__LINE__</span>.</li>
+    <li>Области видимости: <span class="t" data-t="scope" tabindex="0">глобальная, локальная</span> и <span class="t" data-t="static-var" tabindex="0">статическая</span> (<span class="t" data-t="static-keyword" tabindex="0">static</span> внутри функции).</li>
+  </ul>
+</section>
+
+<section class="card" id="s3">
+  <h2><span class="num">3</span> Операторы</h2>
+  <p class="desc">Операторы — как посчитать и сравнить: + - * /, == и ===, && и ||, ?:, ??. Ключевое — строгое сравнение ===: оно не приводит типы.</p>
+  <ul>
+    <li>Арифметические; сравнения: <span class="t" data-t="eq" tabindex="0">==</span>, <span class="t" data-t="eqeq" tabindex="0">===</span>, <span class="t" data-t="neq" tabindex="0">!=</span>, <span class="t" data-t="neqeq" tabindex="0">!==</span>, <span class="t" data-t="spaceship" tabindex="0">&lt;=&gt;</span>; логические: <span class="t" data-t="and" tabindex="0">&amp;&amp;</span>, <span class="t" data-t="or" tabindex="0">||</span>, <span class="t" data-t="not" tabindex="0">!</span>.</li>
+    <li>Тернарный оператор (<span class="t" data-t="ternary" tabindex="0">?:</span>), оператор объединения с null (<span class="t" data-t="nullcoalesce" tabindex="0">??</span>).</li>
+    <li>Инкремент/декремент, присваивание, строковый (<span class="t" data-t="concat" tabindex="0">.</span>), побитовые.</li>
+  </ul>
+</section>
+
+<section class="card" id="s4">
+  <h2><span class="num">4</span> Массивы</h2>
+  <p class="desc">Массивы — списки и словари: $arr = ['a', 'b'] или ['ключ' => 'значение']. Почти всё в PHP работает через массивы — это его главная сила.</p>
+  <ul>
+    <li><span class="t" data-t="indexed" tabindex="0">Индексированные</span> и <span class="t" data-t="assoc" tabindex="0">ассоциативные</span>.</li>
+    <li>Создание: <span class="t" data-t="shortarr" tabindex="0">[]</span> или <span class="t" data-t="arrayfn" tabindex="0">array()</span>.</li>
+    <li>Важнейшие функции: <span class="t" data-t="count" tabindex="0">count()</span>, <span class="t" data-t="merge" tabindex="0">array_merge()</span>, <span class="t" data-t="map" tabindex="0">array_map()</span>, <span class="t" data-t="filter" tabindex="0">array_filter()</span>, <span class="t" data-t="reduce" tabindex="0">array_reduce()</span>, <span class="t" data-t="inarray" tabindex="0">in_array()</span>, <span class="t" data-t="keys" tabindex="0">array_keys()</span>, <span class="t" data-t="values" tabindex="0">array_values()</span>, <span class="t" data-t="sort" tabindex="0">sort()/asort()/ksort()</span>.</li>
+    <li><span class="t" data-t="multi" tabindex="0">Многомерные</span> массивы.</li>
+    <li>Короткий синтаксис <span class="t" data-t="destruct-arr" tabindex="0">деструктуризации</span> (<span class="t" data-t="destruct-ex" tabindex="0">[$a, $b] = $arr</span>).</li>
+  </ul>
+</section>
+
+<section class="card" id="s5">
+  <h2><span class="num">5</span> Строки</h2>
+  <p class="desc">Строки — текст в кавычках. '' не подставляет переменные, "" подставляет. Основные функции: strlen, strpos, substr, str_replace, explode/implode.</p>
+  <ul>
+    <li>Кавычки: <span class="t" data-t="sq" tabindex="0">''</span> (без интерполяции) и <span class="t" data-t="dq" tabindex="0">""</span> (с интерполяцией).</li>
+    <li><span class="t" data-t="heredoc" tabindex="0">Heredoc</span> / <span class="t" data-t="nowdoc" tabindex="0">Nowdoc</span>.</li>
+    <li>Основные функции: <span class="t" data-t="strlen" tabindex="0">strlen()</span>, <span class="t" data-t="strpos" tabindex="0">strpos()</span>, <span class="t" data-t="substr" tabindex="0">substr()</span>, <span class="t" data-t="strreplace" tabindex="0">str_replace()</span>, <span class="t" data-t="trim" tabindex="0">trim()</span>, <span class="t" data-t="explode" tabindex="0">explode()/implode()</span>, <span class="t" data-t="mb" tabindex="0">mb_*</span> для многобайтовых (<span class="t" data-t="utf8" tabindex="0">UTF-8</span>).</li>
+  </ul>
+</section>
+
+<section class="card" id="s6">
+  <h2><span class="num">6</span> Условные конструкции и циклы</h2>
+  <p class="desc">if/else, switch, циклы for/while/foreach. Базовый поток выполнения — без них не работает ни один скрипт.</p>
+  <ul>
+    <li><span class="t" data-t="if" tabindex="0">if</span>, <span class="t" data-t="elseif" tabindex="0">elseif</span>, <span class="t" data-t="else" tabindex="0">else</span>, <span class="t" data-t="switch" tabindex="0">switch</span> (сравнение через <span class="t" data-t="eq" tabindex="0">==</span>).</li>
+    <li>Циклы: <span class="t" data-t="for" tabindex="0">for</span>, <span class="t" data-t="while" tabindex="0">while</span>, <span class="t" data-t="dowhile" tabindex="0">do-while</span>, <span class="t" data-t="foreach" tabindex="0">foreach</span>.</li>
+    <li><span class="t" data-t="break" tabindex="0">break</span>, <span class="t" data-t="continue" tabindex="0">continue</span>, <span class="t" data-t="return" tabindex="0">return</span>.</li>
+  </ul>
+</section>
+
+<section class="card" id="s7">
+  <h2><span class="num">7</span> Функции</h2>
+  <p class="desc">Функции — переиспользуемые блоки кода: function add($a, $b) { return $a + $b; }. Плюс замыкания и стрелочные функции — для собеса знать обязательно.</p>
+  <ul>
+    <li>Определение: <span class="t" data-t="funcdef" tabindex="0">function name($param) { ... }</span>.</li>
+    <li>Аргументы по умолчанию, передача по ссылке (<span class="t" data-t="byref" tabindex="0">&amp;$param</span>), <span class="t" data-t="argtype" tabindex="0">типизация</span> аргументов и возврата.</li>
+    <li><span class="t" data-t="return" tabindex="0">return</span> — один выход, можно вернуть <span class="t" data-t="mixed" tabindex="0">mixed</span>.</li>
+    <li><span class="t" data-t="closure" tabindex="0">Анонимные функции (замыкания)</span>, использование <span class="t" data-t="use-capture" tabindex="0">use</span> для захвата переменных.</li>
+    <li><span class="t" data-t="arrow" tabindex="0">Стрелочные функции</span> (<span class="t" data-t="arrow-ex" tabindex="0">fn() =&gt; ...</span>) — короткий синтаксис.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Пример замыкания и стрелочной функции</div>
+    <pre>&lt;?php
+$factor = 2;
+$double = fn($x) =&gt; $x * $factor;      // стрелочная: автозахват $factor
+$triple = function($x) use ($factor) { return $x * 3 * $factor; };
+echo $double(4); // 8
+echo $triple(4); // 24</pre>
+  </div>
+</section>
+
+<section class="card" id="s8">
+  <h2><span class="num">8</span> ООП (классы и объекты)</h2>
+  <p class="desc">ООП — программирование через объекты: класс, свойства, методы, наследование, интерфейсы, трейты. Основа всей современной PHP-разработки.</p>
+  <ul>
+    <li><span class="t" data-t="oop" tabindex="0">ООП</span>: <span class="t" data-t="class" tabindex="0">class</span>, <span class="t" data-t="new" tabindex="0">new</span>, свойства (с модификаторами <span class="t" data-t="public" tabindex="0">public</span>, <span class="t" data-t="protected" tabindex="0">protected</span>, <span class="t" data-t="private" tabindex="0">private</span>), методы.</li>
+    <li>Конструктор <span class="t" data-t="construct" tabindex="0">__construct()</span>, деструктор <span class="t" data-t="destructor" tabindex="0">__destruct()</span>.</li>
+    <li>Наследование (<span class="t" data-t="extends" tabindex="0">extends</span>), переопределение методов, вызов родительского (<span class="t" data-t="parent" tabindex="0">parent::</span>).</li>
+    <li>Интерфейсы (<span class="t" data-t="interface" tabindex="0">interface</span>), реализация (<span class="t" data-t="implements" tabindex="0">implements</span>), множественное наследование через <span class="t" data-t="trait" tabindex="0">trait</span>.</li>
+    <li><span class="t" data-t="abstract" tabindex="0">Абстрактные</span> классы и методы.</li>
+    <li><span class="t" data-t="final" tabindex="0">final</span> (запрет наследования/переопределения).</li>
+    <li>Статические свойства и методы (<span class="t" data-t="staticcall" tabindex="0">static::</span>, <span class="t" data-t="self" tabindex="0">self::</span>).</li>
+    <li><span class="t" data-t="magic" tabindex="0">Магические методы</span>: <span class="t" data-t="magic-get" tabindex="0">__get()</span>, <span class="t" data-t="magic-set" tabindex="0">__set()</span>, <span class="t" data-t="magic-call" tabindex="0">__call()</span>, <span class="t" data-t="magic-callstatic" tabindex="0">__callStatic()</span>, <span class="t" data-t="magic-tostring" tabindex="0">__toString()</span>, <span class="t" data-t="magic-invoke" tabindex="0">__invoke()</span>, <span class="t" data-t="magic-clone" tabindex="0">__clone()</span>, <span class="t" data-t="magic-sleep" tabindex="0">__sleep()</span>/<span class="t" data-t="magic-wakeup" tabindex="0">__wakeup()</span>.</li>
+    <li>Клонирование объектов (<span class="t" data-t="clone" tabindex="0">clone</span>).</li>
+    <li>Сравнение объектов (<span class="t" data-t="eq" tabindex="0">==</span> и <span class="t" data-t="eqeq" tabindex="0">===</span>).</li>
+  </ul>
+</section>
+
+<section class="card" id="s9">
+  <h2><span class="num">9</span> Пространства имён и автозагрузка</h2>
+  <p class="desc">namespace — чтобы классы с одинаковыми именами не дрались, use — импорт. Автозагрузка через Composer (PSR-4) сама подтягивает классы по имени файла.</p>
+  <ul>
+    <li><span class="t" data-t="namespace" tabindex="0">namespace</span> — группировка классов.</li>
+    <li><span class="t" data-t="use-import" tabindex="0">use</span> — импорт.</li>
+    <li><span class="t" data-t="autoload" tabindex="0">Автозагрузка</span> через <span class="t" data-t="spl" tabindex="0">spl_autoload_register()</span> или <span class="t" data-t="composer" tabindex="0">Composer</span> (<span class="t" data-t="psr4" tabindex="0">PSR-4</span>).</li>
+  </ul>
+</section>
+
+<section class="card" id="s10">
+  <h2><span class="num">10</span> Суперглобальные массивы</h2>
+  <p class="desc">Суперглобальные — массивы, доступные из любого места: $_GET, $_POST, $_SESSION, $_COOKIE, $_SERVER, $_FILES. Это всё входные данные запроса.</p>
+  <ul>
+    <li><span class="t" data-t="superglobal" tabindex="0">Суперглобальные</span>: <span class="t" data-t="sg-get" tabindex="0">$_GET</span>, <span class="t" data-t="sg-post" tabindex="0">$_POST</span>, <span class="t" data-t="sg-request" tabindex="0">$_REQUEST</span> — данные запроса.</li>
+    <li><span class="t" data-t="sg-session" tabindex="0">$_SESSION</span> — данные сессии.</li>
+    <li><span class="t" data-t="sg-cookie" tabindex="0">$_COOKIE</span> — куки.</li>
+    <li><span class="t" data-t="sg-files" tabindex="0">$_FILES</span> — загруженные файлы.</li>
+    <li><span class="t" data-t="sg-server" tabindex="0">$_SERVER</span> — информация о сервере и окружении.</li>
+    <li><span class="t" data-t="sg-env" tabindex="0">$_ENV</span> — переменные окружения.</li>
+    <li><span class="t" data-t="sg-globals" tabindex="0">$GLOBALS</span> — все глобальные переменные.</li>
+  </ul>
+</section>
+
+<section class="card" id="s11">
+  <h2><span class="num">11</span> Работа с формами и файлами</h2>
+  <p class="desc">Формы — как браузер шлёт данные на сервер: GET/POST, данные в $_POST, файлы в $_FILES. Вход всегда фильтруем — иначе XSS.</p>
+  <ul>
+    <li>Отправка форм (метод <span class="t" data-t="http-get" tabindex="0">GET</span>/<span class="t" data-t="http-post" tabindex="0">POST</span>).</li>
+    <li><span class="t" data-t="validation" tabindex="0">Валидация</span> и <span class="t" data-t="filtering" tabindex="0">фильтрация</span> входных данных (<span class="t" data-t="filterinput" tabindex="0">filter_input()</span>, <span class="t" data-t="htmlspecialchars" tabindex="0">htmlspecialchars()</span>).</li>
+    <li>Загрузка файлов: проверка <span class="t" data-t="sg-files" tabindex="0">$_FILES</span>, перемещение <span class="t" data-t="move" tabindex="0">move_uploaded_file()</span>.</li>
+    <li>Обработка ошибок загрузки.</li>
+  </ul>
+</section>
+
+<section class="card" id="s12">
+  <h2><span class="num">12</span> Сессии и куки</h2>
+  <p class="desc">Сессии — данные пользователя на сервере (логин, корзина), куки — на клиенте. session_start() открывает работу с сессией.</p>
+  <ul>
+    <li>Сессии: <span class="t" data-t="session-start" tabindex="0">session_start()</span>, чтение/запись <span class="t" data-t="sg-session" tabindex="0">$_SESSION</span>, удаление (<span class="t" data-t="session-destroy" tabindex="0">session_destroy()</span>).</li>
+    <li>Куки: <span class="t" data-t="setcookie" tabindex="0">setcookie()</span>, чтение через <span class="t" data-t="sg-cookie" tabindex="0">$_COOKIE</span>, параметры: время, путь, <span class="t" data-t="domain" tabindex="0">domain</span>, <span class="t" data-t="secure" tabindex="0">secure</span>, <span class="t" data-t="httponly" tabindex="0">httponly</span>.</li>
+  </ul>
+</section>
+
+<section class="card" id="s13">
+  <h2><span class="num">13</span> Работа с базами данных</h2>
+  <p class="desc">База данных — хранилище данных сайта. PDO — единый способ подключения к MySQL и другим СУБД, prepared statements защищают от SQL-инъекций.</p>
+  <ul>
+    <li>Два основных API: <span class="t" data-t="mysqli" tabindex="0">mysqli</span> и <span class="t" data-t="pdo" tabindex="0">PDO</span> (рекомендуется).</li>
+    <li>Подключение, выполнение запросов, получение результатов.</li>
+    <li><span class="t" data-t="prepared" tabindex="0">Подготовленные запросы</span> — защита от <span class="t" data-t="sqlinj" tabindex="0">SQL-инъекций</span>.</li>
+    <li><span class="t" data-t="txn" tabindex="0">Транзакции</span> (PDO: <span class="t" data-t="begin" tabindex="0">beginTransaction()</span>, <span class="t" data-t="commit" tabindex="0">commit()</span>, <span class="t" data-t="rollback" tabindex="0">rollBack()</span>).</li>
+    <li>Обработка ошибок (исключения PDO).</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Пример безопасного CRUD-запроса через PDO</div>
+    <pre>&lt;?php
+$pdo = new PDO('mysql:host=localhost;dbname=app', $user, $pass, [
+    PDO::ATTR_ERRMODE =&gt; PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE =&gt; PDO::FETCH_ASSOC,
+]);
+$stmt = $pdo-&gt;prepare('SELECT * FROM users WHERE email = ?');
+$stmt-&gt;execute([$email]);           // параметры отдельно — нет инъекций
+$user = $stmt-&gt;fetch();
+
+$pdo-&gt;beginTransaction();
+try {
+    $pdo-&gt;exec('UPDATE accounts SET balance = balance - 100 WHERE id = 1');
+    $pdo-&gt;exec('UPDATE accounts SET balance = balance + 100 WHERE id = 2');
+    $pdo-&gt;commit();
+} catch (Throwable $e) {
+    $pdo-&gt;rollBack();
+    throw $e;
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s14">
+  <h2><span class="num">14</span> Обработка ошибок и исключения</h2>
+  <p class="desc">Обработка ошибок: try/catch ловит исключение и обрабатывает, throw — выбрасывает своё. error_reporting — что показывать, display_errors — показывать ли в браузер.</p>
+  <ul>
+    <li>Уровни ошибок: <span class="t" data-t="eerror" tabindex="0">E_ERROR</span>, <span class="t" data-t="ewarning" tabindex="0">E_WARNING</span>, <span class="t" data-t="enotice" tabindex="0">E_NOTICE</span> и др.</li>
+    <li>Настройка: <span class="t" data-t="errorreporting" tabindex="0">error_reporting()</span>, <span class="t" data-t="displayerrors" tabindex="0">display_errors</span>.</li>
+    <li>Исключения: <span class="t" data-t="trycatch" tabindex="0">try-catch-finally</span>, <span class="t" data-t="throw" tabindex="0">throw</span>, собственные классы исключений.</li>
+    <li><span class="t" data-t="exceptionhandler" tabindex="0">set_exception_handler()</span>, <span class="t" data-t="errorhandler" tabindex="0">set_error_handler()</span>.</li>
+  </ul>
+</section>
+
+<section class="card" id="s15">
+  <h2><span class="num">15</span> Включение файлов</h2>
+  <p class="desc">include/require вставляют один файл в другой. require упадёт с ошибкой, если файла нет, include — просто предупредит. require_once — защита от повторного включения.</p>
+  <ul>
+    <li><span class="t" data-t="include" tabindex="0">include</span>, <span class="t" data-t="require" tabindex="0">require</span>, <span class="t" data-t="includeonce" tabindex="0">include_once</span>, <span class="t" data-t="requireonce" tabindex="0">require_once</span> — разница: ошибка против предупреждения.</li>
+  </ul>
+</section>
+
+<section class="card" id="s16">
+  <h2><span class="num">16</span> Современные возможности PHP 7/8 (обязательно знать!)</h2>
+  <p class="desc">PHP 7 добавил строгие типы, ??, <=>. PHP 8 — match, enum, атрибуты, именованные аргументы, стрелочные функции. Отдельный большой блок вопросов на собесе.</p>
+  <ul>
+    <li><span class="t" data-t="php7" tabindex="0">PHP 7</span>: скалярные типы, возвращаемые типы, оператор <span class="t" data-t="nullcoalesce" tabindex="0">??</span>, <span class="t" data-t="spaceship" tabindex="0">&lt;=&gt;</span>, группа <span class="t" data-t="use-import" tabindex="0">use</span>, анонимные классы.</li>
+    <li><span class="t" data-t="php8" tabindex="0">PHP 8</span>: <span class="t" data-t="named-args" tabindex="0">именованные аргументы</span>, <span class="t" data-t="attribute" tabindex="0">атрибуты (аннотации)</span>, <span class="t" data-t="promotion" tabindex="0">конструктор свойств</span> (<code>__construct(public $prop)</code>), <span class="t" data-t="match" tabindex="0">match</span>, <span class="t" data-t="enum" tabindex="0">enum</span>, тип <span class="t" data-t="mixed" tabindex="0">mixed</span>, <span class="t" data-t="static-ret" tabindex="0">static</span> как тип возврата, <span class="t" data-t="never" tabindex="0">never</span>, <span class="t" data-t="throw-expr" tabindex="0">throw как выражение</span>, <span class="t" data-t="str-contains" tabindex="0">str_contains()</span>, <span class="t" data-t="str-starts" tabindex="0">str_starts_with()</span>, <span class="t" data-t="str-ends" tabindex="0">str_ends_with()</span>.</li>
+  </ul>
+  <div class="ex">
+    <div class="ex-head">Пример PHP 8: match, enum, атрибут</div>
+    <pre>&lt;?php
+#[Attribute]
+class Route { public function __construct(public string $path) {} }
+
+enum Status: string {
+    case Draft = 'draft';
+    case Published = 'published';
+}
+
+class Post {
+    #[Route('/posts/{id}')]
+    public function show(int $id): Status {
+        $status = match ($id % 2) { 0 =&gt; Status::Draft, 1 =&gt; Status::Published };
+        return $status;
+    }
+}</pre>
+  </div>
+</section>
+
+<section class="card" id="s17">
+  <h2><span class="num">17</span> Безопасность (базовые практики)</h2>
+  <p class="desc">Безопасность — защита сайта: XSS (экранируй вывод), CSRF (токены в формах), SQL-инъекции (prepared statements), пароли хешируй через password_hash().</p>
+  <ul>
+    <li><span class="t" data-t="sqlinj" tabindex="0">SQL-инъекции</span> → подготовленные запросы.</li>
+    <li><span class="t" data-t="xss" tabindex="0">XSS</span> → экранирование вывода (<span class="t" data-t="htmlspecialchars" tabindex="0">htmlspecialchars()</span>, <span class="t" data-t="striptags" tabindex="0">strip_tags()</span>).</li>
+    <li><span class="t" data-t="csrf" tabindex="0">CSRF</span> → <span class="t" data-t="token" tabindex="0">токены</span> в формах.</li>
+    <li>Валидация и фильтрация всех внешних данных.</li>
+    <li>Защита сессий (<span class="t" data-t="httponly" tabindex="0">httponly</span>, <span class="t" data-t="secure" tabindex="0">secure</span>, регенерация ID).</li>
+    <li>Пароли: <span class="t" data-t="passhash" tabindex="0">password_hash()</span>/<span class="t" data-t="passverify" tabindex="0">password_verify()</span>.</li>
+    <li>Ограничение загрузки файлов (тип, размер, имя).</li>
+  </ul>
+</section>
+
+<section class="card" id="s18">
+  <h2><span class="num">18</span> Работа с датой и временем</h2>
+  <p class="desc">Дата и время: date('Y-m-d H:i:s'), time() — метка, strtotime() — парсинг строк, класс DateTime — продвинутая работа. Про часовые пояса тоже спросят.</p>
+  <ul>
+    <li><span class="t" data-t="date" tabindex="0">date()</span>, <span class="t" data-t="time" tabindex="0">time()</span>, <span class="t" data-t="strtotime" tabindex="0">strtotime()</span>, <span class="t" data-t="datetime" tabindex="0">DateTime</span>, <span class="t" data-t="datetimeimmutable" tabindex="0">DateTimeImmutable</span>, <span class="t" data-t="dateinterval" tabindex="0">DateInterval</span>, <span class="t" data-t="datetimezone" tabindex="0">DateTimeZone</span>.</li>
+    <li>Форматирование, сравнение, разница.</li>
+  </ul>
+</section>
+
+<section class="card" id="s19">
+  <h2><span class="num">19</span> Работа с JSON и сериализация</h2>
+  <p class="desc">JSON — формат обмена данными: json_encode() превращает массив/объект в JSON, json_decode() — обратно. Сериализация — сохранение объектов в строку.</p>
+  <ul>
+    <li><span class="t" data-t="json" tabindex="0">JSON</span>: <span class="t" data-t="jsonencode" tabindex="0">json_encode()</span> / <span class="t" data-t="jsondecode" tabindex="0">json_decode()</span> (с опциями, обработка ошибок).</li>
+    <li><span class="t" data-t="serialize" tabindex="0">serialize()</span> / <span class="t" data-t="unserialize" tabindex="0">unserialize()</span> для хранения структуры.</li>
+    <li>Осторожно с <span class="t" data-t="unserialize" tabindex="0">unserialize</span> (безопасность).</li>
+  </ul>
+</section>
+
+<section class="card" id="s20">
+  <h2><span class="num">20</span> Регулярные выражения</h2>
+  <p class="desc">Регулярные выражения — поиск по шаблону: preg_match, preg_replace, preg_split. Проверка email/телефона, вытаскивание данных из текста.</p>
+  <ul>
+    <li>Функции <span class="t" data-t="pcre" tabindex="0">PCRE</span>: <span class="t" data-t="pregmatch" tabindex="0">preg_match()</span>, <span class="t" data-t="pregmatchall" tabindex="0">preg_match_all()</span>, <span class="t" data-t="pregreplace" tabindex="0">preg_replace()</span>, <span class="t" data-t="pregsplit" tabindex="0">preg_split()</span>.</li>
+    <li><span class="t" data-t="metachar" tabindex="0">Метасимволы</span>, <span class="t" data-t="quant" tabindex="0">квантификаторы</span>, <span class="t" data-t="modifiers" tabindex="0">модификаторы</span> (<span class="t" data-t="mod-i" tabindex="0">i</span>, <span class="t" data-t="mod-u" tabindex="0">u</span>, <span class="t" data-t="mod-s" tabindex="0">s</span>).</li>
+  </ul>
+</section>
+
+<section class="card" id="s21">
+  <h2><span class="num">21</span> Работа с файловой системой</h2>
+  <p class="desc">Файлы: fopen/fread/fwrite, file_get_contents/file_put_contents, mkdir, scandir, unlink. Чтение и запись файлов, работа с папками.</p>
+  <ul>
+    <li><span class="t" data-t="fopen" tabindex="0">fopen()</span>, <span class="t" data-t="fread" tabindex="0">fread()</span>, <span class="t" data-t="fwrite" tabindex="0">fwrite()</span>, <span class="t" data-t="fclose" tabindex="0">fclose()</span>.</li>
+    <li><span class="t" data-t="fileget" tabindex="0">file_get_contents()</span>, <span class="t" data-t="fileput" tabindex="0">file_put_contents()</span>.</li>
+    <li>Директории: <span class="t" data-t="scandir" tabindex="0">scandir()</span>, <span class="t" data-t="mkdir" tabindex="0">mkdir()</span>, <span class="t" data-t="rmdir" tabindex="0">rmdir()</span>, <span class="t" data-t="unlink" tabindex="0">unlink()</span>.</li>
+  </ul>
+</section>
+
+<section class="card" id="s22">
+  <h2><span class="num">22</span> Отладка и тестирование</h2>
+  <p class="desc">Отладка: var_dump, print_r, error_log, Xdebug с breakpoints. Тесты — PHPUnit. На собесе спросят, как ты дебажишь.</p>
+  <ul>
+    <li><span class="t" data-t="vardump" tabindex="0">var_dump()</span>, <span class="t" data-t="printr" tabindex="0">print_r()</span>, <span class="t" data-t="varexport" tabindex="0">var_export()</span>.</li>
+    <li><span class="t" data-t="errorlog" tabindex="0">error_log()</span> — запись в лог.</li>
+    <li><span class="t" data-t="xdebug" tabindex="0">Xdebug</span> (шаговая отладка, профилирование).</li>
+    <li><span class="t" data-t="unittest" tabindex="0">Юнит-тестирование</span>: <span class="t" data-t="phpunit" tabindex="0">PHPUnit</span>.</li>
+  </ul>
+</section>
+
+<section class="card" id="s23">
+  <h2><span class="num">23</span> Composer и зависимости</h2>
+  <p class="desc">Composer — менеджер пакетов PHP: composer.json, секции require и require-dev, автозагрузка PSR-4. Без него не живёт ни один современный проект.</p>
+  <ul>
+    <li><span class="t" data-t="composerjson" tabindex="0">composer.json</span>, <span class="t" data-t="composer-require" tabindex="0">require</span>, <span class="t" data-t="requiredev" tabindex="0">require-dev</span>.</li>
+    <li>Автозагрузка (<span class="t" data-t="psr4" tabindex="0">PSR-4</span>).</li>
+    <li>Обновление зависимостей.</li>
+  </ul>
+</section>
+
+<section class="card" id="s24">
+  <h2><span class="num">24</span> Паттерны проектирования (хотя бы поверхностно)</h2>
+  <p class="desc">Паттерны — готовые решения типовых задач: Singleton, Factory, Dependency Injection, Repository, Observer. Хотя бы назвать и объяснить, зачем.</p>
+  <ul>
+    <li><span class="t" data-t="mvc" tabindex="0">MVC</span> (Model-View-Controller) — основа большинства фреймворков.</li>
+    <li><span class="t" data-t="singleton" tabindex="0">Singleton</span>, <span class="t" data-t="factory" tabindex="0">Factory</span>, <span class="t" data-t="di" tabindex="0">Dependency Injection</span>, <span class="t" data-t="repository" tabindex="0">Repository</span>, <span class="t" data-t="observer" tabindex="0">Observer</span>.</li>
+    <li>Понимание принципов <span class="t" data-t="solid" tabindex="0">SOLID</span>.</li>
+  </ul>
+</section>
+
+<section class="card" id="s25">
+  <h2><span class="num">25</span> Фреймворки (базовое знакомство)</h2>
+  <p class="desc">Фреймворк — готовый каркас сайта: Laravel, Symfony, Yii. Маршруты, ORM, шаблоны, авторизация из коробки. Laravel сейчас самый популярный.</p>
+  <ul>
+    <li><span class="t" data-t="laravel" tabindex="0">Laravel</span>, <span class="t" data-t="symfony" tabindex="0">Symfony</span>, <span class="t" data-t="yii" tabindex="0">Yii</span>, <span class="t" data-t="codeigniter" tabindex="0">CodeIgniter</span>.</li>
+    <li>Структура, <span class="t" data-t="orm" tabindex="0">ORM</span> (<span class="t" data-t="eloquent" tabindex="0">Eloquent</span>, <span class="t" data-t="doctrine" tabindex="0">Doctrine</span>), <span class="t" data-t="routing" tabindex="0">маршрутизация</span>, шаблонизаторы (<span class="t" data-t="blade" tabindex="0">Blade</span>, <span class="t" data-t="twig" tabindex="0">Twig</span>).</li>
+  </ul>
+</section>
+
+<section class="card" id="s26">
+  <h2><span class="num">26</span> REST API</h2>
+  <p class="desc">REST API — отдача данных по HTTP: методы GET/POST/PUT/DELETE, статус-коды (200, 404, 500), обмен в JSON. Авторизация через JWT или OAuth.</p>
+  <ul>
+    <li>Методы <span class="t" data-t="http" tabindex="0">HTTP</span>: <span class="t" data-t="http-get" tabindex="0">GET</span>, <span class="t" data-t="http-post" tabindex="0">POST</span>, <span class="t" data-t="http-put" tabindex="0">PUT</span>, <span class="t" data-t="http-delete" tabindex="0">DELETE</span>.</li>
+    <li>Форматы ответов: <span class="t" data-t="json" tabindex="0">JSON</span>, <span class="t" data-t="xml" tabindex="0">XML</span>.</li>
+    <li>Авторизация: <span class="t" data-t="jwt" tabindex="0">JWT</span>, <span class="t" data-t="oauth" tabindex="0">OAuth</span>.</li>
+    <li><span class="t" data-t="statuscode" tabindex="0">Статус-коды</span>.</li>
+  </ul>
+</section>
+
+<section class="card" id="s27">
+  <h2><span class="num">27</span> Кэширование и очереди</h2>
+  <p class="desc">Кэш — быстрое хранение тяжёлых данных (Redis, Memcached). Очереди — отложенные задачи (RabbitMQ, Redis). Ускоряют сайт и разгружают сервер.</p>
+  <ul>
+    <li>Кэширование: <span class="t" data-t="redis" tabindex="0">Redis</span>, <span class="t" data-t="memcached" tabindex="0">Memcached</span>, <span class="t" data-t="apc" tabindex="0">APC</span>.</li>
+    <li>Очереди: <span class="t" data-t="rabbitmq" tabindex="0">RabbitMQ</span>, <span class="t" data-t="redis" tabindex="0">Redis</span> (<span class="t" data-t="pubsub" tabindex="0">pub/sub</span>), очереди в БД.</li>
+  </ul>
+</section>
+
+<section class="card" id="s28">
+  <h2><span class="num">28</span> Работа с электронной почтой</h2>
+  <p class="desc">Почта: mail(), PHPMailer, SMTP-протокол. HTML-письма, вложения, отправка через внешние сервисы, чтобы не уходить в спам.</p>
+  <ul>
+    <li><span class="t" data-t="mail" tabindex="0">mail()</span>, <span class="t" data-t="phpmailer" tabindex="0">PHPMailer</span>, <span class="t" data-t="swiftmailer" tabindex="0">SwiftMailer</span> (отправка через <span class="t" data-t="smtp" tabindex="0">SMTP</span>).</li>
+  </ul>
+</section>
+
+<section class="card" id="s29">
+  <h2><span class="num">29</span> Обработка изображений</h2>
+  <p class="desc">Изображения: GD и Imagick — ресайз, обрезка, водяные знаки, конвертация форматов. Всё для загрузки аватарок и фоток.</p>
+  <ul>
+    <li><span class="t" data-t="gd" tabindex="0">GD</span>, <span class="t" data-t="imagick" tabindex="0">Imagick</span> (изменение размера, обрезка, наложение).</li>
+  </ul>
+</section>
+
+<section class="card" id="s30">
+  <h2><span class="num">30</span> Практические советы для собеседования</h2>
+  <p class="desc">Советы: повтори типы и сравнения, покажи понимание ООП, расскажи про безопасность, не ври в опыте и решай задачи вслух.</p>
+  <ul>
+    <li>Умей написать простой <span class="t" data-t="crud" tabindex="0">CRUD</span> с <span class="t" data-t="pdo" tabindex="0">PDO</span>.</li>
+    <li>Знай <span class="t" data-t="isset" tabindex="0">isset()</span>, <span class="t" data-t="empty" tabindex="0">empty()</span>, <span class="t" data-t="isnull" tabindex="0">is_null()</span> и их отличия.</li>
+    <li>Разница между <span class="t" data-t="include" tabindex="0">include</span> и <span class="t" data-t="require" tabindex="0">require</span>, <span class="t" data-t="echo" tabindex="0">echo</span> и <span class="t" data-t="print" tabindex="0">print</span>.</li>
+    <li>Объясни, как работает сессия (<span class="t" data-t="sg-cookie" tabindex="0">куки</span> + файл/база).</li>
+    <li>Примеры использования <span class="t" data-t="trait" tabindex="0">трейтов</span>, <span class="t" data-t="interface" tabindex="0">интерфейсов</span>, <span class="t" data-t="abstract" tabindex="0">абстрактных классов</span>.</li>
+    <li>Что такое <span class="t" data-t="vvars" tabindex="0">переменные переменные</span> (<span class="t" data-t="vvars-ex" tabindex="0">$$var</span>).</li>
+    <li>Понимай <span class="t" data-t="closure" tabindex="0">замыкания</span> и передачу по ссылке.</li>
+    <li>Будь готов к вопросам «что выведет код».</li>
+  </ul>
+  <div class="note">Совет: проговаривай определения вслух, а потом напиши мини-CRUD с PDO без подсказок — так тема закрепится надёжнее.</div>
+</section>
+
+</main>
+
+<footer>Интерактивный гайд собран по чек-листу из файла «пхп.txt» · Наведи курсор на любой термин — увидишь подсказку</footer>
+
+<div id="tt" role="tooltip"></div>
+
+<script>
+const DEFS_A = {
+  "php-tag": "<b>Открывающий тег PHP.</b> Код внутри <code>&lt;?php ... ?&gt;</code> выполняется на сервере. Всё вне тегов отдаётся браузеру как есть (HTML). Перед концом чистого PHP-файла закрывающий тег можно опускать.",
+  "semicolon": "<b>Точка с запятой.</b> Обязательный разделитель инструкций в PHP. Забытая <code>;</code> — частая причина синтаксических ошибок.",
+  "comment-line": "<b>Однострочный комментарий</b> — игнорируется интерпретатором до конца строки.",
+  "comment-sharp": "<b>Однострочный комментарий</b> через <code>#</code> — реже используется, но валиден в PHP.",
+  "comment-block": "<b>Многострочный комментарий</b> <code>/* ... */</code> — блок игнорируется, удобен для документации и временного отключения кода.",
+  "int": "<b>Целое число.</b> Скалярный тип: <code>42</code>, <code>-7</code>. Диапазон обычно 64-бит.",
+  "float": "<b>Число с плавающей точкой</b> (дробное): <code>3.14</code>, <code>2e10</code>. Не использовать для денег — есть погрешности.",
+  "string": "<b>Строка.</b> Последовательность символов в кавычках: <code>'text'</code> или <code>\"text\"</code>.",
+  "bool": "<b>Логический тип:</b> <code>true</code> или <code>false</code>. В условиях другие типы нестрого приводятся к нему.",
+  "array": "<b>Массив.</b> Упорядоченная структура «ключ → значение». Основной контейнер данных в PHP.",
+  "object": "<b>Объект.</b> Экземпляр класса; содержит свойства и методы.",
+  "callable": "<b>Вызываемое значение:</b> имя функции, массив [объект, метод], строка с функцией или замыкание. Принимается как тип параметра.",
+  "iterable": "<b>Итерируемый тип:</b> <code>array</code> или объект, реализующий <code>Traversable</code>. Можно использовать в <code>foreach</code>.",
+  "null": "<b>Отсутствие значения.</b> Отдельный тип. Проверяется через <code>is_null()</code>, <code>=== null</code> или <code>??</code>.",
+  "resource": "<b>Ресурс.</b> Ссылка на внешний ресурс: открытый файл, поток, соединение с БД или сокет. Создаётся спец-функциями вроде <code>fopen()</code>.",
+  "strict": "<b>Строгий режим типов.</b> <code>declare(strict_types=1)</code> в начале файла запрещает неявное приведение типов при вызове функций — вместо этого бросается <code>TypeError</code>. Действует только на файл, где объявлен.",
+  "dollar": "<b>Символ переменной.</b> Имя любой переменной в PHP начинается с <code>$</code>: <code>$name</code>. Имена чувствительны к регистру: <code>$Name</code> и <code>$name</code> — разные.",
+  "define": "<b>define()</b> — функция объявления константы вне класса: <code>define('APP_ENV', 'prod');</code>. Можно вызывать в любом месте кода.",
+  "const": "<b>const</b> — ключевое слово объявления константы. Работает на уровне класса и файла, но не внутри <code>if</code>/<code>for</code>.",
+  "phpversion": "<b>PHP_VERSION</b> — предопределённая константа со строкой текущей версии PHP (например, <code>8.3.0</code>).",
+  "dir": "<b>__DIR__</b> — магическая константа: абсолютный путь к директории текущего файла. Без слэша в конце.",
+  "file": "<b>__FILE__</b> — магическая константа: полный путь и имя текущего файла.",
+  "line": "<b>__LINE__</b> — магическая константа: номер текущей строки в файле.",
+  "scope": "<b>Область видимости.</b> Глобальная (вне функций) и локальная (внутри функции — недоступна снаружи и наоборот). Глобальную читают через <code>global</code> или <code>$GLOBALS</code>.",
+  "static-var": "<b>Статическая переменная.</b> Объявляется через <code>static $x = 0;</code> внутри функции и сохраняет значение между вызовами.",
+  "static-keyword": "<b>static</b> — ключевое слово. Внутри функции — статическая переменная; в ООП — статические методы/свойства и позднее статическое связывание (<code>static::</code>).",
+  "eq": "<b>Нестрогое сравнение</b> <code>==</code>: приводит типы, потом сравнивает. <code>1 == '1'</code> → true. Из-за этого ловят баги; на собесах любят спрашивать разницу с <code>===</code>.",
+  "eqeq": "<b>Строгое сравнение</b> <code>===</code>: сравнивает и значение, и тип без приведения. <code>1 === '1'</code> → false. Рекомендуется по умолчанию.",
+  "neq": "<b>Не равно</b> <code>!=</code> — отрицание нестрогого <code>==</code>.",
+  "neqeq": "<b>Строго не равно</b> <code>!==</code> — отрицание <code>===</code>.",
+  "spaceship": "<b>Оператор «космический корабль»</b> <code>&lt;=&gt;</code>: возвращает -1, 0 или 1. Удобен для компараторов в <code>usort()</code>. Появился в PHP 7.",
+  "and": "<b>Логическое И</b> <code>&amp;&amp;</code> — true, только если оба операнда истинны. Второй операнд вычисляется при необходимости.",
+  "or": "<b>Логическое ИЛИ</b> <code>||</code> — true, если хотя бы один операнд истинен.",
+  "not": "<b>Логическое отрицание</b> <code>!</code> — инвертирует булево значение.",
+  "ternary": "<b>Тернарный оператор</b> <code>? :</code> — сокращение для if/else. Сокращённая форма <code>$a ?: $b</code> вернёт <code>$b</code>, если <code>$a</code> ложно.",
+  "nullcoalesce": "<b>Оператор объединения с null</b> <code>??</code>: возвращает правый операнд, если левый не существует или равен <code>null</code>. <code>$name = $_GET['name'] ?? 'гость';</code> — заменяет связки <code>isset()</code>.",
+  "concat": "<b>Конкатенация строк</b> через точку: <code>'Hello ' . $name</code>.",
+  "indexed": "<b>Индексированный массив</b> — ключи-числа <code>0, 1, 2...</code>.",
+  "assoc": "<b>Ассоциативный массив</b> — строковые ключи: <code>['name' =&gt; 'Иван', 'age' =&gt; 30]</code>.",
+  "shortarr": "<b>Короткий синтаксис</b> <code>[]</code> — современный способ создания массива (PHP 5.4+).",
+  "arrayfn": "<b>array()</b> — старый (до 5.4) синтаксис создания массива. Встречается в легаси-коде.",
+  "count": "<b>count()</b> — количество элементов массива или свойств объекта.",
+  "merge": "<b>array_merge()</b> — сливает массивы. Строковые ключи перезаписываются, числовые — добавляются с новыми ключами.",
+  "map": "<b>array_map()</b> — применяет колбэк к каждому элементу и возвращает новый массив: <code>array_map(fn($x) =&gt; $x * 2, $arr)</code>.",
+  "filter": "<b>array_filter()</b> — оставляет элементы, для которых колбэк вернул true.",
+  "reduce": "<b>array_reduce()</b> — сводит массив к одному значению, аккумулируя результат колбэком.",
+  "inarray": "<b>in_array()</b> — проверяет, есть ли значение в массиве. Третий аргумент <code>true</code> — строгое сравнение.",
+  "keys": "<b>array_keys()</b> — возвращает массив всех ключей исходного массива.",
+  "values": "<b>array_values()</b> — возвращает все значения с переиндексацией числовыми ключами.",
+  "sort": "<b>Сортировки:</b> <code>sort()</code> — по значению с переиндексацией; <code>asort()</code> — по значению с сохранением ключей; <code>ksort()</code> — по ключам.",
+  "multi": "<b>Многомерный массив</b> — массив, элементы которого сами являются массивами.",
+  "destruct-arr": "<b>Деструктуризация</b> — распаковка массива в отдельные переменные: <code>[$a, $b] = $arr</code>.",
+  "destruct-ex": "<b>Пример:</b> <code>[$name, $age] = ['Иван', 30]</code> → <code>$name='Иван'</code>, <code>$age=30</code>.",
+  "sq": "<b>Одинарные кавычки</b> — строка без интерполяции: переменные не подставляются. Быстрее и предсказуемее.",
+  "dq": "<b>Двойные кавычки</b> — интерполируют переменные и спец-последовательности: <code>\"Привет, $name\"</code>.",
+  "heredoc": "<b>Heredoc</b> <code>&lt;&lt;&lt;EOT ... EOT</code> — многострочная строка с интерполяцией, как в двойных кавычках.",
+  "nowdoc": "<b>Nowdoc</b> <code>&lt;&lt;&lt;'EOT' ... EOT</code> — многострочная строка без интерполяции, как в одинарных кавычках.",
+  "strlen": "<b>strlen()</b> — длина строки в байтах. Для UTF-8 используй <code>mb_strlen()</code>.",
+  "strpos": "<b>strpos()</b> — позиция первого вхождения подстроки. Возвращает false, если не найдено — сравнивай через <code>===</code>.",
+  "substr": "<b>substr()</b> — вырезает часть строки по началу и длине.",
+  "strreplace": "<b>str_replace()</b> — заменяет все вхождения подстроки на другую.",
+  "trim": "<b>trim()</b> — удаляет пробелы (и другие символы) с начала и конца строки.",
+  "explode": "<b>explode()/implode()</b> — разбиение строки на массив по разделителю и обратная склейка массива в строку.",
+  "mb": "<b>mb_*</b> — семейство многобайтовых функций для корректной работы с UTF-8: <code>mb_strlen()</code>, <code>mb_substr()</code>, <code>mb_strtolower()</code> и др.",
+  "utf8": "<b>UTF-8</b> — кодировка, в которой кириллица занимает 2 байта, поэтому байтовые функции считают её некорректно — нужны <code>mb_*</code>.",
+  "if": "<b>if</b> — условный оператор: выполнить блок, если условие истинно.",
+  "elseif": "<b>elseif</b> — дополнительная ветка между <code>if</code> и <code>else</code>.",
+  "else": "<b>else</b> — ветка по умолчанию, выполняется, если ни одно условие не сработало.",
+  "switch": "<b>switch</b> — множественный выбор, сравнивает значение через нестрогое <code>==</code>. В PHP 8 для возврата значения лучше <code>match</code>.",
+  "for": "<b>for</b> — цикл со счётчиком: <code>for ($i=0; $i&lt;10; $i++)</code>.",
+  "while": "<b>while</b> — цикл, выполняется, пока условие истинно; проверка перед итерацией.",
+  "dowhile": "<b>do-while</b> — цикл, выполняется минимум один раз (проверка после итерации).",
+  "foreach": "<b>foreach</b> — перебор массивов и объектов: <code>foreach ($arr as $key =&gt; $value)</code>.",
+  "break": "<b>break</b> — досрочно прерывает текущий цикл или <code>switch</code>. <code>break 2</code> — выход из двух уровней.",
+  "continue": "<b>continue</b> — пропускает текущую итерацию цикла и переходит к следующей.",
+  "return": "<b>return</b> — завершает выполнение функции и возвращает значение. Вне функции завершает скрипт (или файл при <code>include</code>).",
+  "funcdef": "<b>Определение функции:</b> <code>function name($param) { ... }</code>. Обычно функции можно вызывать до объявления.",
+  "byref": "<b>Передача по ссылке</b> <code>&amp;$param</code> — функция получает не копию, а ссылку на переменную и может менять её в вызывающем коде.",
+  "argtype": "<b>Типизация</b> аргументов и возврата: <code>function f(int $a): string</code>. Со strict_types — <code>TypeError</code> при несовпадении.",
+  "mixed": "<b>mixed</b> — тип «любой»: параметр или возврат принимает что угодно (PHP 8.0).",
+  "closure": "<b>Анонимная функция / замыкание</b> — функция без имени, присваиваемая переменной: <code>$f = function($x) { return $x * 2; }</code>. Захватывает внешние переменные через <code>use</code>.",
+  "use-capture": "<b>use</b> в замыкании — список захватываемых внешних переменных: <code>function() use ($factor) { ... }</code>.",
+  "arrow": "<b>Стрелочная функция</b> — короткий синтаксис замыкания (PHP 7.4+), автоматически захватывает внешние переменные.",
+  "arrow-ex": "<b>Пример:</b> <code>fn($x) =&gt; $x * $factor</code> — возвращает произведение, автоматически захватывая <code>$factor</code>.",
+  "oop": "<b>ООП</b> — объектно-ориентированное программирование: моделирование сущностей через классы, объекты, инкапсуляцию, наследование и полиморфизм.",
+  "class": "<b>class</b> — объявление класса: «чертёж» объекта со свойствами и методами.",
+  "new": "<b>new</b> — создание экземпляра объекта: <code>$obj = new ClassName();</code>.",
+  "public": "<b>public</b> — модификатор доступа: свойство/метод доступны отовсюду.",
+  "protected": "<b>protected</b> — доступ только из класса и его наследников.",
+  "private": "<b>private</b> — доступ только из самого класса, наследники не видят.",
+  "construct": "<b>__construct()</b> — конструктор: вызывается автоматически при <code>new</code>. С PHP 8 свойства можно объявлять прямо в нём (промоушен).",
+  "destructor": "<b>__destruct()</b> — деструктор: вызывается при уничтожении объекта (конец скрипта, unset, сборка мусора).",
+  "extends": "<b>extends</b> — наследование: класс получает свойства и методы родителя: <code>class B extends A</code>. PHP — только одиночное наследование.",
+  "parent": "<b>parent::</b> — обращение к методу/свойству родительского класса из наследника: <code>parent::__construct()</code>.",
+  "interface": "<b>interface</b> — контракт: сигнатуры методов без реализации. Класс реализует его через <code>implements</code> и обязан реализовать все методы.",
+  "implements": "<b>implements</b> — реализация интерфейса. Класс может реализовать несколько интерфейсов: <code>class X implements A, B</code>.",
+  "trait": "<b>trait</b> — горизонтальное переиспользование кода: готовые методы «вклеиваются» в класс. Замена множественного наследования; класс может использовать несколько трейтов.",
+  "abstract": "<b>abstract</b> — абстрактный класс нельзя создать через <code>new</code>; он может содержать абстрактные методы без реализации, которые обязаны реализовать наследники.",
+  "final": "<b>final</b> — запрещает наследование класса или переопределение метода наследниками.",
+  "staticcall": "<b>static::</b> — позднее статическое связывание: обращение к текущему классу с учётом наследника, из которого вызван код.",
+  "self": "<b>self::</b> — обращение к текущему классу как к месту, где написан код (наследников не учитывает).",
+  "magic": "<b>Магические методы</b> — начинаются с <code>__</code>, вызываются автоматически в определённых ситуациях.",
+  "magic-get": "<b>__get($name)</b> — при чтении недоступного/несуществующего свойства.",
+  "magic-set": "<b>__set($name, $value)</b> — при записи в недоступное свойство.",
+  "magic-call": "<b>__call($name, $args)</b> — при вызове недоступного метода объекта.",
+  "magic-callstatic": "<b>__callStatic($name, $args)</b> — при вызове недоступного статического метода.",
+  "magic-tostring": "<b>__toString()</b> — строковое представление объекта при <code>echo $obj</code>.",
+  "magic-invoke": "<b>__invoke()</b> — позволяет вызывать объект как функцию: <code>$obj()</code>.",
+  "magic-clone": "<b>__clone()</b> — вызывается при клонировании объекта, нужен для глубокой копии вложенных объектов.",
+  "magic-sleep": "<b>__sleep()</b> — возвращает массив имён свойств для сериализации.",
+  "magic-wakeup": "<b>__wakeup()</b> — вызывается после <code>unserialize()</code> для восстановления объекта.",
+  "clone": "<b>clone</b> — создаёт копию объекта (поверхностную). Для глубокого копирования вложенных объектов используй <code>__clone()</code>.",
+  "namespace": "<b>namespace</b> — пространство имён: группирует классы во избежание конфликтов имён: <code>namespace App\\Models;</code>.",
+  "use-import": "<b>use</b> — импорт класса/функции/константы в текущий файл: <code>use App\\Models\\User;</code>.",
+  "autoload": "<b>Автозагрузка</b> — автоматическое подключение файла с классом при первом обращении к нему, без ручных <code>require</code>.",
+  "spl": "<b>spl_autoload_register()</b> — регистрация функции-автозагрузчика. Автозагрузка без Composer.",
+  "composer": "<b>Composer</b> — менеджер зависимостей PHP: устанавливает пакеты, генерирует автозагрузчик. Файл конфигурации — <code>composer.json</code>.",
+  "psr4": "<b>PSR-4</b> — стандарт автозагрузки: namespace сопоставляется с путём в файловой системе (<code>App\\Models\\User</code> → <code>src/Models/User.php</code>).",
+  "superglobal": "<b>Суперглобальные массивы</b> — предопределённые массивы PHP, доступные в любом месте кода без <code>global</code>.",
+  "sg-get": "<b>$_GET</b> — ассоциативный массив параметров строки запроса (из URL после <code>?</code>).",
+  "sg-post": "<b>$_POST</b> — данные, отправленные методом POST (тело формы, JSON и т.п.).",
+  "sg-request": "<b>$_REQUEST</b> — объединение <code>$_GET</code>, <code>$_POST</code> и <code>$_COOKIE</code>. Не рекомендуется для критичной логики из-за неоднозначности источника.",
+  "sg-session": "<b>$_SESSION</b> — данные текущей сессии, сохраняются между запросами (после <code>session_start()</code>).",
+  "sg-cookie": "<b>$_COOKIE</b> — куки, отправленные браузером. Устанавливаются на сервере через <code>setcookie()</code>.",
+  "sg-files": "<b>$_FILES</b> — информация о загруженных файлах: имя, тип, размер, временный путь, код ошибки.",
+  "sg-server": "<b>$_SERVER</b> — данные сервера и окружения: <code>REQUEST_METHOD</code>, <code>HTTP_HOST</code>, <code>REMOTE_ADDR</code> и др.",
+  "sg-env": "<b>$_ENV</b> — переменные окружения. В современных приложениях используются .env-файлы.",
+  "sg-globals": "<b>$GLOBALS</b> — массив всех глобальных переменных скрипта: <code>$GLOBALS['x']</code> из функции.",
+  "http-get": "<b>GET</b> — HTTP-метод: данные в URL, видимы, кэшируются, подходит для чтения и поиска.",
+  "http-post": "<b>POST</b> — HTTP-метод: данные в теле запроса, скрыты, не кэшируются, подходит для создания/изменения данных.",
+  "validation": "<b>Валидация</b> — проверка входных данных на корректность (формат, диапазон, обязательность) до их использования.",
+  "filtering": "<b>Фильтрация</b> — очистка/преобразование данных (удаление тегов, приведение к числу).",
+  "filterinput": "<b>filter_input()</b> — валидация и фильтрация внешних данных прямо из источника: <code>filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT)</code>.",
+  "htmlspecialchars": "<b>htmlspecialchars()</b> — экранирует спецсимволы HTML (<code>&lt;</code>, <code>&gt;</code>, <code>&amp;</code>, кавычки). Обязателен при выводе пользовательских данных — защита от XSS.",
+  "move": "<b>move_uploaded_file()</b> — перемещает загруженный файл из временной директории в постоянное место. Только для файлов из <code>$_FILES</code>.",
+  "session-start": "<b>session_start()</b> — начинает/возобновляет сессию, делает доступным <code>$_SESSION</code>. Вызывается до любого вывода.",
+  "session-destroy": "<b>session_destroy()</b> — уничтожает данные сессии на сервере. Куку сессии удаляют отдельно через <code>setcookie()</code> с истёкшим временем.",
+  "setcookie": "<b>setcookie()</b> — устанавливает куку: <code>setcookie('name', 'value', ['expires' =&gt; time()+3600, 'secure'=&gt;true, 'httponly'=&gt;true])</code>. Вызывается до вывода.",
+  "domain": "<b>domain</b> — параметр куки: домен, для которого действует кука (<code>.example.com</code> — все поддомены).",
+  "secure": "<b>secure</b> — флаг куки: отправлять только по HTTPS.",
+  "httponly": "<b>httponly</b> — флаг куки: недоступна из JavaScript, защищает от кражи через XSS.",
+  "mysqli": "<b>mysqli</b> — расширение для MySQL: процедурный и объектный стиль. Менее удобно, чем PDO, но распространено в легаси.",
+  "pdo": "<b>PDO</b> — PHP Data Objects: единый интерфейс для разных БД (MySQL, PostgreSQL, SQLite...). Рекомендуется: подготовленные запросы, транзакции, исключения.",
+  "prepared": "<b>Подготовленные запросы</b> — запрос-шаблон с плейсхолдерами (<code>?</code> или <code>:name</code>), параметры передаются отдельно. Сервер разделяет код и данные — SQL-инъекция невозможна.",
+  "sqlinj": "<b>SQL-инъекция</b> — атака: пользовательский ввод встраивается в SQL и изменяет его. Пример: <code>' OR '1'='1</code>. Защита — подготовленные запросы.",
+  "txn": "<b>Транзакция</b> — группа операций БД, выполняющихся как единое целое: либо все применяются, либо ни одна.",
+  "begin": "<b>beginTransaction()</b> — начало транзакции в PDO.",
+  "commit": "<b>commit()</b> — фиксация транзакции: сохраняет все изменения.",
+  "rollback": "<b>rollBack()</b> — откат транзакции: отменяет изменения с момента её начала.",
+  "eerror": "<b>E_ERROR</b> — фатальная ошибка: скрипт останавливается.",
+  "ewarning": "<b>E_WARNING</b> — предупреждение: скрипт продолжает работу.",
+  "enotice": "<b>E_NOTICE</b> — уведомление о потенциальной ошибке (необъявленная переменная и т.п.).",
+  "errorreporting": "<b>error_reporting()</b> — уровень ошибок, о которых PHP сообщает. На проде — <code>E_ALL</code>, но вывод на экран отключён.",
+  "displayerrors": "<b>display_errors</b> — директива: показывать ли ошибки в выводе. На проде — <code>Off</code>, ошибки пишутся в лог.",
+  "trycatch": "<b>try-catch-finally</b> — в <code>try</code> опасный код, в <code>catch</code> обработка исключения, в <code>finally</code> код, который выполнится всегда.",
+  "throw": "<b>throw</b> — генерация исключения: <code>throw new Exception('...');</code>. С PHP 8 — выражение, можно в <code>?:</code> и стрелочных функциях.",
+  "exceptionhandler": "<b>set_exception_handler()</b> — глобальный обработчик необработанных исключений (логирование, 500-ответ).",
+  "errorhandler": "<b>set_error_handler()</b> — глобальный обработчик ошибок уровня warning/notice; можно превращать их в исключения.",
+  "include": "<b>include</b> — подключает файл; при ошибке выдаёт предупреждение (E_WARNING) и продолжает выполнение.",
+  "require": "<b>require</b> — подключает файл; при ошибке выдаёт фатальную ошибку и останавливает скрипт.",
+  "includeonce": "<b>include_once</b> — как <code>include</code>, но файл подключается только один раз.",
+  "requireonce": "<b>require_once</b> — как <code>require</code>, но с защитой от повторного подключения."
+};
+const DEFS_B = {
+  "php7": "<b>PHP 7</b> (2015) — крупный релиз: скалярные типы, возвращаемые типы, <code>??</code>, <code>&lt;=&gt;</code>, группа <code>use</code>, анонимные классы, заметный прирост производительности.",
+  "php8": "<b>PHP 8</b> (2020+) — именованные аргументы, атрибуты, промоушен свойств в конструкторе, <code>match</code>, <code>enum</code>, типы <code>mixed</code>/<code>never</code>, функции <code>str_*</code> и многое другое.",
+  "named-args": "<b>Именованные аргументы</b> (PHP 8) — передача по имени параметра: <code>func(name: 'Иван', age: 30)</code>. Не зависит от порядка, код читается лучше.",
+  "attribute": "<b>Атрибуты (аннотации)</b> — метаданные через <code>#[...]</code> над классами, методами, свойствами. Читаются через Reflection. В Laravel это роуты, мидлвары и др.",
+  "promotion": "<b>Конструктор свойств</b> (PHP 8) — свойство объявляется прямо в параметре конструктора: <code>__construct(private string $name)</code> — PHP сам создаст свойство и присвоит значение.",
+  "match": "<b>match</b> (PHP 8) — выражение сравнения со строгим <code>===</code>; возвращает значение и не требует <code>break</code>: <code>$x = match($status) { 1 =&gt; 'a', default =&gt; 'b' };</code>.",
+  "enum": "<b>enum</b> (PHP 8.1) — перечисление: тип с фиксированным набором значений. Может иметь бекед-значения (<code>enum Status: string</code>), методы, реализовывать интерфейсы.",
+  "static-ret": "<b>static</b> как тип возврата (PHP 8) — функция возвращает экземпляр класса, из которого вызвана (в отличие от <code>self</code> — может быть наследник).",
+  "never": "<b>never</b> (PHP 8.1) — тип возврата для функций, которые не возвращают управление: <code>exit</code>, <code>die</code>, бесконечный цикл.",
+  "throw-expr": "<b>throw как выражение</b> (PHP 8) — <code>throw</code> можно писать в тернарнике, стрелочных функциях: <code>$x ?? throw new Exception()</code>.",
+  "str-contains": "<b>str_contains($haystack, $needle)</b> (PHP 8) — содержит ли строка подстроку. Возвращает bool.",
+  "str-starts": "<b>str_starts_with()</b> (PHP 8) — начинается ли строка с заданной подстроки.",
+  "str-ends": "<b>str_ends_with()</b> (PHP 8) — заканчивается ли строка заданной подстрокой.",
+  "xss": "<b>XSS</b> — Cross-Site Scripting: внедрение JavaScript в страницу через пользовательский ввод. Защита: экранирование вывода (<code>htmlspecialchars()</code>), CSP-заголовки.",
+  "striptags": "<b>strip_tags()</b> — удаляет HTML/PHP теги из строки.",
+  "csrf": "<b>CSRF</b> — Cross-Site Request Forgery: подделка межсайтовых запросов, когда браузер жертвы отправляет запрос от её имени. Защита: скрытый токен в формах, SameSite-куки.",
+  "token": "<b>Токен CSRF</b> — секретное одноразовое значение, генерируется на сервере, подставляется в форму и проверяется при обработке запроса.",
+  "passhash": "<b>password_hash()</b> — безопасное хеширование пароля: <code>password_hash($pass, PASSWORD_DEFAULT)</code>. Хеш включает соль, алгоритм и параметры. Не храни пароли в открытом виде и в md5.",
+  "passverify": "<b>password_verify()</b> — проверка пароля против хеша: <code>password_verify($input, $hash)</code>. Сама разбирает хеш (алгоритм, соль) из сохранённой строки.",
+  "date": "<b>date()</b> — форматирует метку времени: <code>date('Y-m-d H:i:s')</code>.",
+  "time": "<b>time()</b> — текущая Unix-метка времени (секунды с 01.01.1970).",
+  "strtotime": "<b>strtotime()</b> — разбирает текстовую дату в метку: <code>strtotime('next monday')</code>, <code>strtotime('+1 day')</code>.",
+  "datetime": "<b>DateTime</b> — класс ООП-работы с датой: <code>format()</code>, <code>modify()</code>, <code>diff()</code>. Учитывает часовой пояс.",
+  "datetimeimmutable": "<b>DateTimeImmutable</b> — как <code>DateTime</code>, но методы возвращают новый объект вместо изменения текущего. Рекомендуется: безопаснее.",
+  "dateinterval": "<b>DateInterval</b> — интервал времени (разница между датами): <code>new DateInterval('P1M')</code> (1 месяц).",
+  "datetimezone": "<b>DateTimeZone</b> — часовой пояс: <code>new DateTimeZone('Europe/Moscow')</code>.",
+  "json": "<b>JSON</b> — JavaScript Object Notation: текстовый формат обмена данными (<code>{\"name\":\"Иван\"}</code>). Стандарт де-факто для REST API.",
+  "jsonencode": "<b>json_encode()</b> — преобразует массив/объект PHP в строку JSON. Опции: <code>JSON_UNESCAPED_UNICODE</code>, <code>JSON_PRETTY_PRINT</code>.",
+  "jsondecode": "<b>json_decode()</b> — разбирает JSON в массив (если <code>true</code>) или объект. Возвращает <code>null</code> при ошибке — проверяй через <code>json_last_error()</code>.",
+  "serialize": "<b>serialize()</b> — нативная сериализация PHP-значения в строку (сохраняет типы и вложенность).",
+  "unserialize": "<b>unserialize()</b> — восстанавливает значение из строки <code>serialize()</code>. ОПАСНО с непроверенными данными (возможен RCE) — не применяй к пользовательскому вводу.",
+  "pcre": "<b>PCRE</b> — Perl Compatible Regular Expressions: диалект регулярных выражений в PHP (функции <code>preg_*</code>).",
+  "pregmatch": "<b>preg_match()</b> — проверка строки на совпадение с регуляркой; возвращает 1/0, по ссылке отдаёт массив совпадений.",
+  "pregmatchall": "<b>preg_match_all()</b> — находит ВСЕ совпадения регулярки в строке.",
+  "pregreplace": "<b>preg_replace()</b> — заменяет совпадения регулярки на строку (поддерживает бэкреференсы: <code>$1</code>).",
+  "pregsplit": "<b>preg_split()</b> — разбивает строку в массив по регулярному выражению.",
+  "metachar": "<b>Метасимволы</b> — спецсимволы регулярки: <code>.</code> (любой символ), <code>^</code>/<code>$</code> (начало/конец), <code>\\d</code> (цифра), <code>\\w</code> (буква), <code>\\s</code> (пробел), <code>[]</code> (набор), <code>()</code> (группа).",
+  "quant": "<b>Квантификаторы</b> — количество повторов: <code>*</code> (0+), <code>+</code> (1+), <code>?</code> (0 или 1), <code>{n,m}</code> (от n до m).",
+  "modifiers": "<b>Модификаторы</b> — флаги после закрывающего слэша, меняют поведение регулярки.",
+  "mod-i": "<b>i</b> — игнорировать регистр: <code>/php/i</code> найдёт PHP, php, PhP.",
+  "mod-u": "<b>u</b> — режим UTF-8: корректная работа с многобайтовыми символами (кириллица).",
+  "mod-s": "<b>s</b> — «dotall»: точка <code>.</code> начинает ловить и перенос строки <code>\\n</code>.",
+  "fopen": "<b>fopen()</b> — открывает файл/поток с режимом доступа: <code>'r'</code>, <code>'w'</code>, <code>'a'</code> и др. Возвращает ресурс.",
+  "fread": "<b>fread($fp, $len)</b> — читает до <code>$len</code> байт из открытого файла.",
+  "fwrite": "<b>fwrite($fp, $data)</b> — записывает строку в открытый файл.",
+  "fclose": "<b>fclose($fp)</b> — закрывает файл, освобождает ресурс.",
+  "fileget": "<b>file_get_contents()</b> — читает весь файл/URL в строку. Проще, чем <code>fopen+fread</code>.",
+  "fileput": "<b>file_put_contents()</b> — пишет строку в файл (создаёт при необходимости).",
+  "scandir": "<b>scandir()</b> — возвращает список файлов и директорий в папке.",
+  "mkdir": "<b>mkdir()</b> — создаёт директорию: <code>mkdir($path, 0755, true)</code> (recursive).",
+  "rmdir": "<b>rmdir()</b> — удаляет ПУСТУЮ директорию.",
+  "unlink": "<b>unlink()</b> — удаляет файл.",
+  "vardump": "<b>var_dump()</b> — выводит тип и значение переменной (с вложенностью). Основной инструмент отладки.",
+  "printr": "<b>print_r()</b> — читаемый вывод переменной (без типа).",
+  "varexport": "<b>var_export()</b> — выводит переменную в виде валидного PHP-кода (можно сохранить в файл).",
+  "errorlog": "<b>error_log()</b> — записывает сообщение в лог ошибок сервера (а не на экран).",
+  "xdebug": "<b>Xdebug</b> — расширение для отладки: шаговое выполнение, точки останова, трассировка, профилирование. Работает с IDE.",
+  "unittest": "<b>Юнит-тестирование</b> — автоматическая проверка отдельных единиц кода (функций, классов) на корректность.",
+  "phpunit": "<b>PHPUnit</b> — стандартный фреймворк юнит-тестирования PHP. Тесты — классы с методами-проверками и ассертами (<code>assertSame</code> и др.).",
+  "composerjson": "<b>composer.json</b> — файл конфигурации проекта для Composer: зависимости, автозагрузка, скрипты, метаданные.",
+  "composer-require": "<b>require</b> в composer.json — секция зависимостей для продакшена (ставится всегда).",
+  "requiredev": "<b>require-dev</b> — зависимости только для разработки (PHPUnit и т.п.): ставятся с флагом <code>--dev</code>, не ставятся с <code>--no-dev</code>.",
+  "mvc": "<b>MVC</b> — Model-View-Controller: разделение на модель (данные/бизнес-логика), представление (view/шаблоны) и контроллер (обработка запроса). Основа большинства фреймворков.",
+  "singleton": "<b>Singleton</b> — паттерн: ровно один экземпляр класса (статический метод получения). В фреймворках часто заменяется контейнером DI.",
+  "factory": "<b>Factory</b> — паттерн: фабричный метод/класс для создания объектов, скрывающий логику создания.",
+  "di": "<b>Dependency Injection</b> — внедрение зависимостей: объект получает зависимости извне (конструктор/сеттер), а не создаёт внутри. Ключевой принцип Laravel/Symfony.",
+  "repository": "<b>Repository</b> — паттерн: слой абстракции между приложением и источником данных; инкапсулирует запросы к БД.",
+  "observer": "<b>Observer</b> — паттерн: наблюдатели подписываются на события и реагируют на изменения субъекта.",
+  "solid": "<b>SOLID</b> — 5 принципов ООП: S — единственная ответственность, O — открытость/закрытость, L — подстановка Лисков, I — разделение интерфейсов, D — инверсия зависимостей.",
+  "laravel": "<b>Laravel</b> — самый популярный PHP-фреймворк: Eloquent ORM, Blade-шаблоны, artisan, миграции, экосистема пакетов.",
+  "symfony": "<b>Symfony</b> — мощный компонентный фреймворк, основа многих других. Стабильность и enterprise-подход.",
+  "yii": "<b>Yii</b> — быстрый PHP-фреймворк с генераторами кода (Gii), популярен в русскоязычной разработке.",
+  "codeigniter": "<b>CodeIgniter</b> — лёгкий фреймворк без лишней абстракции, простой для старта.",
+  "orm": "<b>ORM</b> — Object-Relational Mapping: отображение таблиц БД на объекты PHP. Позволяет работать с данными через объекты вместо SQL.",
+  "eloquent": "<b>Eloquent</b> — ORM Laravel: модели, отношения, построитель запросов, миграции, события.",
+  "doctrine": "<b>Doctrine</b> — ORM (в основном для Symfony): маппинги через атрибуты, DQL-запросы.",
+  "routing": "<b>Маршрутизация</b> — сопоставление URL-пути с контроллером/обработчиком. Задаётся в route-файлах.",
+  "blade": "<b>Blade</b> — шаблонизатор Laravel: синтаксис <code>{{ $var }}</code>, наследование шаблонов, компоненты.",
+  "twig": "<b>Twig</b> — шаблонизатор Symfony: автоэкранирование, песочница, безопасный по умолчанию.",
+  "http": "<b>HTTP</b> — HyperText Transfer Protocol: протокол передачи данных в вебе. Запрос имеет метод, URI, заголовки и тело; ответ — статус-код и тело.",
+  "http-put": "<b>PUT</b> — HTTP-метод полной замены ресурса (идемпотентный).",
+  "http-delete": "<b>DELETE</b> — HTTP-метод удаления ресурса (идемпотентный).",
+  "xml": "<b>XML</b> — расширяемый язык разметки (<code>&lt;user&gt;&lt;name&gt;Иван&lt;/name&gt;&lt;/user&gt;</code>). Используется в старых API и SOAP.",
+  "jwt": "<b>JWT</b> — JSON Web Token: компактный токен из трёх частей (header.payload.signature), подписанный секретом. Передаётся в <code>Authorization: Bearer ...</code>, позволяет делать API stateless.",
+  "oauth": "<b>OAuth</b> — протокол авторизации: стороннее приложение получает доступ к данным через access-токены без передачи логина/пароля («войти через Google»).",
+  "statuscode": "<b>Статус-коды HTTP</b> — результат запроса: 200 OK, 201 Created, 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 422 Validation, 500 Internal Server Error.",
+  "redis": "<b>Redis</b> — in-memory хранилище (ключ-значение). Для кэша, сессий, очередей, счётчиков. Высокая скорость.",
+  "memcached": "<b>Memcached</b> — распределённый кэш-сервер в памяти. Проще и легче Redis, но без структур данных и персистентности.",
+  "apc": "<b>APC</b> — исторически кэш opcode (скомпилированного PHP-кода). В современных версиях заменён на <b>OPcache</b>.",
+  "rabbitmq": "<b>RabbitMQ</b> — брокер сообщений: принимает сообщения, маршрутизирует по очередям, отдаёт обработчикам. Основа async-архитектур.",
+  "pubsub": "<b>pub/sub</b> — publish/subscribe: издатель публикует сообщение в канал, все подписчики получают копию.",
+  "mail": "<b>mail()</b> — встроенная функция отправки почты через локальный MTA. Простая, но без SMTP-авторизации и вложений.",
+  "phpmailer": "<b>PHPMailer</b> — популярная библиотека отправки почты: SMTP-авторизация, вложения, HTML-письма.",
+  "swiftmailer": "<b>SwiftMailer</b> — библиотека почты, предшественник Symfony Mailer. Отправка через SMTP.",
+  "smtp": "<b>SMTP</b> — Simple Mail Transfer Protocol: протокол отправки почты через почтовый сервер.",
+  "gd": "<b>GD</b> — расширение для работы с изображениями: создание, изменение размера, обрезка, наложение текста.",
+  "imagick": "<b>Imagick</b> — расширение на базе ImageMagick: мощная обработка изображений, форматов больше, чем в GD.",
+  "crud": "<b>CRUD</b> — Create, Read, Update, Delete: базовые операции с данными (создать, прочитать, обновить, удалить). Классическая задача на собеседовании — простой CRUD на PDO.",
+  "isset": "<b>isset()</b> — true, если переменная существует и не равна <code>null</code>. <code>isset($a)</code> → false для необъявленной переменной.",
+  "empty": "<b>empty()</b> — true, если переменная «пустая»: <code>null</code>, <code>false</code>, <code>0</code>, <code>''</code>, <code>[]</code>. Не генерирует notice для необъявленной переменной.",
+  "isnull": "<b>is_null()</b> — true, только если значение — <code>null</code>. Необъявленная переменная вызовет notice.",
+  "echo": "<b>echo</b> — конструкция вывода строки; может принимать несколько аргументов и не возвращает значение.",
+  "print": "<b>print</b> — конструкция вывода одной строки; в отличие от echo возвращает 1 (можно использовать в выражениях).",
+  "vvars": "<b>Переменные переменных</b> — имя одной переменной используется как имя другой: <code>$$var</code>. Сложно читается, на собесе могут спросить, что это.",
+  "vvars-ex": "<b>Пример:</b> <code>$name = 'user'; $$name = 'Иван';</code> создаст <code>$user = 'Иван'</code>."
+};
+
+const DEFS = Object.assign({}, DEFS_A, DEFS_B);
+
+const tt = document.getElementById('tt');
+let timer = null;
+let current = null;
+
+function position(el) {
+  const r = el.getBoundingClientRect();
+  const tw = tt.offsetWidth;
+  const th = tt.offsetHeight;
+  let x = r.left + r.width / 2 - tw / 2;
+  if (x < 8) x = 8;
+  if (x + tw > window.innerWidth - 8) x = window.innerWidth - tw - 8;
+  let y = r.top - th - 8;
+  if (y < 8) y = r.bottom + 8;
+  if (y + th > window.innerHeight - 8) y = window.innerHeight - th - 8;
+  tt.style.left = x + 'px';
+  tt.style.top = y + 'px';
+}
+
+function show(el, key) {
+  const html = DEFS[key] || '';
+  if (!html) return;
+  tt.innerHTML = html;
+  tt.dataset.key = key;
+  tt.style.display = 'block';
+  position(el);
+}
+
+function hide() {
+  clearTimeout(timer);
+  tt.style.display = 'none';
+}
+
+document.addEventListener('mouseover', function (e) {
+  const el = e.target.closest('.t');
+  if (!el) {
+    hide();
+    current = null;
+    return;
+  }
+  const key = el.dataset.t;
+  if (!DEFS[key]) { current = el; return; }
+  if (current === el) return;
+  current = el;
+  clearTimeout(timer);
+  timer = setTimeout(function () { show(el, key); }, 160);
+});
+
+document.addEventListener('click', function (e) {
+  const el = e.target.closest('.t');
+  if (!el) { hide(); return; }
+  e.preventDefault();
+  if (tt.style.display === 'block' && tt.dataset.key === el.dataset.t) { hide(); return; }
+  show(el, el.dataset.t);
+});
+
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') { hide(); return; }
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const el = document.activeElement;
+  if (el && el.classList && el.classList.contains('t')) {
+    e.preventDefault();
+    if (tt.style.display === 'block' && tt.dataset.key === el.dataset.t) { hide(); return; }
+    show(el, el.dataset.t);
+  }
+});
+
+document.addEventListener('scroll', hide, true);
+window.addEventListener('resize', hide);
+
+document.getElementById('termCount').textContent = 'терминов: ' + document.querySelectorAll('.t').length;
+</script>
+</body>
+</html>

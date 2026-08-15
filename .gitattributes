@@ -1,0 +1,3 @@
+# Гайды — документация, не код. Не учитываются в статистике языков.
+guides/*.html linguist-documentation
+screenshots/*.png linguist-documentation

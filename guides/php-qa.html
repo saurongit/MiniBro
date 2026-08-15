@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PHP — 100 вопросов и ответов к собеседованию</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#1e293b; --card2:#16213a;
+    --text:#e2e8f0; --muted:#94a3b8;
+    --accent:#38bdf8; --accent2:#818cf8; --line:#334155;
+    --good:#22c55e; --goodbg:rgba(34,197,94,.12);
+    --warn:#f97316; --warnbg:rgba(249,115,22,.12);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:linear-gradient(180deg,#0b1222 0%,var(--bg) 100%);
+    color:var(--text);
+    font-family:Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size:15px; line-height:1.6;
+    padding-bottom:80px;
+  }
+  a{color:var(--accent);}
+
+  .banner{max-width:960px; margin:0 auto; padding:32px 20px 8px; text-align:center;}
+  .banner h1{
+    font-size:27px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    margin-bottom:8px;
+  }
+  .banner p{color:var(--muted); font-size:14px;}
+  .badge{
+    display:inline-block; margin-top:12px; padding:6px 14px; border-radius:999px;
+    background:rgba(56,189,248,.12); border:1px solid rgba(56,189,248,.35);
+    color:var(--accent); font-size:12.5px; font-weight:600;
+  }
+
+  .controls{
+    position:sticky; top:0; z-index:600;
+    background:rgba(15,23,42,.94); backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+    padding:10px 14px; margin-top:16px;
+  }
+  .controls .row{max-width:960px; margin:0 auto; display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:center;}
+  #search{
+    flex:1 1 260px; min-width:200px; max-width:420px;
+    background:var(--card2); border:1px solid var(--line); color:var(--text);
+    border-radius:8px; padding:7px 12px; font-size:13.5px; outline:none;
+  }
+  #search:focus{border-color:var(--accent);}
+  .btn{
+    background:var(--card2); color:var(--text); border:1px solid var(--line);
+    border-radius:8px; padding:7px 12px; font-size:12.5px; cursor:pointer; transition:.15s;
+    font-family:inherit;
+  }
+  .btn:hover{border-color:var(--accent); color:var(--accent);}
+  .btn.primary{border-color:rgba(56,189,248,.5); color:var(--accent);}
+  .btn.primary:hover{background:rgba(56,189,248,.12);}
+
+  .chips{max-width:960px; margin:12px auto 0; display:flex; flex-wrap:wrap; gap:6px; justify-content:center;}
+  .chip{
+    background:var(--card2); color:var(--muted); border:1px solid var(--line);
+    border-radius:999px; padding:4px 11px; font-size:11.5px; cursor:pointer; transition:.15s;
+    font-family:inherit;
+  }
+  .chip:hover{color:var(--text); border-color:var(--accent);}
+  .chip.active{background:rgba(56,189,248,.15); border-color:var(--accent); color:var(--accent); font-weight:600;}
+
+  .progress-wrap{max-width:960px; margin:14px auto 0;}
+  .progress-bar{height:10px; background:var(--card2); border:1px solid var(--line); border-radius:999px; overflow:hidden;}
+  .progress-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--accent),var(--accent2)); transition:width .3s;}
+  .progress-meta{display:flex; justify-content:space-between; color:var(--muted); font-size:12px; margin-top:5px;}
+
+  main{max-width:960px; margin:0 auto; padding:22px 20px;}
+
+  section.card{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:16px 18px; margin-bottom:18px;
+    box-shadow:0 4px 18px rgba(0,0,0,.25);
+  }
+  section.card.hidden{display:none;}
+  section.card h2{
+    font-size:16.5px; margin-bottom:4px; color:var(--accent);
+    display:flex; align-items:center; gap:8px;
+  }
+  section.card .sub{font-size:12px; color:var(--muted); margin-bottom:12px;}
+
+  .qa{
+    border:1px solid var(--line); border-left:3px solid var(--accent2);
+    border-radius:10px; margin-bottom:10px; background:var(--card2);
+    transition:border-color .2s;
+  }
+  .qa.know{border-left-color:var(--good); border-color:rgba(34,197,94,.45);}
+  .qa.repeat{border-left-color:var(--warn); border-color:rgba(249,115,22,.45);}
+  .qa.open{border-left-color:var(--accent);}
+
+  .qbtn{
+    width:100%; display:flex; align-items:flex-start; gap:10px; text-align:left;
+    background:transparent; border:none; color:var(--text); cursor:pointer;
+    padding:11px 14px; font-family:inherit; font-size:14px; line-height:1.5;
+  }
+  .qbtn:hover{background:rgba(56,189,248,.06);}
+  .qbtn .num{
+    flex:0 0 auto; min-width:34px; height:22px; border-radius:6px; margin-top:2px;
+    background:rgba(129,140,248,.15); border:1px solid rgba(129,140,248,.4);
+    color:var(--accent2); display:inline-flex; align-items:center; justify-content:center;
+    font-size:11.5px; font-weight:700;
+  }
+  .qbtn .chev{margin-left:auto; color:var(--muted); transition:transform .2s; font-size:12px; padding-top:4px;}
+  .qa.open .chev{transform:rotate(90deg);}
+  .qa .qmark{display:inline-block; margin-right:6px; color:var(--accent);}
+
+  .a{display:none; padding:2px 14px 12px; border-top:1px dashed var(--line);}
+  .qa.open .a{display:block;}
+  .atext{font-size:14px; color:#cbd5e1; padding-top:10px;}
+  .atext code{color:#a5f3fc;}
+  .aqbtn{font-size:12.5px; font-weight:600;}
+
+  .abtns{display:flex; gap:8px; margin-top:11px; flex-wrap:wrap;}
+  .abtns .btn{padding:5px 13px; font-size:12px;}
+  .btn.know-btn:hover{border-color:var(--good); color:var(--good);}
+  .btn.repeat-btn:hover{border-color:var(--warn); color:var(--warn);}
+  .qa.know .know-btn{background:var(--goodbg); border-color:var(--good); color:var(--good);}
+  .qa.repeat .repeat-btn{background:var(--warnbg); border-color:var(--warn); color:var(--warn);}
+
+  code{
+    font-family:Consolas, "Cascadia Mono", monospace;
+    font-size:12.5px; background:#0b1222; border:1px solid var(--line);
+    padding:1px 5px; border-radius:5px; color:#c4b5fd;
+  }
+
+  .t{
+    color:var(--accent);
+    border-bottom:1px dashed rgba(56,189,248,.55);
+    cursor:help; padding:0 2px; border-radius:3px; transition:background .12s;
+  }
+  .t:hover{background:rgba(56,189,248,.16);}
+
+  #tt{
+    display:none; position:fixed; z-index:2000;
+    max-width:340px; min-width:200px;
+    background:#f8fafc; color:#0f172a;
+    border:1px solid #cbd5e1; border-radius:9px;
+    padding:10px 13px; font-size:13px; line-height:1.5;
+    box-shadow:0 10px 30px rgba(0,0,0,.45);
+    pointer-events:none;
+  }
+  #tt b{color:#0369a1;}
+  #tt code{background:#e2e8f0; color:#7c3aed; border-color:#cbd5e1; font-size:12px;}
+
+  .empty{display:none; text-align:center; color:var(--muted); padding:40px 0; font-size:15px;}
+  .empty.show{display:block;}
+  .shpargalka{
+    margin-top:10px; padding:10px 14px; border-radius:9px;
+    background:rgba(251,191,36,.07); border:1px solid rgba(251,191,36,.3);
+    color:#fde68a; font-size:13px;
+  }
+
+  footer{
+    max-width:960px; margin:20px auto 0; padding:0 20px;
+    color:var(--muted); font-size:12.5px; text-align:center;
+  }
+  @media (max-width:600px){
+    .banner h1{font-size:21px;}
+    section.card{padding:12px;}
+    .controls{position:static;}
+    #tt{max-width:260px; font-size:12px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="banner">
+  <h1>PHP — вопросник-ответник к собеседованию</h1>
+  <p>Кликни по вопросу — откроется ответ. Пометь себя: «Знаю» / «Повторить», прогресс сохраняется в браузере.<br>
+     Наведи курсор на подчёркнутый термин в ответе — появится подсказка.</p>
+  <span class="badge" id="qcount">вопросов: …</span>
+</header>
+
+<div class="controls">
+  <div class="row">
+    <input id="search" type="text" placeholder="Поиск по вопросам и ответам…" autocomplete="off">
+    <button class="btn primary" id="btn-all">Показать все ответы</button>
+    <button class="btn" id="btn-hide">Скрыть все</button>
+    <button class="btn primary" id="btn-random">🎲 Случайный вопрос</button>
+    <button class="btn" id="btn-reset">Сбросить прогресс</button>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-meta">
+      <span id="progress-total">Отвечено: 0</span>
+      <span id="progress-know">Знаю: 0</span>
+      <span id="progress-repeat">Повторить: 0</span>
+    </div>
+  </div>
+</div>
+
+<main id="container"></main>
+
+<div class="empty" id="empty">Ничего не найдено. Попробуй другой запрос.</div>
+
+<footer>Собрано по файлам «вопросы.txt» и «ответы.txt» · 100 вопросов + 3 бонус-задачи</footer>
+
+<div id="tt" role="tooltip"></div>
+
+<script>
+const DATA = [
+  { t: "Базовый синтаксис и типы", icon: "🔤", qa: [
+    { q: "Какие теги используются для встраивания PHP в HTML?", a: "Основной <code>&lt;?php ... ?&gt;</code>, короткий для вывода <code>&lt;?= ... ?&gt;</code>." },
+    { q: "Чем отличаются <code>require</code> и <code>include</code>? А <code>require_once</code>?", a: "<code>require</code> — фатальная ошибка (скрипт стоп). <code>include</code> — предупреждение (скрипт продолжается). <code>*_once</code> — гарантирует, что файл подключится только один раз." },
+    { q: "Какие скалярные и сложные типы данных существуют в PHP?", a: "Скалярные: <code>int</code>, <code>float</code>, <code>string</code>, <code>bool</code>. Сложные: <code>array</code>, <code>object</code>, <code>callable</code>, <code>iterable</code>. Спец: <code>null</code>, <code>resource</code>." },
+    { q: "Что делает директива <code>declare(strict_types=1);</code> и зачем она нужна?", a: "Включает строгую типизацию. Без неё PHP приводит типы (например, <code>'5'</code> станет <code>5</code>). С ней — несовпадение типов выбросит <code>TypeError</code>." },
+    { q: "Чем принципиально отличается <code>null</code> от <code>false</code>?", a: "<code>null</code> — отсутствие значения, <code>false</code> — ложь. <code>null == false</code> → true (приведение), <code>null === false</code> → false." },
+    { q: "Что такое <code>resource</code> в PHP? Приведи примеры.", a: "Внешний источник (файл, сокет, соединение с БД). Пример: <code>fopen()</code>, <code>mysqli_connect()</code>." },
+    { q: "Что произойдёт, если обратиться к неопределённой переменной?", a: "В PHP 8+ выбросит <code>Error</code> (исключение). В старых версиях — <code>E_WARNING</code>, переменная равна <code>null</code>." },
+    { q: "Как объявить константу вне класса? А внутри класса?", a: "Вне класса: <code>define('NAME', 'val')</code> или <code>const NAME = 'val'</code>. Внутри класса: только <code>const NAME = 'val'</code>." },
+    { q: "В чём разница между <code>define()</code> и <code>const</code>?", a: "<code>const</code> — на этапе компиляции (быстрее, работает в классах). <code>define()</code> — в рантайме (можно задавать динамически)." },
+    { q: "Какие предопределённые магические константы (вроде <code>__DIR__</code>) вы знаете?", a: "<code>__DIR__</code>, <code>__FILE__</code>, <code>__LINE__</code>, <code>__FUNCTION__</code>, <code>__CLASS__</code>, <code>__METHOD__</code>, <code>__NAMESPACE__</code>, <code>__TRAIT__</code>." }
+  ]},
+  { t: "Операторы и сравнения", icon: "➗", qa: [
+    { q: "Чем отличается <code>==</code> от <code>===</code>? Приведи неочевидный пример (<code>'php' == 0</code>).", a: "<code>==</code> — равенство с приведением типов. <code>===</code> — строгое (тип + значение). <code>'php' == 0</code> → true (строка без чисел становится 0)." },
+    { q: "Что такое оператор <code>&lt;=&gt;</code> (космический корабль) и где он применяется?", a: "Возвращает -1, 0 или 1. Удобен для <code>usort()</code>." },
+    { q: "Для чего нужен оператор <code>??</code> (null coalescing)?", a: "Проверяет существование и «не null». <code>$a ?? 'def'</code> — если <code>$a</code> не существует или null, берётся <code>'def'</code>." },
+    { q: "В чём разница между <code>??</code> и тернарным оператором <code>?:</code>?", a: "<code>?:</code> проверяет на «ложь» (0, '', false, null). <code>??</code> проверяет только null/несуществование." },
+    { q: "Как работают логические операторы <code>&amp;&amp;</code> / <code>and</code>? Есть ли у них разница в приоритете?", a: "<code>&amp;&amp;</code> выше приоритет, чем <code>and</code>. В <code>$a = true and false</code> — <code>$a</code> будет true (из-за приоритета <code>=</code> над <code>and</code>)." },
+    { q: "Что произойдёт при сложении строки и числа? (<code>'10' + 5</code>)", a: "Строка приводится к числу. <code>'10' + 5</code> → 15. Если строка не начинается с цифры (<code>'abc' + 5</code>) → 5 (и предупреждение)." },
+    { q: "Как работает оператор <code>instanceof</code>?", a: "Проверяет, принадлежит ли объект классу или интерфейсу (<code>if ($obj instanceof MyClass)</code>)." },
+    { q: "Что такое оператор выполнения (бэктики)?", a: "Бэктики (<code>ls</code>) выполняют shell-команду. Это опасно, лучше использовать <code>exec()</code> или <code>shell_exec()</code>." },
+    { q: "Как работает побитовое <code>&amp;</code> и <code>|</code> в контексте прав доступа (например, <code>E_ALL &amp; ~E_NOTICE</code>)?", a: "Побитовое <code>&amp;</code> (AND) и <code>|</code> (OR). Используется для битовых масок. Пример: <code>E_ALL &amp; ~E_NOTICE</code> — все ошибки кроме нотисов." },
+    { q: "Что выведет <code>var_dump(0 == 'abc')</code>? А <code>var_dump('0abc' == 0)</code>?", a: "<code>0 == 'abc'</code> → true (строка не содержит цифр → 0). <code>'0abc' == 0</code> → true (начинается с 0 → 0)." }
+  ]},
+  { t: "Массивы, списки и деструктуризация", icon: "📦", qa: [
+    { q: "Как создать массив двумя способами?", a: "Через <code>array()</code> и через <code>[]</code> (короткий синтаксис)." },
+    { q: "Чем отличается индексированный массив от ассоциативного в PHP?", a: "Индексированный — ключи числа (0, 1, 2...). Ассоциативный — ключи строки (<code>'name' =&gt; 'John'</code>)." },
+    { q: "В PHP нет кортежей — чем их заменяют?", a: "Простыми индексированными массивами (условно) или объектами для строгой структуры." },
+    { q: "Как поменять местами две переменные без третьей, используя деструктуризацию <code>list()</code> / <code>[]</code>?", a: "<code>[$a, $b] = [$b, $a];</code>" },
+    { q: "Почему в PHP ассоциативные массивы сохраняют порядок добавления элементов?", a: "В PHP массивы реализованы через хеш-таблицы, которые запоминают порядок вставки." },
+    { q: "Какая функция удаляет элемент массива, но не переиндексирует числовые ключи?", a: "<code>unset($arr[1])</code> удаляет, но ключ остаётся. Переиндексация: <code>array_values($arr)</code>." },
+    { q: "Чем отличаются функции <code>array_merge()</code> и <code>+</code> для массивов?", a: "<code>+</code> — не перезаписывает существующие ключи (берёт из левого). <code>array_merge</code> — перезаписывает правым и переиндексирует числовые ключи." },
+    { q: "Как проверить существование ключа в массиве — <code>isset()</code> или <code>array_key_exists()</code>? В чём разница?", a: "<code>isset()</code> — проверяет существование И не null. <code>array_key_exists()</code> — только существование (даже если значение null)." },
+    { q: "Как пройти по массиву и изменить его значения по ссылке в <code>foreach</code>?", a: "<code>foreach ($arr as &amp;$value) { $value = $value * 2; }</code> (ссылка). Внимание: после цикла нужно <code>unset($value)</code>, чтобы не сломать логику." },
+    { q: "Что произойдёт, если использовать <code>foreach</code> по массиву, а внутри вызвать <code>unset($value)</code>?", a: "Ничего. <code>$value</code> — это копия элемента (по умолчанию). Если удалить копию — исходный массив не меняется." }
+  ]},
+  
+  { t: "Строки и регулярки", icon: "📝", qa: [
+    { q: "В чём отличие одинарных кавычек от двойных?", a: "Одинарные — не интерполируют переменные и не экранируют <code>\\n</code> (кроме <code>\\'</code> и <code>\\\\</code>). Двойные — интерполируют." },
+    { q: "Что такое Heredoc и Nowdoc? Когда использовать Nowdoc?", a: "Heredoc (<code>&lt;&lt;&lt;HTML</code>) — интерполирует (как двойные кавычки). Nowdoc (<code>&lt;&lt;&lt;'HTML'</code>) — не интерполирует (как одинарные). Nowdoc используют, когда нужен буквальный текст без подстановки (например, фрагменты кода или шаблоны)." },
+    { q: "Почему для работы с кириллицей нужно использовать <code>mb_strlen()</code> вместо <code>strlen()</code>?", a: "<code>strlen</code> считает байты. В UTF-8 кириллица занимает 2 байта, поэтому <code>mb_strlen</code> считает символы." },
+    { q: "Как проверить, начинается ли строка с подстроки в PHP 8 (без регулярки)?", a: "<code>str_contains()</code>, <code>str_starts_with()</code>, <code>str_ends_with()</code> — без регулярок." },
+    { q: "Что делает функция <code>htmlspecialchars()</code> и почему она критически важна?", a: "Преобразует спецсимволы в HTML-сущности (<code>&lt;</code> → <code>&amp;lt;</code>). Защита от XSS." },
+    { q: "Напиши регулярное выражение для проверки email (на уровне «хотя бы один символ @»).", a: "<code>preg_match('/^[^@]+@[^@]+\\.[^@]+$/', $email)</code> (упрощённо, без сложных доменов)." }
+  ]},
+  { t: "Функции и замыкания", icon: "⚙️", qa: [
+    { q: "Как передать аргумент в функцию по ссылке? Приведите пример.", a: "Поставить <code>&amp;</code> перед параметром: <code>function foo(&amp;$param) { $param = 5; }</code>." },
+    { q: "Зачем нужны подсказки типов (type hints) для аргументов и возврата?", a: "Защита от ошибок, улучшение читаемости, подсказки в IDE, контракт для разработчиков." },
+    { q: "Чем отличается анонимная функция от стрелочной (<code>fn</code>)?", a: "Анонимная: <code>function($x) use($y) { return $x + $y; }</code>. Стрелочная: <code>fn($x) =&gt; $x + $y</code>. У стрелочной автоматический захват переменных (по значению) и короткий синтаксис." },
+    { q: "Зачем в анонимной функции используется <code>use</code>?", a: "Чтобы передать переменные из внешней области видимости внутрь замыкания." },
+    { q: "Что такое замыкание (closure) в PHP?", a: "Это анонимная функция, которая может захватывать переменные из родительской области (<code>use</code>). Объект класса <code>Closure</code>." },
+    { q: "Можно ли объявить функцию внутри функции? Если да, то как она будет доступна снаружи?", a: "Да. Внутренняя функция доступна только внутри внешней (если её не вернуть как <code>return</code>)." },
+    { q: "Что вернёт функция без оператора <code>return</code>?", a: "Вернёт <code>null</code>." },
+    { q: "Что такое <code>callable</code> тип и чем он отличается от <code>Closure</code>?", a: "<code>callable</code> — тип для всего, что можно вызвать (функция, метод, замыкание). <code>Closure</code> — конкретный класс для анонимных функций." },
+    { q: "Какой функцией удобно логировать переменную вместо <code>var_dump</code>, чтобы вывести читаемый дамп?", a: "<code>print_r($var, true)</code> (возвращает строку) или <code>var_export()</code> (возвращает валидный PHP-код)." }
+  ]},
+  { t: "Объектно-ориентированное программирование", icon: "🧱", qa: [
+    { q: "Какие модификаторы доступа (видимости) есть в PHP?", a: "<code>public</code> (всюду), <code>protected</code> (внутри класса и наследников), <code>private</code> (только внутри класса)." },
+    { q: "В чём разница между <code>self::</code> и <code>static::</code> (позднее статическое связывание)?", a: "<code>self::</code> — разрешается на этапе компиляции (класс, в котором написано). <code>static::</code> — позднее связывание, разрешается в рантайме (класс вызываемого объекта)." },
+    { q: "Зачем нужен конструктор <code>__construct()</code>? А деструктор?", a: "<code>__construct</code> — инициализация свойств. <code>__destruct</code> — закрытие ресурсов (соединений, файлов)." },
+    { q: "Чем интерфейс отличается от абстрактного класса? Когда что использовать?", a: "Интерфейс — только сигнатуры (без реализации), можно реализовать много. Абстрактный класс — может иметь реализацию, наследуется только один." },
+    { q: "Что такое трейты (traits) и как они решают проблему множественного наследования?", a: "Трейты позволяют копировать методы в несколько классов, минуя ограничение одиночного наследования." },
+    { q: "В чём разница между трейтом и абстрактным классом?", a: "Трейт — не имеет инстанса, служит для «горизонтального» переиспользования. Абстрактный класс — задаёт вертикальную иерархию." },
+    { q: "Что делает ключевое слово <code>final</code>?", a: "Запрещает наследование класса (<code>final class</code>) или переопределение метода (<code>final public function</code>)." },
+    { q: "Назовите 5 магических методов и объясните их назначение (<code>__get</code>, <code>__call</code>, <code>__toString</code> и т.д.).", a: "<code>__get</code> (чтение недоступного свойства), <code>__set</code> (запись), <code>__call</code> (вызов недоступного метода), <code>__toString</code> (преобразование в строку), <code>__invoke</code> (вызов объекта как функции)." },
+    { q: "Как работает клонирование объектов (оператор <code>clone</code>)? Зачем нужен <code>__clone()</code>?", a: "<code>clone</code> делает поверхностную копию. <code>__clone()</code> вызывается после клонирования, чтобы сделать глубокую копию вложенных объектов." },
+    { q: "Что такое анонимные классы?", a: "Класс без имени: <code>new class {}</code>. Используется для простых объектов-заглушек." },
+    { q: "Можно ли переопределить константу класса в наследнике?", a: "Да, в наследнике можно переопределить через <code>const</code>." },
+    { q: "Как проверить, является ли объект экземпляром класса или его потомком?", a: "Оператор <code>instanceof</code>." },
+    { q: "Зачем нужны статические (<code>static</code>) свойства и методы? В чём их минус с точки зрения тестирования?", a: "Принадлежат классу (не объекту). Минус: глобальное состояние, сложно мокать в тестах." },
+    { q: "Что такое <code>$this</code> внутри статического метода? (Спойлер: нельзя использовать).", a: "Нельзя. Использование <code>$this</code> в статике вызовет фатальную ошибку (т.к. нет объекта)." },
+    { q: "Что такое инъекция зависимостей (Dependency Injection) простыми словами?", a: "Передача готовых объектов (зависимостей) в класс через конструктор/сеттер, вместо создания их внутри. Упрощает тестирование и замену реализаций." },
+    { q: "Как создать объект без вызова конструктора? (Спойлер: через <code>ReflectionClass::newInstanceWithoutConstructor</code>).", a: "<code>(new ReflectionClass(MyClass::class))-&gt;newInstanceWithoutConstructor()</code>." },
+    { q: "Что такое <code>__invoke</code> и когда это удобно?", a: "Позволяет вызывать объект как функцию: <code>$obj('arg')</code>. Удобно для паттерна «Стратегия»." },
+    { q: "Можно ли использовать <code>echo</code> для объекта? Что нужно реализовать?", a: "Нужно реализовать <code>__toString()</code>." },
+    { q: "Что такое <code>stdClass</code> и когда он используется?", a: "Встроенный пустой класс. Используется для <code>(object)['key' =&gt; 'val']</code> или динамических объектов." },
+    { q: "В чём принципиальное отличие сравнения объектов через <code>==</code> и <code>===</code>?", a: "<code>==</code> — true, если одинаковые публичные свойства и значения (с приведением типов). <code>===</code> — true, только если это один и тот же объект (один инстанс в памяти)." }
+  ]},
+  
+  { t: "Пространства имён и автозагрузка", icon: "🌐", qa: [
+    { q: "Зачем нужны пространства имён (<code>namespace</code>)?", a: "Чтобы избежать конфликтов имён классов/функций/констант." },
+    { q: "Как работают операторы <code>use</code> и <code>as</code>?", a: "<code>use</code> — импорт пространства/класса. <code>as</code> — задаёт псевдоним (алиас)." },
+    { q: "Что такое стандарт PSR-4 и как он связан с автозагрузкой Composer?", a: "Стандарт маппинга пространства имён на пути в файловой системе. Composer читает <code>composer.json</code> и генерирует автозагрузчик по PSR-4." },
+    { q: "Какую функцию PHP отвечает за автозагрузку классов (вспомните <code>spl_autoload_register</code>)?", a: "<code>spl_autoload_register()</code> — регистрирует свою функцию для автозагрузки." },
+    { q: "Что будет, если не указать <code>namespace</code> в файле с классом?", a: "Класс попадёт в глобальное пространство (<code>\\</code>). Может привести к конфликтам." }
+  ]},
+  { t: "Суперглобальные массивы, куки, сессии", icon: "🗄️", qa: [
+    { q: "Перечислите все суперглобальные массивы, которые знаете (<code>$_GET</code>, <code>$_POST</code> и т.д.).", a: "<code>$_GET</code>, <code>$_POST</code>, <code>$_REQUEST</code>, <code>$_SESSION</code>, <code>$_COOKIE</code>, <code>$_FILES</code>, <code>$_SERVER</code>, <code>$_ENV</code>, <code>$GLOBALS</code>." },
+    { q: "В чём разница между <code>$_POST</code> и <code>php://input</code>?", a: "<code>$_POST</code> работает только для <code>application/x-www-form-urlencoded</code> и <code>multipart/form-data</code>. <code>php://input</code> читает сырое тело (JSON, XML)." },
+    { q: "Как правильно считать переменную окружения (например, <code>APP_ENV</code>)?", a: "<code>$_ENV['APP_ENV']</code> или <code>getenv('APP_ENV')</code>." },
+    { q: "Как установить куку на 1 день и прочитать её?", a: "<code>setcookie('key', 'val', time()+86400, '/');</code>. Чтение: <code>$_COOKIE['key']</code>." },
+    { q: "Параметры <code>secure</code> и <code>httponly</code> в <code>setcookie()</code> — зачем они?", a: "<code>secure</code> — кука передаётся только по HTTPS. <code>httponly</code> — кука недоступна для JavaScript (защита от XSS-кражи сессий)." },
+    { q: "Как работает сессия под капотом? Где она хранится?", a: "На сервере создаётся файл с данными. В браузер отправляется кука <code>PHPSESSID</code>. При запросе PHP находит файл по этому ID и загружает данные в <code>$_SESSION</code>." },
+    { q: "Зачем вызывать <code>session_regenerate_id()</code> и когда это делают?", a: "Для защиты от фиксации сессии (session fixation). Меняет ID, оставляя данные. Вызывают после логина." },
+    { q: "Как полностью уничтожить сессию (<code>session_destroy</code> + очистка <code>$_SESSION</code>)?", a: "<code>$_SESSION = [];</code> + <code>session_destroy();</code> + удалить куку <code>setcookie('PHPSESSID', '', time()-3600, '/')</code>." }
+  ]},
+  { t: "Работа с формами и файлами", icon: "📁", qa: [
+    { q: "Как получить информацию о загруженном файле из <code>$_FILES</code>?", a: "<code>$_FILES['input_name']['name']</code>, <code>['tmp_name']</code>, <code>['error']</code>, <code>['size']</code>, <code>['type']</code>." },
+    { q: "Какие проверки нужно сделать перед сохранением загруженного файла (не касаясь содержимого)?", a: "Проверить <code>['error']</code> (должен быть <code>UPLOAD_ERR_OK</code>), размер, MIME-тип (через <code>finfo_file</code>), расширение, безопасность имени." },
+    { q: "Чем опасна загрузка файлов и как обезопасить имя файла?", a: "Можно загрузить шелл-скрипт. Защита: генерировать уникальное имя (<code>uniqid()</code>), не использовать имя пользователя, проверять реальный MIME-тип, хранить вне <code>public_html</code>." },
+    { q: "Как переместить загруженный файл в нужную папку?", a: "<code>move_uploaded_file($_FILES['file']['tmp_name'], '/path/to/dest');</code>" },
+    { q: "Максимальный размер загружаемого файла задаётся в <code>php.ini</code> — назовите три связанные директивы.", a: "<code>upload_max_filesize</code>, <code>post_max_size</code> (должны быть &gt;= друг друга), <code>memory_limit</code>." }
+  ]},
+  { t: "Базы данных (PDO vs MySQLi)", icon: "🛢️", qa: [
+    { q: "Почему лучше использовать PDO, а не mysqli?", a: "<b>PDO лучше, потому что:</b><br>• Универсальность: поддерживает 12+ СУБД (MySQLi — только MySQL).<br>• Именованные плейсхолдеры (<code>:name</code>) — удобнее, чем вопросики <code>?</code>.<br>• Исключения по умолчанию (легче ловить ошибки, чем проверять каждую <code>mysqli_*</code>).<br>• Удобная выборка: <code>FETCH_CLASS</code> сразу в объекты.<br>• Код на PDO проще переиспользовать при смене БД." +
+        "<div class='shpargalka'><b>Шпаргалка:</b> PDO универсален (12+ СУБД), удобные именованные плейсхолдеры, исключения вместо проверки каждого вызова, автоматическое экранирование в подготовленных запросах (в MySQLi нужно включать <code>MYSQLI_REPORT_ALL</code> вручную).</div>" },
+    { q: "В чём разница между объектным и процедурным подходом в MySQLi?", a: "Процедурный — функции (<code>mysqli_query()</code>). Объектный — методы (<code>$mysqli-&gt;query()</code>). Объектный чище и поддерживает исключения (при включении <code>MYSQLI_REPORT_ALL</code>)." },
+    { q: "Что такое подготовленные запросы (prepared statements) и какую проблему они решают?", a: "Отделяют SQL-логику от данных. Данные передаются отдельно (бинарно или экранированно драйвером), поэтому SQL-инъекция невозможна даже при экранировании." },
+    { q: "Как включить исключения в PDO вместо молчаливых предупреждений?", a: "<code>$pdo-&gt;setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);</code>" },
+    { q: "Что такое режимы выборки данных (FETCH_ASSOC, FETCH_CLASS, FETCH_OBJ)? Какой лучше и почему?", a: "<code>FETCH_ASSOC</code> (асс. массив), <code>FETCH_OBJ</code> (stdClass), <code>FETCH_CLASS</code> (объект класса). Лучше <code>FETCH_CLASS</code> — даёт типизированные объекты." },
+    { q: "Для чего нужны транзакции (<code>beginTransaction</code>, <code>commit</code>, <code>rollBack</code>)?", a: "Группировка запросов в атомарную операцию. Либо все выполняются (<code>commit</code>), либо все откатываются (<code>rollBack</code>) для целостности данных." },
+    { q: "Зачем нужен <code>bindParam</code> в PDO, если можно передать значения сразу в <code>execute</code>?", a: "<code>bindParam</code> привязывает по ссылке. Можно изменить переменную и выполнить <code>execute()</code> много раз без нового <code>prepare</code>. <code>execute([':name' =&gt; 'val'])</code> — простое разовое выполнение." },
+    { q: "Как избежать SQL-инъекции при использовании динамических имён таблиц или полей (которые нельзя подставить через плейсхолдеры)?", a: "Только белый список (white-listing). Проверять имя таблицы/поля по заранее заданному массиву допустимых значений." }
+  ]},
+  
+  { t: "Современный PHP (PHP 7 и 8)", icon: "🔥", qa: [
+    { q: "Назовите 3 нововведения PHP 7.", a: "Скалярные типы (<code>int</code>, <code>string</code>...), оператор <code>??</code> (null coalescing), оператор <code>&lt;=&gt;</code> (spaceship)." },
+    { q: "Что такое именованные аргументы (named arguments) и зачем они нужны?", a: "Передача аргументов по имени, а не по порядку. Пример: <code>foo(name: 'John', age: 30)</code>. Удобно для пропуска необязательных параметров." },
+    { q: "Объясните конструктор свойств (<code>__construct(public string $name)</code>) в PHP 8.", a: "Позволяет объявить и сразу проинициализировать свойства в конструкторе без лишнего кода:<br><code>class User { public function __construct(private string $name) {} }</code>" },
+    { q: "В чём разница между <code>switch</code> и новым оператором <code>match</code> в PHP 8?", a: "<code>match</code> — возвращает значение (выражение), сравнивает строго (<code>===</code>), не требует <code>break</code>, не проваливается в следующий кейс. <code>switch</code> — инструкция, сравнивает слабо (<code>==</code>)." },
+    { q: "Что такое перечисления (Enums) и какую проблему они решают по сравнению с константами?", a: "Перечисления — конечный набор вариантов с типизацией (можно передавать в аргументы) и методами. Константы — просто числа/строки без проверок." }
+  ]},
+  { t: "Безопасность", icon: "🛡️", qa: [
+    { q: "Что такое XSS-атака и как защитить вывод в HTML?", a: "XSS (Cross-Site Scripting) — внедрение JS-кода в HTML. Защита: экранировать весь вывод через <code>htmlspecialchars($str, ENT_QUOTES, 'UTF-8')</code>." },
+    { q: "Как защитить пароли в БД? Назовите функцию.", a: "<code>password_hash($pass, PASSWORD_DEFAULT)</code> для хэширования, <code>password_verify($pass, $hash)</code> для проверки." },
+    { q: "Как работает CSRF-защита? (Вкратце).", a: "CSRF (Cross-Site Request Forgery) — атака от имени авторизованного пользователя. Защита: генерировать случайный токен, хранить в сессии, вставлять в форму (скрытое поле) и сверять при отправке." },
+    { q: "Почему нельзя использовать <code>unserialize()</code> на пользовательских данных без доверия?", a: "<code>unserialize()</code> может создавать объекты и вызывать магические методы (<code>__destruct</code>, <code>__wakeup</code>), что ведёт к RCE (удалённому выполнению кода). Используйте <code>json_encode/json_decode</code> или валидацию перед <code>unserialize</code>." }
+  ]},
+  { t: "Бонус — «объясни код»", icon: "🎁", bonus: true, qa: [
+    { q: "Что выведет код? <code>echo 1 . '2' + 3;</code>", a: "Конкатенация: <code>'1' . '2'</code> → <code>'12'</code>. Затем сложение: <code>'12' + 3</code> → 12 + 3 → 15. (Вывод: <b>15</b>)." },
+    { q: "Что выведет код? <code>$x = 5; $y = &amp;$x; $x = 7; echo $y;</code>", a: "<code>$y</code> — ссылка на <code>$x</code>. При изменении <code>$x</code> на 7, <code>$y</code> тоже становится 7. → <b>7</b>." },
+    { q: "Почему <code>foreach ($arr as $key =&gt; &amp;$value)</code> — опасная конструкция?", a: "После цикла переменная <code>$value</code> остаётся ссылкой на последний элемент массива. Если после цикла использовать <code>$value</code> в другом месте (или забыть <code>unset</code>), можно случайно изменить последний элемент массива. Нужно вызывать <code>unset($value)</code> сразу после цикла." }
+  ]}
+];
+
+const GLOSS = {
+  "PHP": "<b>PHP</b> — язык программирования для веба; код выполняется на сервере.",
+  "PHP 7": "<b>PHP 7</b> (2015) — релиз со скалярными типами, <code>??</code>, <code>&lt;=&gt;</code>, анонимными классами и ростом производительности.",
+  "PHP 8": "<b>PHP 8</b> (2020+) — именованные аргументы, атрибуты, <code>match</code>, <code>enum</code>, промоушен свойств, типы <code>mixed</code>/<code>never</code>.",
+  "PDO": "<b>PDO</b> — PHP Data Objects: единый интерфейс к разным СУБД; подготовленные запросы, транзакции, исключения.",
+  "MySQLi": "<b>MySQLi</b> — расширение только для MySQL: процедурный и объектный стиль.",
+  "strict_types": "<b>declare(strict_types=1)</b> — строгая типизация: несовпадение типа аргумента бросает <code>TypeError</code>.",
+  "TypeError": "<b>TypeError</b> — исключение при несовпадении типов.",
+  "Error": "<b>Error</b> — базовое исключение фатальных ошибок (например, вызов несуществующей функции).",
+  "E_WARNING": "<b>E_WARNING</b> — предупреждение: скрипт продолжает работу.",
+  "E_ALL": "<b>E_ALL</b> — маска «все уровни ошибок».",
+  "E_NOTICE": "<b>E_NOTICE</b> — уведомление о потенциальной проблеме.",
+  "resource": "<b>resource</b> — ссылка на внешний ресурс (файл, сокет, соединение с БД).",
+  "null": "<b>null</b> — отсутствие значения.",
+  "false": "<b>false</b> — логическая «ложь».",
+  "true": "<b>true</b> — логическая «истина».",
+  "==": "<b>Нестрогое сравнение</b> — с приведением типов: <code>1 == '1'</code> → true.",
+  "===": "<b>Строгое сравнение</b> — значение и тип без приведения.",
+  "<=>": "<b>Оператор «космический корабль»</b> — возвращает -1/0/1, удобен для сортировок.",
+  "??": "<b>Null-коалесценция</b> — берёт правый операнд, если левый не существует или null.",
+  "?:": "<b>Тернарный оператор</b> — сокращение if/else.",
+  "&&": "<b>Логическое И</b> (высокий приоритет).",
+  "and": "<b>and</b> — логическое И, но с более низким приоритетом, чем <code>&amp;&amp;</code>.",
+  "instanceof": "<b>instanceof</b> — проверка, что объект принадлежит классу/интерфейсу или их потомкам.",
+  "usort()": "<b>usort()</b> — сортировка массива по пользовательскому компаратору.",
+  "exec()": "<b>exec()</b> — выполнение shell-команды (вывод построчно в массив).",
+  "shell_exec()": "<b>shell_exec()</b> — выполнение shell-команды, возвращает весь вывод строкой.",
+  "callable": "<b>callable</b> — тип «всё, что можно вызвать»: функция, метод, замыкание.",
+  "Closure": "<b>Closure</b> — класс анонимных функций (замыканий).",
+  "use": "<b>use</b> — импорт класса/пространства имён или захват переменных в замыкании.",
+  "trait": "<b>trait</b> — механизм горизонтального переиспользования методов в классах.",
+  "interface": "<b>interface</b> — контракт из сигнатур методов без реализации.",
+  "abstract": "<b>abstract</b> — абстрактный класс/метод: экземпляр создать нельзя, реализация — в наследниках.",
+  "final": "<b>final</b> — запрет наследования класса или переопределения метода.",
+  "self::": "<b>self::</b> — обращение к классу, в котором написан код.",
+  "static::": "<b>static::</b> — позднее статическое связывание: учитывает наследника.",
+  "__construct": "<b>__construct()</b> — конструктор, вызывается при <code>new</code>.",
+  "__destruct": "<b>__destruct()</b> — деструктор, вызывается при уничтожении объекта.",
+  "__get": "<b>__get()</b> — магический метод чтения недоступного свойства.",
+  "__set": "<b>__set()</b> — магический метод записи в недоступное свойство.",
+  "__call": "<b>__call()</b> — магический метод вызова недоступного метода.",
+  "__toString": "<b>__toString()</b> — строковое представление объекта при <code>echo</code>.",
+  "__invoke": "<b>__invoke()</b> — вызов объекта как функции: <code>$obj()</code>.",
+  "__clone": "<b>__clone()</b> — вызывается после <code>clone</code> для глубокой копии.",
+  "clone": "<b>clone</b> — создаёт копию объекта (поверхностную).",
+  "namespace": "<b>namespace</b> — пространство имён: группировка классов во избежание конфликтов.",
+  "as": "<b>as</b> — псевдоним при импорте: <code>use App\\User as U</code>.",
+  "PSR-4": "<b>PSR-4</b> — стандарт автозагрузки: namespace сопоставляется с путём в файловой системе.",
+  "spl_autoload_register()": "<b>spl_autoload_register()</b> — регистрация функции-автозагрузчика классов.",
+  "Composer": "<b>Composer</b> — менеджер зависимостей PHP; генерирует автозагрузчик.",
+  "$_GET": "<b>$_GET</b> — параметры строки запроса (URL).",
+  "$_POST": "<b>$_POST</b> — данные POST-запроса.",
+  "$_REQUEST": "<b>$_REQUEST</b> — <code>$_GET</code> + <code>$_POST</code> + <code>$_COOKIE</code>.",
+  "$_SESSION": "<b>$_SESSION</b> — данные текущей сессии.",
+  "$_COOKIE": "<b>$_COOKIE</b> — куки, отправленные браузером.",
+  "$_FILES": "<b>$_FILES</b> — информация о загруженных файлах.",
+  "$_SERVER": "<b>$_SERVER</b> — данные сервера и окружения.",
+  "$_ENV": "<b>$_ENV</b> — переменные окружения.",
+  "$GLOBALS": "<b>$GLOBALS</b> — массив всех глобальных переменных.",
+  "setcookie()": "<b>setcookie()</b> — установка куки.",
+  "session_regenerate_id()": "<b>session_regenerate_id()</b> — смена ID сессии (защита от фиксации).",
+  "session_destroy()": "<b>session_destroy()</b> — удаление данных сессии на сервере.",
+  "session fixation": "<b>session fixation</b> — атака «фиксация сессии»: злоумышленник навязывает свой session ID.",
+  "PHPSESSID": "<b>PHPSESSID</b> — кука с идентификатором сессии.",
+  "move_uploaded_file()": "<b>move_uploaded_file()</b> — перемещение загруженного файла из временной папки.",
+  "uniqid()": "<b>uniqid()</b> — генерация уникального идентификатора.",
+  "finfo_file": "<b>finfo_file()</b> — определение реального MIME-типа файла.",
+  "UPLOAD_ERR_OK": "<b>UPLOAD_ERR_OK</b> — код: файл загружен без ошибок.",
+  "prepared statements": "<b>Подготовленные запросы</b> — параметры передаются отдельно от SQL: защита от инъекций.",
+  "bindParam": "<b>bindParam()</b> — привязка параметра PDO по ссылке.",
+  "FETCH_ASSOC": "<b>FETCH_ASSOC</b> — выборка ассоциативным массивом.",
+  "FETCH_OBJ": "<b>FETCH_OBJ</b> — выборка объектом stdClass.",
+  "FETCH_CLASS": "<b>FETCH_CLASS</b> — выборка объектом указанного класса.",
+  "beginTransaction": "<b>beginTransaction()</b> — начало транзакции.",
+  "commit": "<b>commit()</b> — фиксация транзакции (сохранить изменения).",
+  "rollBack": "<b>rollBack()</b> — откат транзакции.",
+  "MYSQLI_REPORT_ALL": "<b>MYSQLI_REPORT_ALL</b> — режим MySQLi: превращать ошибки в исключения.",
+  "php://input": "<b>php://input</b> — поток с сырым телом запроса (JSON, XML).",
+  "getenv()": "<b>getenv()</b> — чтение переменной окружения.",
+  "match": "<b>match</b> (PHP 8) — выражение со строгим сравнением, возвращает значение.",
+  "enum": "<b>enum</b> (PHP 8.1) — перечисление: типизированный конечный набор значений.",
+  "password_hash()": "<b>password_hash()</b> — безопасный хеш пароля (алгоритм + соль).",
+  "password_verify()": "<b>password_verify()</b> — проверка пароля против сохранённого хеша.",
+  "htmlspecialchars()": "<b>htmlspecialchars()</b> — экранирование HTML-символов: защита от XSS.",
+  "ENT_QUOTES": "<b>ENT_QUOTES</b> — экранировать и одинарные, и двойные кавычки.",
+  "XSS": "<b>XSS</b> — внедрение скриптов в страницу через пользовательский ввод.",
+  "CSRF": "<b>CSRF</b> — подделка межсайтового запроса от имени авторизованного пользователя.",
+  "unserialize()": "<b>unserialize()</b> — восстановление данных; опасно на непроверенном вводе (RCE).",
+  "serialize()": "<b>serialize()</b> — нативная сериализация PHP-значения в строку.",
+  "json_encode": "<b>json_encode()</b> — PHP-значение в строку JSON.",
+  "json_decode": "<b>json_decode()</b> — строка JSON в PHP-массив/объект.",
+  "RCE": "<b>RCE</b> — Remote Code Execution: удалённое выполнение кода.",
+  "var_dump": "<b>var_dump()</b> — вывод типа и значения переменной.",
+  "print_r()": "<b>print_r()</b> — читаемый вывод переменной (без типа).",
+  "var_export()": "<b>var_export()</b> — вывод переменной как валидного PHP-кода.",
+  "ReflectionClass": "<b>ReflectionClass</b> — интроспекция класса в рантайме.",
+  "stdClass": "<b>stdClass</b> — встроенный пустой класс для динамических объектов.",
+  "newInstanceWithoutConstructor": "<b>newInstanceWithoutConstructor()</b> — создание объекта без вызова конструктора.",
+  "str_contains()": "<b>str_contains()</b> — содержит ли строка подстроку (PHP 8).",
+  "str_starts_with()": "<b>str_starts_with()</b> — начинается ли строка с подстроки (PHP 8).",
+  "str_ends_with()": "<b>str_ends_with()</b> — заканчивается ли строка подстрокой (PHP 8).",
+  "mb_strlen()": "<b>mb_strlen()</b> — длина строки в символах (корректно для UTF-8).",
+  "strlen()": "<b>strlen()</b> — длина строки в байтах.",
+  "heredoc": "<b>Heredoc</b> — многострочная строка с интерполяцией (как двойные кавычки).",
+  "nowdoc": "<b>Nowdoc</b> — многострочная строка без интерполяции (как одинарные кавычки).",
+  "list()": "<b>list()</b> — деструктуризация массива в переменные.",
+  "array_merge()": "<b>array_merge()</b> — слияние массивов (перезаписывает строковые ключи правым).",
+  "array_values()": "<b>array_values()</b> — значения массива с переиндексацией.",
+  "isset()": "<b>isset()</b> — переменная существует и не null.",
+  "array_key_exists()": "<b>array_key_exists()</b> — ключ существует (даже если значение null).",
+  "unset": "<b>unset()</b> — удаление переменной или элемента массива.",
+  "foreach": "<b>foreach</b> — перебор элементов массива или объекта.",
+  "<?php": "<b>&lt;?php</b> — открывающий тег PHP-кода.",
+  "SQL-инъекция": "<b>SQL-инъекция</b> — внедрение вредоносного SQL через ввод; защита — подготовленные запросы."
+};
+
+const STORAGE_KEY = 'phpqa-status-v1';
+const ALL = [];
+DATA.forEach(function (sec) {
+  sec._items = [];
+  sec.qa.forEach(function (item) {
+    item._g = ALL.length;
+    ALL.push(item);
+    sec._items.push(item);
+  });
+});
+
+let status = {};
+try { status = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch (e) { status = {}; }
+
+let activeSection = null;
+let query = '';
+
+const container = document.getElementById('container');
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function escRe(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function enrich(root) {
+  const terms = Object.keys(GLOSS).sort(function (a, b) { return b.length - a.length; });
+  const wc = 'A-Za-zА-Яа-яЁё0-9_$';
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(function (node) {
+    const txt = node.nodeValue;
+    if (!txt) return;
+    const matches = [];
+    terms.forEach(function (term) {
+      const re = new RegExp('(?<![' + wc + '])(' + escRe(term) + ')(?![' + wc + '])', 'gu');
+      let m;
+      while ((m = re.exec(txt)) !== null) matches.push({ s: m.index, e: m.index + term.length, term: term });
+    });
+    if (!matches.length) return;
+    matches.sort(function (a, b) { return a.s - b.s || a.e - b.e; });
+    let out = '', pos = 0;
+    matches.forEach(function (mm) {
+      if (mm.s < pos) return;
+      out += escapeHtml(txt.slice(pos, mm.s));
+      out += '<span class="t" data-t="' + mm.term.replace(/"/g, '&quot;') + '" tabindex="0">' + escapeHtml(mm.term) + '</span>';
+      pos = mm.e;
+    });
+    out += escapeHtml(txt.slice(pos));
+    const wrap = document.createElement('span');
+    wrap.innerHTML = out;
+    node.parentNode.replaceChild(wrap, node);
+  });
+}
+
+function render() {
+  let html = '';
+  let gi = 1;
+  DATA.forEach(function (sec, si) {
+    let secHtml = '';
+    sec.qa.forEach(function (item, qi) {
+      const st = status[item._g] || '';
+      const num = sec.bonus ? 'Б' + (qi + 1) : (gi + qi);
+      secHtml += '<article class="qa ' + st + '" data-idx="' + item._g + '">' +
+        '<button class="qbtn" type="button">' +
+          '<span class="num">' + num + '</span>' +
+          '<span class="qtext"><span class="qmark">Q.</span>' + item.q + '</span>' +
+          '<span class="chev">▸</span>' +
+        '</button>' +
+        '<div class="a">' +
+          '<div class="atext">' + item.a + '</div>' +
+          '<div class="abtns">' +
+            '<button class="btn know-btn" data-act="know" type="button">✓ Знаю</button>' +
+            '<button class="btn repeat-btn" data-act="repeat" type="button">↻ Повторить</button>' +
+            '<button class="btn" data-act="clear" type="button">Сброс</button>' +
+          '</div>' +
+        '</div>' +
+      '</article>';
+    });
+    html += '<section class="card" data-sec="' + si + '">' +
+        '<h2>' + sec.icon + ' ' + sec.t + '</h2>' +
+        '<div class="sub">вопросов: ' + sec.qa.length + '</div>' + secHtml +
+      '</section>';
+    gi += sec.qa.length;
+  });
+  container.innerHTML = html;
+  container.querySelectorAll('.qtext, .atext').forEach(enrich);
+  updateProgress();
+  applyFilter();
+}
+
+function applyStatus(card, idx) {
+  const st = status[idx] || '';
+  card.classList.remove('know', 'repeat');
+  if (st) card.classList.add(st);
+}
+
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(status)); } catch (e) {}
+}
+
+function updateProgress() {
+  const total = ALL.length;
+  let know = 0, rep = 0;
+  Object.keys(status).forEach(function (k) {
+    if (status[k] === 'know') know++;
+    else if (status[k] === 'repeat') rep++;
+  });
+  const done = know + rep;
+  document.getElementById('progress-fill').style.width = (done / total * 100) + '%';
+  document.getElementById('progress-total').textContent = 'Отвечено: ' + done + ' / ' + total;
+  document.getElementById('progress-know').textContent = 'Знаю: ' + know;
+  document.getElementById('progress-repeat').textContent = 'Повторить: ' + rep;
+}
+
+function applyFilter() {
+  let anyVisible = false;
+  container.querySelectorAll('section.card').forEach(function (sec) {
+    if (activeSection !== null && parseInt(sec.dataset.sec, 10) !== activeSection) {
+      sec.classList.add('hidden');
+      return;
+    }
+    let count = 0;
+    sec.querySelectorAll('.qa').forEach(function (card) {
+      const hay = (card.querySelector('.qtext').textContent + ' ' + card.querySelector('.atext').textContent).toLowerCase();
+      const show = !query || hay.indexOf(query) !== -1;
+      card.classList.toggle('hidden', !show);
+      if (show) count++;
+    });
+    sec.classList.toggle('hidden', count === 0);
+    if (count) anyVisible = true;
+  });
+  document.getElementById('empty').classList.toggle('show', !anyVisible);
+}
+
+container.addEventListener('click', function (e) {
+  const qbtn = e.target.closest('.qbtn');
+  if (qbtn) {
+    qbtn.closest('.qa').classList.toggle('open');
+    return;
+  }
+  const btn = e.target.closest('[data-act]');
+  if (btn) {
+    const card = btn.closest('.qa');
+    const idx = card.dataset.idx;
+    const act = btn.dataset.act;
+    if (act === 'clear') delete status[idx];
+    else status[idx] = act;
+    save();
+    applyStatus(card, idx);
+    updateProgress();
+  }
+});
+
+function buildChips() {
+  let h = '<button class="chip' + (activeSection === null ? ' active' : '') + '" data-sec="">Все секции</button>';
+  DATA.forEach(function (sec, si) {
+    h += '<button class="chip' + (activeSection === si ? ' active' : '') + '" data-sec="' + si + '">' + sec.icon + ' ' + sec.t + '</button>';
+  });
+  document.getElementById('chips').innerHTML = h;
+}
+buildChips();
+
+document.getElementById('chips').addEventListener('click', function (e) {
+  const c = e.target.closest('.chip');
+  if (!c) return;
+  activeSection = c.dataset.sec === '' ? null : parseInt(c.dataset.sec, 10);
+  buildChips();
+  applyFilter();
+});
+
+document.getElementById('search').addEventListener('input', function (e) {
+  query = e.target.value.trim().toLowerCase();
+  applyFilter();
+});
+
+document.getElementById('btn-all').addEventListener('click', function () {
+  container.querySelectorAll('.qa').forEach(function (c) { c.classList.add('open'); });
+});
+document.getElementById('btn-hide').addEventListener('click', function () {
+  container.querySelectorAll('.qa').forEach(function (c) { c.classList.remove('open'); });
+});
+document.getElementById('btn-reset').addEventListener('click', function () {
+  if (!confirm('Сбросить весь прогресс?')) return;
+  status = {};
+  save();
+  render();
+});
+document.getElementById('btn-random').addEventListener('click', function () {
+  const visible = Array.prototype.filter.call(container.querySelectorAll('.qa'), function (c) {
+    return !c.closest('section').classList.contains('hidden');
+  });
+  if (!visible.length) return;
+  const pool = visible.filter(function (c) { return !status[c.dataset.idx]; });
+  const src = pool.length ? pool : visible;
+  const pick = src[Math.floor(Math.random() * src.length)];
+  container.querySelectorAll('.qa.open').forEach(function (c) { c.classList.remove('open'); });
+  pick.classList.add('open');
+  pick.scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
+
+const tt = document.getElementById('tt');
+let timer = null;
+let current = null;
+
+function position(el) {
+  const r = el.getBoundingClientRect();
+  const tw = tt.offsetWidth, th = tt.offsetHeight;
+  let x = r.left + r.width / 2 - tw / 2;
+  if (x < 8) x = 8;
+  if (x + tw > window.innerWidth - 8) x = window.innerWidth - tw - 8;
+  let y = r.top - th - 8;
+  if (y < 8) y = r.bottom + 8;
+  if (y + th > window.innerHeight - 8) y = window.innerHeight - th - 8;
+  tt.style.left = x + 'px';
+  tt.style.top = y + 'px';
+}
+function showTooltip(el, key) {
+  const html = GLOSS[key] || '';
+  if (!html) return;
+  tt.innerHTML = html;
+  tt.dataset.key = key;
+  tt.style.display = 'block';
+  position(el);
+}
+function hideTooltip() {
+  clearTimeout(timer);
+  tt.style.display = 'none';
+}
+document.addEventListener('mouseover', function (e) {
+  const el = e.target.closest('.t');
+  if (!el) { hideTooltip(); current = null; return; }
+  const key = el.dataset.t;
+  if (!GLOSS[key]) { current = el; return; }
+  if (current === el) return;
+  current = el;
+  clearTimeout(timer);
+  timer = setTimeout(function () { showTooltip(el, key); }, 160);
+});
+document.addEventListener('click', function (e) {
+  const el = e.target.closest('.t');
+  if (!el) { hideTooltip(); return; }
+  if (tt.style.display === 'block' && tt.dataset.key === el.dataset.t) { hideTooltip(); return; }
+  showTooltip(el, el.dataset.t);
+});
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') { hideTooltip(); return; }
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const el = document.activeElement;
+  if (el && el.classList && el.classList.contains('t')) {
+    e.preventDefault();
+    if (tt.style.display === 'block' && tt.dataset.key === el.dataset.t) { hideTooltip(); return; }
+    showTooltip(el, el.dataset.t);
+  }
+});
+document.addEventListener('scroll', hideTooltip, true);
+window.addEventListener('resize', hideTooltip);
+
+document.head.insertAdjacentHTML('beforeend', '<style>.qa.hidden{display:none;}</style>');
+document.getElementById('qcount').textContent = 'вопросов: ' + ALL.length + ' · терминов с подсказками: ' + Object.keys(GLOSS).length;
+
+render();
+</script>
+</body>
+</html>
